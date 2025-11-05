@@ -6,7 +6,6 @@ const getColor = (variable) => rootStyles.getPropertyValue(variable).trim();
 function initPageAnimations() {
     const dashboardWindow = document.querySelector(".dashboard-window");
     const mainCards = document.querySelectorAll(".main-card");
-    const smallCards = document.querySelectorAll(".small-card");
 
     if (!dashboardWindow) return;
 
@@ -14,16 +13,12 @@ function initPageAnimations() {
 
     tl.from(dashboardWindow, { scale: 0.9, opacity: 0, duration: 0.8 });
 
-    if (document.querySelector(".dashboard-header") && document.querySelector(".dashboard-content")) {
-        tl.from([".dashboard-header", ".dashboard-content"], { y: 20, opacity: 0, duration: 0.6, stagger: 0.2 }, "-=0.4");
+    // Animate hero and card-grid separately
+    if (document.querySelector(".hero-section")) {
+        tl.from(".hero-section", { y: 20, opacity: 0, duration: 0.6 }, "-=0.4");
     }
-
     if (mainCards.length > 0) {
         tl.from(mainCards, { scale: 0.95, opacity: 0, duration: 0.5, stagger: 0.2 }, "-=0.4");
-    }
-
-    if (smallCards.length > 0) {
-        tl.from(smallCards, { y: 20, opacity: 0, duration: 0.5, stagger: 0.1 }, "-=0.3");
     }
 }
 
@@ -32,7 +27,12 @@ function initAllAnimations() {
     console.log('Initializing all animations...');
 
     initPageAnimations();
-    initHeaderTitleAnimation();
+    // REMOVED old header animation call
+    // initHeaderTitleAnimation();
+
+    // Initializing new hero charts
+    initHeroCharts();
+    initHeroTextAnimation(); // Animate title and description
 
     // Card 1 - Knowledge scores
     animateCounter('scoreLiterasiFin', 78);
@@ -55,5 +55,3 @@ function initAllAnimations() {
     initSparkleAnimations();
     initCoinAnimations();
 }
-
-// Note: initAllAnimations() is now called from main.js after components load

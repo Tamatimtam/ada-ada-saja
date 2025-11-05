@@ -1,36 +1,11 @@
 document.addEventListener("DOMContentLoaded", () => {
-    const componentsToLoad = [
-        { url: "components/header/header.html", parent: ".dashboard-window", position: 'afterbegin' },
-        { url: "components/knowledge-card/knowledge-card.html", parent: ".dashboard-content" },
-        { url: "components/behavior-card/behavior-card.html", parent: ".dashboard-content" },
-        { url: "components/wellbeing-card/wellbeing-card.html", parent: ".dashboard-content" }
-    ];
-
-    let loadedCount = 0;
-
     const loadComponent = (url, parentSelector, position = 'beforeend') => {
         return fetch(url)
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error(`Failed to load component: ${url}`);
-                }
-                return response.text();
-            })
+            .then(response => response.ok ? response.text() : Promise.reject(`Failed to load ${url}`))
             .then(data => {
                 const parentElement = document.querySelector(parentSelector);
                 if (parentElement) {
                     parentElement.insertAdjacentHTML(position, data);
-                    loadedCount++;
-
-                    // Initialize animations after all components are loaded
-                    if (loadedCount === componentsToLoad.length) {
-                        // Small delay to ensure DOM is fully rendered
-                        setTimeout(() => {
-                            if (typeof initAllAnimations === 'function') {
-                                initAllAnimations();
-                            }
-                        }, 100);
-                    }
                 } else {
                     console.error(`Parent element not found: ${parentSelector}`);
                 }
@@ -38,8 +13,31 @@ document.addEventListener("DOMContentLoaded", () => {
             .catch(error => console.error(error));
     };
 
-    // Load all components
-    componentsToLoad.forEach(component => {
-        loadComponent(component.url, component.parent, component.position);
-    });
+    const loadApp = async () => {
+        const dashboardWindow = document.querySelector('.dashboard-window');
+
+        // 1. Load the hero section first
+        await loadComponent("components/hero-section/hero-section.html", ".dashboard-window", 'afterbegin');
+
+        // 2. Create and inject the card grid container
+        dashboardWindow.insertAdjacentHTML('beforeend', '<main class="card-grid"></main>');
+
+        // 3. Load all main cards into the new card grid container
+        const cardComponents = [
+            "components/knowledge-card/knowledge-card.html",
+            "components/behavior-card/behavior-card.html",
+            "components/wellbeing-card/wellbeing-card.html"
+        ];
+
+        await Promise.all(cardComponents.map(url => loadComponent(url, ".card-grid")));
+
+        // 4. All components are loaded, initialize animations
+        setTimeout(() => {
+            if (typeof initAllAnimations === 'function') {
+                initAllAnimations();
+            }
+        }, 100);
+    };
+
+    loadApp();
 });

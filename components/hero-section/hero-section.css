@@ -1,0 +1,151 @@
+.hero-section {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--padding);
+    padding: var(--padding);
+    padding-top: calc(var(--padding) * 2);
+    align-items: center;
+}
+
+.hero-section__left {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.hero-title {
+    font-size: 3.5rem;
+    font-weight: 800;
+    margin: 0;
+    line-height: 1.1;
+    letter-spacing: -0.03em;
+    color: var(--text-primary);
+    background: linear-gradient(135deg, var(--card1-bg), var(--card2-bg), var(--card4-bg));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.hero-description {
+    font-size: 1rem;
+    color: var(--text-secondary);
+    max-width: 90%;
+    line-height: 1.6;
+    margin: 0;
+}
+
+.line-wrapper {
+    overflow: hidden;
+    padding-bottom: 4px;
+}
+
+.line-content {
+    display: block;
+}
+
+.hero-section__right {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--padding);
+}
+
+.hero-chart-container {
+    background-color: var(--white);
+    border-radius: var(--border-radius);
+    padding: 20px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.05);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    height: 200px;
+}
+
+/* Specific styles for the anxiety score stat panel */
+.hero-chart-container--stat {
+    position: relative;
+    cursor: pointer;
+}
+
+.anxiety-face-wrapper {
+    position: relative;
+    width: 120px;
+    height: 120px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-grow: 1;
+}
+
+.anxiety-face-wrapper svg {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+}
+
+/* Anxiety stat: face + vertical gauge side-by-side */
+.anxiety-stat {
+    display: flex;
+    align-items: center;
+    gap: calc(var(--padding) * 0.5);
+}
+
+.anxiety-gauge {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+}
+
+.anxiety-gauge__track {
+    position: relative;
+    width: 18px;
+    height: 120px;
+    /* match face height */
+    border-radius: 999px;
+    background: var(--ui-subtle-bg);
+    box-shadow: inset 0 0 0 1px var(--border-color);
+    overflow: hidden;
+}
+
+.anxiety-gauge__fill {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 0%;
+    background: linear-gradient(180deg, var(--card2-bg), var(--card3-illust-accent));
+}
+
+.anxiety-gauge__scale {
+    display: grid;
+    grid-auto-rows: 1fr;
+    height: 120px;
+    align-items: center;
+    font-size: 0.7rem;
+    color: var(--text-tertiary);
+}
+
+.anxiety-gauge__scale span {
+    line-height: 1;
+}
+
+.anxiety-gauge__value {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.stat-label {
+    font-size: 0.8rem;
+    color: var(--text-tertiary);
+    font-weight: 500;
+    margin: 0;
+    margin-top: auto;
+}
+
+.hero-chart {
+    width: 100%;
+    height: 150px;
+}
