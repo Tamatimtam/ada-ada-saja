@@ -1,0 +1,21 @@
+.small-card {
+    background-color: var(--card4-bg);
+    padding: 20px;
+    border-radius: var(--border-radius);
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.small-card .label {
+    font-size: 0.875rem;
+    color: var(--card4-text-tertiary);
+    font-weight: 500;
+}
+
+.small-card .value {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--card4-text);
+    line-height: 1;
+}

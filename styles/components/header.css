@@ -1,0 +1,87 @@
+.dashboard-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--padding);
+    padding-bottom: 0;
+}
+
+.logo-container {
+    position: relative;
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    user-select: none;
+}
+
+.gen-z-title {
+    font-family: 'Inter', sans-serif;
+    font-size: 2.5rem;
+    font-weight: 800;
+    margin: 0;
+    letter-spacing: -0.02em;
+    display: flex;
+    position: relative;
+    background: linear-gradient(135deg, var(--card1-bg), var(--card2-bg), var(--card4-bg));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    will-change: transform;
+}
+
+.title-char {
+    display: inline-block;
+    transform-origin: center;
+    cursor: pointer;
+    transition: color 0.3s ease;
+    will-change: transform;
+}
+
+.title-accent {
+    position: absolute;
+    bottom: -8px;
+    left: 0;
+    width: 100%;
+    height: 4px;
+    background: linear-gradient(90deg, var(--card1-bg), var(--card2-bg), var(--card4-bg));
+    border-radius: 2px;
+    transform-origin: left;
+    will-change: transform, opacity;
+}
+
+nav ul {
+    display: flex;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    gap: 16px;
+}
+
+nav a {
+    text-decoration: none;
+    color: var(--text-tertiary);
+    padding: 8px 16px;
+    border-radius: 99px;
+    font-size: 14px;
+    transition: all 0.3s ease;
+}
+
+nav a.active,
+nav a:hover {
+    background-color: var(--ui-subtle-bg);
+    color: var(--text-primary);
+}
+
+.action-button {
+    background-color: var(--card2-bg);
+    border: none;
+    padding: 10px 20px;
+    border-radius: 99px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.action-button:hover {
+    background-color: var(--button-hover);
+}

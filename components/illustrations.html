@@ -1,0 +1,62 @@
+<!-- Lightbulb Illustration -->
+<svg id="lightbulb-svg" viewBox="0 0 100 100">
+    <g id="bulb-base">
+        <rect x="35" y="75" width="30" height="5" rx="2" fill="var(--illust-base)"/>
+        <rect x="38" y="80" width="24" height="4" rx="2" fill="var(--illust-base)"/>
+        <rect x="35" y="84" width="30" height="5" rx="2" fill="var(--illust-base)"/>
+        <path d="M 40 89 H 60" stroke="var(--illust-base)" stroke-width="3" stroke-linecap="round"/>
+    </g>
+    <path id="bulb-glass" d="M50,0 C30,0 20,20 20,40 C20,65 35,75 50,75 C65,75 80,65 80,40 C80,20 70,0 50,0 Z" fill="var(--card1-illust-main)" stroke="var(--illust-stroke)" stroke-width="2" fill-opacity="0.2"/>
+    <g id="bulb-filament" stroke="var(--illust-stroke)" stroke-width="2" stroke-linecap="round">
+        <line x1="40" y1="75" x2="45" y2="55" />
+        <line x1="60" y1="75" x2="55" y2="55" />
+        <line x1="45" y1="55" x2="55" y2="55" />
+    </g>
+    <g id="bulb-rays" stroke="var(--illust-stroke)" stroke-width="2" stroke-linecap="round" opacity="0">
+        <line x1="50" y1="-10" x2="50" y2="-20" />
+        <line x1="75" y1="15" x2="85" y2="5" />
+        <line x1="90" y1="40" x2="100" y2="40" />
+        <line x1="25" y1="15" x2="15" y2="5" />
+        <line x1="10" y1="40" x2="0" y2="40" />
+    </g>
+</svg>
+
+<!-- Scales Illustration -->
+<svg id="scales-svg" viewBox="0 0 200 150">
+    <g id="scale-stand" stroke="var(--illust-stroke)" stroke-width="2" fill="none">
+        <line x1="100" y1="120" x2="100" y2="30"/>
+        <line x1="70" y1="120" x2="130" y2="120"/>
+    </g>
+    <g id="scale-beam" stroke="var(--illust-stroke)" stroke-width="2" fill="none" transform-origin="100 30">
+        <path d="M 20 30 Q 100 20 180 30" stroke="var(--card2-illust-main)" stroke-width="4"/>
+        <g id="left-pan">
+            <line x1="20" y1="30" x2="35" y2="70" />
+            <path d="M 10 70 Q 35 85 60 70" fill="var(--card2-illust-accent)" stroke-linecap="round"/>
+        </g>
+        <g id="right-pan">
+            <line x1="180" y1="30" x2="165" y2="70" />
+            <path d="M 140 70 Q 165 85 190 70" fill="var(--card2-illust-accent)" stroke-linecap="round"/>
+        </g>
+    </g>
+</svg>
+
+<!-- Wellbeing Illustration -->
+<svg id="wellbeing-svg" viewBox="0 0 220 150">
+    <line x1="20" y1="120" x2="200" y2="120" stroke="var(--illust-ground)" stroke-width="2" />
+    <g id="coins" fill="var(--card3-illust-main)" stroke="var(--card3-illust-dark)" stroke-width="1">
+        <circle class="coin" cx="55" cy="116" r="6" />
+        <circle class="coin" cx="70" cy="112" r="6" />
+        <circle class="coin" cx="85" cy="108" r="6" />
+    </g>
+    <g id="house">
+        <g id="roof" fill="var(--card3-illust-roof)" stroke="var(--illust-stroke)" stroke-width="2">
+            <polygon points="110,45 70,70 150,70"/>
+        </g>
+        <g id="body" fill="var(--illust-window-body)" stroke="var(--illust-stroke)" stroke-width="2">
+            <rect x="75" y="70" width="80" height="50" rx="6"/>
+            <rect x="110" y="90" width="18" height="30" fill="var(--illust-base)" stroke="var(--illust-stroke)"/>
+            <rect id="left-window" x="85" y="80" width="16" height="14" rx="2" fill="var(--card3-illust-accent)" stroke="var(--illust-stroke)"/>
+            <rect id="right-window" x="134" y="80" width="16" height="14" rx="2" fill="var(--card3-illust-accent)" stroke="var(--illust-stroke)"/>
+        </g>
+    </g>
+</svg>

@@ -1,0 +1,71 @@
+:root {
+    /* General Palette */
+    --bg-color: #F6F9FC;
+    --text-primary: #3A4150;
+    --text-secondary: #5E6573;
+    --text-tertiary: #8C93A0;
+    --text-monospace: #888888;
+    --border-color: #E1E4E8;
+    --ui-subtle-bg: #F7F8FA;
+    --white: #FFFFFF;
+
+    /* Card Backgrounds - BOLD & SATURATED */
+    --card1-bg: #FF6B9D;
+    /* Bold Pink */
+    --card2-bg: #5DADE2;
+    /* Bold Orange */
+    --card3-bg: #ff8114;
+    /* Bold Blue */
+    --card4-bg: #9B59B6;
+    /* Bold Purple */
+
+    /* Card 1 (Knowledge) - Pink Theme */
+    --card1-illust-main: #FFE5EE;
+    --card1-illust-bg-shape1: rgba(255, 255, 255, 0.2);
+    --card1-illust-bg-shape2: rgba(255, 255, 255, 0.15);
+    --card1-illust-bg-shape3: rgba(255, 255, 255, 0.25);
+    --card1-text: #FFFFFF;
+    --card1-text-secondary: rgba(255, 255, 255, 0.85);
+
+    /* Card 2 (Behavior) - Orange Theme with Dark Text */
+    --card2-illust-main: #FFF4E6;
+    --card2-illust-accent: #FFF4E6;
+    --card2-text: #FFF4E6;
+    --card2-text-secondary: #FFF4E6;
+    --card2-particle: #7aebfa;
+    --card2-particle-opacity: 0.3;
+
+
+
+    /* --card2-illust-accent: #602e0f;
+    --card2-text: #602e0f;
+    --card2-text-secondary: #602e0f;
+    --card2-particle: #ec803c;
+    --card2-particle-opacity: 1;
+ */
+    /* Card 3 (Wellbeing) - Purple Theme */
+    --card3-illust-main: #F8E9FF;
+    --card3-illust-accent: #E5C9F5;
+    --card3-illust-dark: #7B3FA0;
+    --card3-illust-roof: #E89B9B;
+    --card3-text: #FFFFFF;
+    --card3-text-secondary: rgba(255, 255, 255, 0.85);
+    --card3-sparkle: rgba(255, 255, 255, 0.8);
+    --card3-coin-bg: rgba(255, 255, 255, 0.15);
+    --card3-coin-border: rgba(255, 255, 255, 0.3);
+    --card3-coin-text: rgba(255, 255, 255, 0.5);
+
+    /* Card 4 (Small Cards) */
+    --card4-text: #FFFFFF;
+    --card4-text-secondary: rgba(255, 255, 255, 0.9);
+    --card4-text-tertiary: rgba(255, 255, 255, 0.7);
+
+    /* Shared Illustration Colors */
+    --illust-base: #D3D3D3;
+    --illust-stroke: #2C3E50;
+    --illust-ground: #95A5A6;
+    --illust-window-body: #FFFFFF;
+
+    /* Button Colors */
+    --button-hover: #e9e1d9;
+}
