@@ -18,57 +18,40 @@ function initHeroCharts() {
             hasPlayed = true;
 
             const counter = { val: 0 };
+            let anxietyWobble; // To control the hover animation
 
-            // Base nervous twitch animation (loops infinitely)
+            // Base nervous twitch animation (made gentler)
             gsap.to(face, {
-                y: -1,
+                y: -0.5,
                 x: 0.5,
-                duration: 0.15,
+                rotation: -1,
+                duration: 0.2,
                 repeat: -1,
                 yoyo: true,
-                ease: "sine.inOut"
+                ease: "sine.inOut",
+                repeatDelay: 1.5 // Added a pause for subtlety
             });
 
             // Main timeline for counting up, changing expression, and filling the gauge
-            const tl = gsap.timeline({ defaults: { ease: "power3.out" } });
-
-            tl.to(counter, {
-                val: targetScore,
-                duration: 2.6,
+            const tl = gsap.timeline({
+                defaults: { ease: "power3.out" },
                 onUpdate: () => {
+                    // onUpdate is now only responsible for updating the text
                     anxietyScoreEl.textContent = counter.val.toFixed(1);
-                    const pct = Math.max(0, Math.min(100, (counter.val / 5) * 100));
-                    gsap.to(anxietyGaugeFill, { height: `${pct}%`, duration: 0.2, ease: "sine.inOut" });
-
-                    // Stage 1: Frown starts (score > 1.5)
-                    if (counter.val > 1.5) {
-                        gsap.to(mouth, {
-                            attr: { d: "M 35 70 Q 50 62 65 70" },
-                            duration: 0.5,
-                        });
-                    }
-
-                    // Stage 2: Eyes widen (score > 2.5)
-                    if (counter.val > 2.5) {
-                        gsap.to(eyes, {
-                            scale: 1.3,
-                            transformOrigin: 'center center',
-                            duration: 0.4,
-                            ease: "back.out(2)"
-                        });
-                    }
-
-                    // Stage 3: Sweating starts (score > 3.0)
-                    if (counter.val > 3.0) {
-                        gsap.to(sweatDrop, {
-                            opacity: 1,
-                            y: 20,
-                            duration: 1.2,
-                            ease: "none"
-                        });
-                    }
                 }
             });
+
+            const animationDuration = 2.6;
+            const targetHeight = (targetScore / 5) * 100;
+
+            // Animate counter and gauge fill in perfect sync on the same timeline
+            tl.to(counter, { val: targetScore, duration: animationDuration }, 0)
+                .to(anxietyGaugeFill, { height: `${targetHeight}%`, duration: animationDuration, ease: "power1.inOut" }, 0);
+
+            // Add expression changes at specific points on the timeline for better performance
+            tl.to(mouth, { attr: { d: "M 35 70 Q 50 62 65 70" }, duration: 0.5 }, animationDuration * (1.5 / targetScore))
+                .to(eyes, { scale: 1.3, transformOrigin: 'center center', duration: 0.4, ease: "back.out(2)" }, animationDuration * (2.5 / targetScore))
+                .fromTo(sweatDrop, { opacity: 0, y: 0 }, { opacity: 1, y: 20, duration: 1.2, ease: "none" }, animationDuration * (3.0 / targetScore));
         };
 
         // Trigger when visible using IntersectionObserver
@@ -79,20 +62,31 @@ function initHeroCharts() {
         }, { threshold: 0.3 });
         io.observe(anxietyContainer);
 
-        // Interactivity on hover
+        // Interactivity on hover (smoother, less jarring "anxious" wobble)
+        let anxietyWobble;
         anxietyContainer.addEventListener('mouseenter', () => {
             gsap.to(face, { scale: 1.05, duration: 0.3, ease: 'back.out(2)' });
-            // Intense shake on hover
-            gsap.to(face, {
-                x: 'random(-2, 2)',
-                y: 'random(-2, 2)',
+            // Start a continuous, gentle wobble
+            anxietyWobble = gsap.to(face, {
+                x: 'random(-1, 1)',
+                rotation: 'random(-2, 2)',
                 duration: 0.1,
-                repeat: 5
+                repeat: -1,
+                yoyo: true,
+                ease: 'power1.inOut'
             });
         });
 
         anxietyContainer.addEventListener('mouseleave', () => {
-            gsap.to(face, { scale: 1, duration: 0.5, ease: 'elastic.out(1, 0.5)' });
+            if (anxietyWobble) anxietyWobble.kill(); // Stop the wobble explicitly
+            // Return to normal state
+            gsap.to(face, {
+                scale: 1,
+                x: 0,
+                rotation: 0,
+                duration: 0.5,
+                ease: 'elastic.out(1, 0.5)'
+            });
         });
     }
 

@@ -5,7 +5,8 @@
 /* Illustration sizing specific to Behavior card */
 .main-card .illustration.scales {
     bottom: 20px;
-    width: 55px;
+    right: 8px;
+    width: 75px;
 }
 
 /* Footer and heading color overrides for Behavior card */

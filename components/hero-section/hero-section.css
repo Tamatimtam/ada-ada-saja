@@ -70,12 +70,12 @@
 
 .anxiety-face-wrapper {
     position: relative;
-    width: 120px;
-    height: 120px;
+    width: 100px;
+    height: 100px;
     display: flex;
     align-items: center;
     justify-content: center;
-    flex-grow: 1;
+    grid-area: face;
 }
 
 .anxiety-face-wrapper svg {
@@ -86,16 +86,23 @@
 
 /* Anxiety stat: face + vertical gauge side-by-side */
 .anxiety-stat {
-    display: flex;
+    display: grid;
+    grid-template-areas:
+        "face gauge"
+        "value value";
+    grid-template-columns: auto auto;
     align-items: center;
-    gap: calc(var(--padding) * 0.5);
+    justify-content: center;
+    gap: 16px 8px;
+    flex-grow: 1;
+    width: 100%;
 }
 
 .anxiety-gauge {
     display: flex;
-    flex-direction: column;
     align-items: center;
     gap: 8px;
+    grid-area: gauge;
 }
 
 .anxiety-gauge__track {
@@ -119,10 +126,10 @@
 }
 
 .anxiety-gauge__scale {
-    display: grid;
-    grid-auto-rows: 1fr;
-    height: 120px;
-    align-items: center;
+    display: flex;
+    flex-direction: column-reverse;
+    justify-content: space-between;
+    height: 110px;
     font-size: 0.7rem;
     color: var(--text-tertiary);
 }
@@ -132,9 +139,11 @@
 }
 
 .anxiety-gauge__value {
-    font-size: 1.25rem;
+    font-size: 2rem;
     font-weight: 700;
     color: var(--text-primary);
+    grid-area: value;
+    line-height: 1;
 }
 
 .stat-label {
