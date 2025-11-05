@@ -1,0 +1,89 @@
+.card-behavior {
+    background-color: var(--card2-bg);
+}
+
+/* Illustration sizing specific to Behavior card */
+.main-card .illustration.scales {
+    bottom: 20px;
+    width: 55px;
+}
+
+/* Footer and heading color overrides for Behavior card */
+.card-behavior .card-content h2 {
+    color: var(--card2-text);
+    font-weight: 700;
+}
+
+.card-behavior .card-footer-label {
+    color: var(--card2-text);
+    font-weight: 500;
+}
+
+.card-behavior .card-footer-label i {
+    color: var(--card2-text);
+}
+
+.card-behavior .card-footer-value {
+    color: var(--card2-text);
+}
+
+/* Background particles specific to Behavior card */
+.card-behavior .bg-shapes {
+    height: 100%;
+}
+
+.card-behavior .particle {
+    position: absolute;
+    border-radius: 50%;
+    background-color: var(--card2-particle);
+    opacity: var(--card2-particle-opacity);
+}
+
+.card-behavior .particle1 {
+    width: 8px;
+    height: 8px;
+    bottom: 25%;
+    left: 12%;
+}
+
+.card-behavior .particle2 {
+    width: 12px;
+    height: 12px;
+    bottom: 55%;
+    left: 20%;
+}
+
+.card-behavior .particle3 {
+    width: 6px;
+    height: 6px;
+    bottom: 70%;
+    left: 15%;
+}
+
+.card-behavior .particle4 {
+    width: 10px;
+    height: 10px;
+    bottom: 40%;
+    left: 8%;
+}
+
+.card-behavior .particle5 {
+    width: 14px;
+    height: 14px;
+    bottom: 15%;
+    left: 18%;
+}
+
+.card-behavior .particle6 {
+    width: 7px;
+    height: 7px;
+    bottom: 60%;
+    left: 10%;
+}
+
+.card-behavior .particle7 {
+    width: 9px;
+    height: 9px;
+    bottom: 35%;
+    left: 22%;
+}

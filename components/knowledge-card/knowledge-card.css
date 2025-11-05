@@ -1,0 +1,35 @@
+.card-knowledge {
+    background-color: var(--card1-bg);
+}
+
+/* Illustration sizing specific to Knowledge card */
+.main-card .illustration.light {
+    top: 90px;
+    width: 55px;
+    height: 55px;
+}
+
+/* Background shapes specific to Knowledge card */
+.card-knowledge .shape1 {
+    background-color: var(--card1-illust-bg-shape1);
+    width: 200px;
+    height: 200px;
+    bottom: -100px;
+    left: 120px;
+}
+
+.card-knowledge .shape2 {
+    background-color: var(--card1-illust-bg-shape2);
+    width: 150px;
+    height: 150px;
+    bottom: -75px;
+    left: 50px;
+}
+
+.card-knowledge .shape3 {
+    background-color: var(--card1-illust-bg-shape3);
+    width: 180px;
+    height: 180px;
+    bottom: -90px;
+    right: -20px;
+}

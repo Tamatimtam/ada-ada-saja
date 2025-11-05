@@ -41,22 +41,3 @@
     line-height: 1;
     color: var(--card1-text);
 }
-
-/* Middle card (Behavior) - Contrasting dark text theme */
-.card-behavior .card-content h2 {
-    color: var(--card2-text);
-    font-weight: 700;
-}
-
-.card-behavior .card-footer-label {
-    color: var(--card2-text);
-    font-weight: 500;
-}
-
-.card-behavior .card-footer-label i {
-    color: var(--card2-text);
-}
-
-.card-behavior .card-footer-value {
-    color: var(--card2-text);
-}

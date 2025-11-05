@@ -1,9 +1,9 @@
 document.addEventListener("DOMContentLoaded", () => {
     const componentsToLoad = [
-        { url: "components/header.html", parent: ".dashboard-window", position: 'afterbegin' },
-        { url: "components/knowledge-card.html", parent: ".dashboard-content" },
-        { url: "components/behavior-card.html", parent: ".dashboard-content" },
-        { url: "components/wellbeing-card.html", parent: ".dashboard-content" }
+        { url: "components/header/header.html", parent: ".dashboard-window", position: 'afterbegin' },
+        { url: "components/knowledge-card/knowledge-card.html", parent: ".dashboard-content" },
+        { url: "components/behavior-card/behavior-card.html", parent: ".dashboard-content" },
+        { url: "components/wellbeing-card/wellbeing-card.html", parent: ".dashboard-content" }
     ];
 
     let loadedCount = 0;

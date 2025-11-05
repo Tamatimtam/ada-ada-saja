@@ -2,19 +2,3 @@
     position: absolute;
     right: 20px;
 }
-
-.main-card .illustration.light {
-    top: 90px;
-    width: 55px;
-    height: 55px;
-}
-
-.main-card .illustration.scales {
-    bottom: 20px;
-    width: 55px;
-}
-
-.main-card .illustration.house {
-    bottom: 16px;
-    width: 110px;
-}

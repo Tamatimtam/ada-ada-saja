@@ -8,18 +8,6 @@
     justify-content: space-between;
 }
 
-.card-knowledge {
-    background-color: var(--card1-bg);
-}
-
-.card-behavior {
-    background-color: var(--card2-bg);
-}
-
-.card-wellbeing {
-    background-color: var(--card4-bg);
-}
-
 .main-card h2 {
     font-size: 1.1rem;
     z-index: 9999;
