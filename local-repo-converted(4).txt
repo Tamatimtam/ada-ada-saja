@@ -1,0 +1,2293 @@
+Selected Files Directory Structure:
+
+└── ./
+    └── Dashboard_temp
+        ├── app
+        │   ├── static
+        │   │   ├── css
+        │   │   │   ├── base
+        │   │   │   │   ├── base.css
+        │   │   │   │   ├── colors.css
+        │   │   │   │   └── variables.css
+        │   │   │   ├── components
+        │   │   │   │   ├── background-shapes.css
+        │   │   │   │   ├── behavior-card.css
+        │   │   │   │   ├── card-footer.css
+        │   │   │   │   ├── hero-section.css
+        │   │   │   │   ├── illustrations.css
+        │   │   │   │   ├── knowledge-card.css
+        │   │   │   │   ├── main-cards.css
+        │   │   │   │   ├── small-cards.css
+        │   │   │   │   └── wellbeing-card.css
+        │   │   │   ├── layout
+        │   │   │   │   └── layout.css
+        │   │   │   └── main.css
+        │   │   └── js
+        │   │       ├── components
+        │   │       │   ├── dropdown-animation.js
+        │   │       │   ├── header-title-animation.js
+        │   │       │   ├── hero-charts.js
+        │   │       │   ├── hero-text-animation.js
+        │   │       │   ├── lightbulb-animation.js
+        │   │       │   ├── scales-animation.js
+        │   │       │   └── wellbeing-animation.js
+        │   │       ├── animations.js
+        │   │       ├── background-shapes.js
+        │   │       ├── counter.js
+        │   │       ├── main.js
+        │   │       └── scrollTrigger.js
+        │   ├── templates
+        │   │   ├── components
+        │   │   │   ├── behavior-card.html
+        │   │   │   ├── hero-section.html
+        │   │   │   ├── knowledge-card.html
+        │   │   │   └── wellbeing-card.html
+        │   │   ├── index.html
+        │   │   └── layout.html
+        │   ├── __init__.py
+        │   ├── routes.py
+        │   └── services.py
+        ├── METRIC_CALCULATION.md
+        ├── requirements.txt
+        ├── run.py
+        └── STYLE_GUIDE_PROMPT.md
+
+
+
+--- Dashboard_temp/app/static/js/counter.js ---
+
+// Animate counter values
+function animateCounter(elementId, targetValue, duration = 2) {
+    const counter = { val: 0 };
+    gsap.to(counter, {
+        val: targetValue,
+        duration: duration,
+        ease: "power1.inOut",
+        onUpdate: () => {
+            document.getElementById(elementId).textContent = Math.round(counter.val);
+        },
+        scrollTrigger: {
+            trigger: `#${elementId}`,
+            start: "top 90%",
+        }
+    });
+}
+
+// Animate all small card values
+function animateSmallCardValues() {
+    gsap.utils.toArray(".small-card .value").forEach(el => {
+        const targetValue = el.dataset.value;
+        const counter = { val: 0 };
+        gsap.to(counter, {
+            val: targetValue,
+            duration: 2,
+            ease: "power1.inOut",
+            onUpdate: () => {
+                el.textContent = Math.round(counter.val);
+            },
+            scrollTrigger: {
+                trigger: el,
+                start: "top 90%",
+            }
+        });
+    });
+}
+
+
+--- Dashboard_temp/app/static/js/components/hero-text-animation.js ---
+
+function initHeroTextAnimation() {
+    // Animate the main hero title
+    const heroTitle = document.querySelector('.hero-title');
+    if (heroTitle) {
+        // Split the title into characters
+        const chars = heroTitle.textContent.split('').map(char => {
+            const span = document.createElement('span');
+            span.textContent = char;
+            // Use &nbsp; for space to ensure it's not collapsed
+            if (char === ' ') span.innerHTML = '&nbsp;';
+            return span;
+        });
+        heroTitle.innerHTML = '';
+        heroTitle.append(...chars);
+
+        // Animate characters with GSAP
+        gsap.from(chars, {
+            yPercent: 100,
+            opacity: 0,
+            duration: 0.8,
+            ease: "power3.out",
+            stagger: 0.03,
+            delay: 0.2
+        });
+    }
+
+    // Animate the description paragraph
+    const heroDescription = document.querySelector('.hero-description');
+    if (heroDescription) {
+        // Split the paragraph into lines for a line-by-line reveal
+        const lines = heroDescription.innerHTML.split('<br>').map(lineText => {
+            const lineWrapper = document.createElement('div');
+            lineWrapper.className = 'line-wrapper';
+            const lineContent = document.createElement('div');
+            lineContent.className = 'line-content';
+            lineContent.innerHTML = lineText.trim();
+            lineWrapper.appendChild(lineContent);
+            return lineWrapper;
+        });
+        heroDescription.innerHTML = '';
+        heroDescription.append(...lines);
+
+        // Animate lines with GSAP
+        gsap.from('.line-content', {
+            yPercent: 110,
+            duration: 1,
+            ease: "power3.out",
+            stagger: 0.15,
+            delay: 0.5
+        });
+    }
+}
+
+--- Dashboard_temp/app/static/js/components/lightbulb-animation.js ---
+
+// Lightbulb animation
+function initLightbulbAnimation() {
+    const bulbGlass = document.querySelector("#bulb-glass");
+    const bulbRays = document.querySelector("#bulb-rays");
+
+    if (!bulbGlass || !bulbRays) {
+        console.warn('Lightbulb elements not found, skipping animation');
+        return;
+    }
+
+    const bulbTl = gsap.timeline({ repeat: -1, yoyo: true, repeatDelay: 1 });
+    bulbTl.to(bulbGlass, { fillOpacity: 0.6, duration: 0.5 })
+        .to(bulbRays, { opacity: 1, scale: 1.1, transformOrigin: 'center center', duration: 0.5 }, "<")
+        .to("#bulb-rays line", {
+            attr: {
+                x2: (i, t) => parseFloat(t.getAttribute('x1')) + (Math.random() - 0.5) * 5,
+                y2: (i, t) => parseFloat(t.getAttribute('y1')) + (Math.random() - 0.5) * 5
+            },
+            duration: 1,
+            stagger: 0.1
+        }, "<");
+}
+
+
+--- Dashboard_temp/app/static/js/components/dropdown-animation.js ---
+
+function initDropdownAnimation() {
+    const dropdown = document.querySelector('.custom-dropdown');
+    if (!dropdown) return;
+
+    const selected = dropdown.querySelector('.dropdown-selected');
+    const options = dropdown.querySelector('.dropdown-options');
+
+    // Wrap initial text in a span for animation
+    selected.innerHTML = `<span>${selected.textContent}</span>`;
+
+    // GSAP timeline for the dropdown opening
+    const tl = gsap.timeline({ 
+        paused: true,
+        onReverseComplete: () => {
+            // Explicitly set pointerEvents to none when closed
+            gsap.set(options, { pointerEvents: 'none' });
+        }
+    });
+    tl.fromTo(options, 
+        { opacity: 0, y: 10, pointerEvents: 'none' }, 
+        {
+            opacity: 1,
+            y: 0,
+            pointerEvents: 'auto',
+            duration: 0.3,
+            ease: 'power2.out'
+        }
+    );
+
+    // Hover animation for the selected item
+    selected.addEventListener('mouseenter', () => {
+        gsap.to(selected, { 
+            scale: 1.05,
+            duration: 0.3, 
+            ease: 'power2.out' 
+        });
+    });
+
+    selected.addEventListener('mouseleave', () => {
+        gsap.to(selected, { 
+            scale: 1,
+            duration: 0.3, 
+            ease: 'power2.out' 
+        });
+    });
+
+    selected.addEventListener('click', () => {
+        dropdown.classList.toggle('open');
+        if (dropdown.classList.contains('open')) {
+            tl.play();
+        } else {
+            tl.reverse();
+        }
+    });
+
+    options.addEventListener('click', (e) => {
+        if (e.target.tagName === 'LI') {
+            const newValue = e.target.textContent;
+            const textSpan = selected.querySelector('span');
+            
+            if (textSpan && textSpan.textContent !== newValue) {
+                if (gsap.isTweening(textSpan)) return;
+
+                const animTl = gsap.timeline();
+                animTl.to(textSpan, {
+                    opacity: 0,
+                    y: -10,
+                    duration: 0.2,
+                    ease: 'power2.in'
+                })
+                .add(() => {
+                    textSpan.textContent = newValue;
+                })
+                .to(textSpan, {
+                    opacity: 1,
+                    y: 0,
+                    duration: 0.3,
+                    ease: 'power2.out'
+                });
+            }
+
+            selected.dataset.value = e.target.dataset.value;
+            dropdown.classList.remove('open');
+            tl.reverse();
+            document.dispatchEvent(new CustomEvent('filterChanged', { detail: { filterBy: e.target.dataset.value } }));
+        }
+    });
+
+    // Close dropdown when clicking outside
+    document.addEventListener('click', (e) => {
+        if (!dropdown.contains(e.target)) {
+            if (dropdown.classList.contains('open')) {
+                dropdown.classList.remove('open');
+                tl.reverse();
+            }
+        }
+    });
+}
+
+
+--- Dashboard_temp/app/static/js/components/hero-charts.js ---
+
+function initHeroCharts() {
+    // --- 1. The Award-Winning Anxiety Face Animation ---
+    const anxietyContainer = document.getElementById('anxiety-container');
+    const anxietyScoreEl = document.getElementById('avgAnxietyScore');
+    const anxietyGaugeFill = document.getElementById('anxiety-gauge-fill');
+    const face = document.getElementById('face-group');
+    const mouth = document.getElementById('mouth');
+    const eyes = document.querySelectorAll('#eye-left, #eye-right');
+    const sweatDrop = document.getElementById('sweat-drop');
+    const parsedScore = parseFloat(anxietyScoreEl ? anxietyScoreEl.getAttribute('data-score') : '0');
+    const targetScore = isNaN(parsedScore) ? 3.2 : parsedScore;
+
+    if (anxietyContainer && anxietyScoreEl && anxietyGaugeFill && face && mouth && eyes && sweatDrop) {
+        let hasPlayed = false;
+
+        const runAnxietyAnimation = () => {
+            if (hasPlayed) return;
+            hasPlayed = true;
+
+            const counter = { val: 0 };
+            let anxietyWobble; // To control the hover animation
+
+            // Base nervous twitch animation (made gentler)
+            gsap.to(face, {
+                y: -0.5,
+                x: 0.5,
+                rotation: -1,
+                duration: 0.2,
+                repeat: -1,
+                yoyo: true,
+                ease: "sine.inOut",
+                repeatDelay: 1.5 // Added a pause for subtlety
+            });
+
+            // Main timeline for counting up, changing expression, and filling the gauge
+            const tl = gsap.timeline({
+                defaults: { ease: "power3.out" },
+                onUpdate: () => {
+                    // onUpdate is now only responsible for updating the text
+                    anxietyScoreEl.textContent = counter.val.toFixed(1);
+                }
+            });
+
+            const animationDuration = 2.6;
+            const targetHeight = (targetScore / 5) * 100;
+
+            // Animate counter and gauge fill in perfect sync on the same timeline
+            tl.to(counter, { val: targetScore, duration: animationDuration }, 0)
+                .to(anxietyGaugeFill, { height: `${targetHeight}%`, duration: animationDuration, ease: "power1.inOut" }, 0);
+
+            // Add expression changes at specific points on the timeline for better performance
+            tl.to(mouth, { attr: { d: "M 35 70 Q 50 62 65 70" }, duration: 0.5 }, animationDuration * (1.5 / targetScore))
+                .to(eyes, { scale: 1.3, transformOrigin: 'center center', duration: 0.4, ease: "back.out(2)" }, animationDuration * (2.5 / targetScore))
+                .fromTo(sweatDrop, { opacity: 0, y: 0 }, { opacity: 1, y: 20, duration: 1.2, ease: "none" }, animationDuration * (3.0 / targetScore));
+        };
+
+        // Trigger when visible using IntersectionObserver
+        const io = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) runAnxietyAnimation();
+            });
+        }, { threshold: 0.3 });
+        io.observe(anxietyContainer);
+
+        // Interactivity on hover (smoother, less jarring "anxious" wobble)
+        let anxietyWobble;
+        anxietyContainer.addEventListener('mouseenter', () => {
+            gsap.to(face, { scale: 1.05, duration: 0.3, ease: 'back.out(2)' });
+            // Start a continuous, gentle wobble
+            anxietyWobble = gsap.to(face, {
+                x: 'random(-1, 1)',
+                rotation: 'random(-2, 2)',
+                duration: 0.1,
+                repeat: -1,
+                yoyo: true,
+                ease: 'power1.inOut'
+            });
+        });
+
+        anxietyContainer.addEventListener('mouseleave', () => {
+            if (anxietyWobble) anxietyWobble.kill(); // Stop the wobble explicitly
+            // Return to normal state
+            gsap.to(face, {
+                scale: 1,
+                x: 0,
+                rotation: 0,
+                duration: 0.5,
+                ease: 'elastic.out(1, 0.5)'
+            });
+        });
+    }
+
+
+    // --- 2. The NEW Anxiety Bar Chart ---
+    const anxietyBarChartEl = document.getElementById('anxietyBarChart');
+    if (anxietyBarChartEl) {
+        let chart = Highcharts.chart('anxietyBarChart', {
+            chart: {
+                type: 'bar',
+                backgroundColor: 'transparent',
+                height: '38%'
+            },
+            title: {
+                text: null
+            },
+            xAxis: {
+                categories: [], // Will be populated with data
+                title: {
+                    text: null
+                },
+                labels: {
+                    step: 1,
+                    style: {
+                        fontSize: '10px'
+                    }
+                }
+            },
+            yAxis: {
+                min: 0,
+                max: 4,
+                title: {
+                    text: 'Average Anxiety Score',
+                    align: 'high'
+                },
+                labels: {
+                    overflow: 'justify'
+                }
+            },
+            tooltip: {
+                valueSuffix: ' '
+            },
+            plotOptions: {
+                series: {
+                    animation: {
+                        duration: 1000,
+                        easing: 'easeOutBounce'
+                    },
+                    point: {
+                        events: {
+                            click: function () {
+                                const filterValue = this.category;
+                                fetch(`/api/filter_metrics/${filterValue}`)
+                                    .then(response => response.json())
+                                    .then(data => {
+                                        // Update the 7 metrics with animation
+                                        animateCounter('scoreLiterasiFin', data.scores['Literasi Finansial']);
+                                        animateCounter('scoreLiterasiDigital', data.scores['Literasi Keuangan Digital']);
+                                        animateCounter('scorePengelolaan', data.scores['Pengelolaan Keuangan']);
+                                        animateCounter('scorePerilaku', data.scores['Sikap Finansial']);
+                                        animateCounter('scoreDisiplin', data.scores['Disiplin Finansial']);
+                                        animateCounter('scoreKesejahteraan', data.scores['Kesejahteraan Finansial']);
+                                        animateCounter('scoreInvestasi', data.scores['Investasi Aset']);
+
+                                        // Update the main anxiety score and trigger its animation
+                                        const anxietyScoreEl = document.getElementById('avgAnxietyScore');
+                                        const anxietyGaugeFill = document.getElementById('anxiety-gauge-fill');
+                                        const oldScore = parseFloat(anxietyScoreEl.getAttribute('data-score'));
+                                        const newScore = data.average_anxiety_score;
+                                        anxietyScoreEl.setAttribute('data-score', newScore);
+
+                                        // GSAP animation to update the score smoothly
+                                        gsap.to(anxietyScoreEl, {
+                                            duration: 1.5,
+                                            innerText: newScore,
+                                            roundProps: "innerText",
+                                            ease: "power3.out",
+                                            onUpdate: function() {
+                                                anxietyScoreEl.textContent = parseFloat(this.targets()[0].innerText).toFixed(1);
+                                            }
+                                        });
+                                        gsap.to(anxietyGaugeFill, {
+                                            height: `${(newScore / 5) * 100}%`,
+                                            duration: 1.5,
+                                            ease: "power1.inOut"
+                                        });
+                                    });
+                            }
+                        }
+                    }
+                },
+                bar: {
+                    dataLabels: {
+                        enabled: true
+                    },
+                    colorByPoint: true,
+                    colors: [
+                        '#FF6B9D',
+                        '#5DADE2',
+                        '#9B59B6',
+                        '#F1C40F',
+                        '#E67E22',
+                        '#1ABC9C'
+                    ]
+                }
+            },
+            legend: {
+                enabled: false
+            },
+            credits: {
+                enabled: false
+            },
+            series: [{
+                name: 'Anxiety Score',
+                data: [] // Will be populated with data
+            }]
+        });
+
+        // Function to update the chart
+        const updateChart = (filterBy) => {
+            fetch(`/data/anxiety_by/${filterBy}`)
+                .then(response => response.json())
+                .then(data => {
+                    chart.xAxis[0].setCategories(data.categories, false);
+                    chart.series[0].setData(data.scores, true);
+                });
+        };
+
+        // Initial chart load
+        updateChart('employment_status');
+
+        // Listen for filter changes
+        document.addEventListener('filterChanged', (e) => {
+            updateChart(e.detail.filterBy);
+        });
+
+        // Animate the chart entrance with GSAP
+        gsap.from(anxietyBarChartEl, {
+            duration: 1,
+            scale: 0.5,
+            opacity: 0,
+            delay: 0.5,
+            ease: 'back.out(1.7)'
+        });
+    }
+}
+
+--- Dashboard_temp/app/static/js/components/header-title-animation.js ---
+
+// Animate the header title
+function initHeaderTitleAnimation() {
+    const chars = gsap.utils.toArray('.title-char');
+    const accent = document.querySelector('.title-accent');
+    const title = document.querySelector('.gen-z-title');
+    const container = document.querySelector('.logo-container');
+
+    // Check if elements exist before animating
+    if (!title || !container || chars.length === 0 || !accent) {
+        console.warn('Header title elements not found, skipping animation');
+        return;
+    }
+
+    // Initial entrance animation
+    const tl = gsap.timeline({ delay: 0.3 });
+
+    tl.from(chars, {
+        y: -50,
+        opacity: 0,
+        scale: 0.5,
+        rotation: -15,
+        duration: 0.8,
+        ease: "back.out(2)",
+        stagger: {
+            each: 0.05,
+            from: "start"
+        }
+    })
+        .from(accent, {
+            scaleX: 0,
+            duration: 0.6,
+            ease: "power3.out"
+        }, "-=0.3");
+
+
+    container.addEventListener('mousemove', (e) => {
+        const rect = container.getBoundingClientRect();
+        mouse.x = e.clientX - rect.left - rect.width / 2;
+        mouse.y = e.clientY - rect.top - rect.height / 2;
+
+        gsap.to(titlePos, {
+            x: mouse.x * 0.15,
+            y: mouse.y * 0.15,
+            duration: 0.6,
+            ease: "power2.out",
+            onUpdate: () => {
+                gsap.set(title, {
+                    x: titlePos.x,
+                    y: titlePos.y
+                });
+            }
+        });
+    });
+
+    container.addEventListener('mouseleave', () => {
+        gsap.to(titlePos, {
+            x: 0,
+            y: 0,
+            duration: 0.8,
+            ease: "elastic.out(1, 0.5)",
+            onUpdate: () => {
+                gsap.set(title, {
+                    x: titlePos.x,
+                    y: titlePos.y
+                });
+            }
+        });
+    });
+
+    // Individual character hover interactions
+    chars.forEach((char, i) => {
+        char.addEventListener('mouseenter', () => {
+            gsap.to(char, {
+                scale: 1.3,
+                rotation: gsap.utils.random(-15, 15),
+                y: -10,
+                color: i % 3 === 0 ? '#FF6B9D' : i % 3 === 1 ? '#5DADE2' : '#9B59B6',
+                duration: 0.3,
+                ease: "back.out(2)"
+            });
+
+            // Create ripple effect on neighbors
+            const neighbors = [chars[i - 1], chars[i + 1]].filter(Boolean);
+            gsap.to(neighbors, {
+                scale: 1.15,
+                duration: 0.3,
+                ease: "power2.out"
+            });
+        });
+
+        char.addEventListener('mouseleave', () => {
+            gsap.to(char, {
+                scale: 1,
+                rotation: 0,
+                y: 0,
+                color: 'transparent',
+                duration: 0.4,
+                ease: "elastic.out(1, 0.5)"
+            });
+
+            const neighbors = [chars[i - 1], chars[i + 1]].filter(Boolean);
+            gsap.to(neighbors, {
+                scale: 1,
+                duration: 0.4,
+                ease: "power2.out"
+            });
+        });
+    });
+
+
+
+}
+
+
+--- Dashboard_temp/app/static/js/components/wellbeing-animation.js ---
+
+// Wellbeing card animations
+function initWellbeingAnimations() {
+    const house = document.querySelector("#house");
+    const coins = document.querySelectorAll("#coins .coin");
+    const windows = document.querySelectorAll("#left-window, #right-window");
+
+    if (!house) {
+        console.warn('Wellbeing house element not found, skipping animation');
+        return;
+    }
+
+    // House floating animation
+    gsap.to(house, {
+        y: -2,
+        duration: 2,
+        repeat: -1,
+        yoyo: true,
+        ease: "sine.inOut"
+    });
+
+    // Coins bouncing animation
+    if (coins.length > 0) {
+        gsap.to(coins, {
+            y: -8,
+            duration: 1.2,
+            repeat: -1,
+            yoyo: true,
+            ease: "sine.inOut",
+            stagger: 0.2
+        });
+    }
+
+    // Windows glowing animation
+    if (windows.length > 0) {
+        gsap.to(windows, {
+            fill: getColor('--card3-illust-main'),
+            duration: 1.6,
+            repeat: -1,
+            yoyo: true,
+            ease: "sine.inOut",
+            delay: 0.3
+        });
+    }
+}
+
+
+--- Dashboard_temp/app/static/js/components/scales-animation.js ---
+
+// Scales animation
+function initScalesAnimation() {
+    const scaleBeam = document.querySelector("#scale-beam");
+
+    if (!scaleBeam) {
+        console.warn('Scales elements not found, skipping animation');
+        return;
+    }
+
+    const scalesTl = gsap.timeline({ repeat: -1, yoyo: true, defaults: { ease: "sine.inOut" } });
+    scalesTl.to(scaleBeam, { rotation: -3, duration: 2, delay: 1 })
+        .to(scaleBeam, { rotation: 3, duration: 2 })
+        .to(scaleBeam, { rotation: 0, duration: 2 });
+}
+
+
+--- Dashboard_temp/app/static/js/animations.js ---
+
+// static/js/animations.js - UPDATED
+
+// ... (keep the getColor helper function) ...
+const rootStyles = getComputedStyle(document.documentElement);
+const getColor = (variable) => rootStyles.getPropertyValue(variable).trim();
+
+function initPageAnimations() {
+    // ... (this function is fine as is) ...
+    const dashboardWindow = document.querySelector(".dashboard-window");
+    const mainCards = document.querySelectorAll(".main-card");
+
+    if (!dashboardWindow) return;
+
+    const tl = gsap.timeline({ defaults: { ease: "power3.out" } });
+
+    tl.from(dashboardWindow, { scale: 0.9, opacity: 0, duration: 0.8 });
+
+    // Animate hero and card-grid separately
+    if (document.querySelector(".hero-section")) {
+        tl.from(".hero-section", { y: 20, opacity: 0, duration: 0.6 }, "-=0.4");
+    }
+    if (mainCards.length > 0) {
+        tl.from(mainCards, { scale: 0.95, opacity: 0, duration: 0.5, stagger: 0.2 }, "-=0.4");
+    }
+}
+
+function initAllAnimations() {
+    console.log('Initializing all animations...');
+
+    initPageAnimations();
+    initHeroCharts();
+    initHeroTextAnimation();
+    initDropdownAnimation();
+
+    // NEW DYNAMIC COUNTER LOGIC
+    // Find all elements with an ID starting with 'score' and a data-score attribute
+    const scoreElements = document.querySelectorAll('[id^="score"][data-score]');
+    scoreElements.forEach(el => {
+        const targetValue = parseFloat(el.getAttribute('data-score'));
+        // Check if the target is a valid number before animating
+        if (!isNaN(targetValue)) {
+            // We pass the element's ID and the dynamic target value
+            animateCounter(el.id, targetValue);
+        }
+    });
+
+    // The rest of the initializations are fine
+    animateSmallCardValues(); // This function should also be checked if it uses hardcoded values
+    initLightbulbAnimation();
+    initScalesAnimation();
+    initBgShapesAnimation();
+    initWellbeingAnimations();
+    initSparkleAnimations();
+    initCoinAnimations();
+}
+
+--- Dashboard_temp/app/static/js/background-shapes.js ---
+
+// Generic background shapes animation (DRY)
+function initBgShapesAnimation() {
+    const animateShapes = (card, selector, config) => {
+        card.addEventListener('mouseenter', () => {
+            gsap.to(card.querySelectorAll(selector), {
+                x: () => (Math.random() - 0.5) * (config.moveRange || 30),
+                y: () => (Math.random() - 0.5) * (config.moveRange || 30),
+                scale: () => 1 + (Math.random() - 0.5) * (config.scaleRange || 0.2),
+                duration: config.duration || 1,
+                ease: config.ease || 'elastic.out(1, 0.5)',
+                stagger: config.stagger || 0.1
+            });
+        });
+    };
+
+    // Card 1 - Knowledge shapes
+    const cardKnowledge = document.querySelector('.card-knowledge');
+    if (cardKnowledge) {
+        animateShapes(cardKnowledge, '.shape', { moveRange: 30, scaleRange: 0.2 });
+    }
+
+    // Card 2 - Decision particles
+    const cardBehavior = document.querySelector('.card-behavior');
+    if (cardBehavior) {
+        animateShapes(cardBehavior, '.particle', { moveRange: 25, scaleRange: 0.4, duration: 1 });
+        initParticleFloating();
+    }
+
+    // Card 3 - Wellbeing elements
+    const cardWellbeing = document.querySelector('.card-wellbeing');
+    if (cardWellbeing) {
+        animateShapes(cardWellbeing, '.coin-shape', { moveRange: 15, scaleRange: 0.15, duration: 1.2 });
+    }
+}
+
+// Particle floating animation for card 2
+function initParticleFloating() {
+    const particles = document.querySelectorAll('.card-behavior .particle');
+
+    particles.forEach((particle, index) => {
+        gsap.to(particle, {
+            y: () => -15 - (Math.random() * 10),
+            x: () => (Math.random() - 0.5) * 15,
+            duration: 2 + (Math.random() * 1.5),
+            repeat: -1,
+            yoyo: true,
+            ease: "sine.inOut",
+            delay: index * 0.2
+        });
+
+        gsap.to(particle, {
+            opacity: 0.4,
+            scale: 1.2,
+            duration: 1.8 + (Math.random() * 1),
+            repeat: -1,
+            yoyo: true,
+            ease: "sine.inOut",
+            delay: index * 0.15
+        });
+    });
+}
+
+// Sparkle twinkle animation for card 3
+function initSparkleAnimations() {
+    const sparkles = document.querySelectorAll('.card-wellbeing .sparkle');
+
+    gsap.to(sparkles, {
+        opacity: 1,
+        scale: 1.3,
+        duration: 1.5,
+        repeat: -1,
+        yoyo: true,
+        ease: "sine.inOut",
+        stagger: {
+            each: 0.3,
+            repeat: -1
+        }
+    });
+
+    // Rotate sparkles
+    gsap.to(sparkles, {
+        rotation: 45,
+        duration: 3,
+        repeat: -1,
+        yoyo: true,
+        ease: "sine.inOut",
+        stagger: 0.2
+    });
+}
+
+// Coin floating animation for card 3
+function initCoinAnimations() {
+    const coins = document.querySelectorAll('.card-wellbeing .coin-shape');
+
+    gsap.to(coins, {
+        y: -10,
+        duration: 2.5,
+        repeat: -1,
+        yoyo: true,
+        ease: "sine.inOut",
+        stagger: 0.3
+    });
+}
+
+
+--- Dashboard_temp/app/static/js/scrollTrigger.js ---
+
+// Minimal ScrollTrigger implementation
+// For production, use the actual GSAP ScrollTrigger plugin
+(function () {
+    gsap.registerPlugin({
+        name: "scrollTrigger",
+        init: function (target, vars) {
+            this.vars = vars;
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        if (this.animation) {
+                            this.animation.play();
+                        } else {
+                            this.animation = gsap.getTweensOf(target)[0];
+                        }
+                    }
+                });
+            }, {
+                threshold: 0.1,
+                rootMargin: (vars.start && vars.start.includes('%')) ? `-${100 - parseInt(vars.start.split(' ')[1])}% 0px` : '0px'
+            });
+
+            if (target.nodeType) {
+                observer.observe(target);
+            } else if (target.length) {
+                gsap.utils.toArray(target).forEach(el => observer.observe(el));
+            }
+            return true;
+        }
+    });
+}());
+
+
+--- Dashboard_temp/app/static/js/main.js ---
+
+// static/js/main.js - NEW, SIMPLIFIED VERSION
+document.addEventListener("DOMContentLoaded", () => {
+    // The DOM is now fully built by the server.
+    // We just need to initialize our animations.
+    if (typeof initAllAnimations === 'function') {
+        initAllAnimations();
+    } else {
+        console.error("initAllAnimations function not found!");
+    }
+});
+
+--- Dashboard_temp/app/static/css/layout/layout.css ---
+
+/* The main content area is now a flex container */
+.dashboard-content {
+    display: flex;
+    flex-direction: column;
+    gap: var(--padding);
+}
+
+/* The grid is now scoped to the card grid container */
+.card-grid {
+    padding: var(--padding);
+    padding-top: 0;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: auto;
+    gap: var(--padding);
+}
+
+--- Dashboard_temp/app/static/css/components/small-cards.css ---
+
+.small-card {
+    background-color: var(--card4-bg);
+    padding: 20px;
+    border-radius: var(--border-radius);
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.small-card .label {
+    font-size: 0.875rem;
+    color: var(--card4-text-tertiary);
+    font-weight: 500;
+}
+
+.small-card .value {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--card4-text);
+    line-height: 1;
+}
+
+--- Dashboard_temp/app/static/css/components/main-cards.css ---
+
+.main-card {
+    padding: 24px;
+    border-radius: var(--border-radius);
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.main-card h2 {
+    font-size: 1.1rem;
+    z-index: 9999;
+    margin-top: 0px;
+    margin-bottom: 10px;
+    line-height: 1.3;
+    font-weight: 600;
+    max-width: 75%;
+    color: var(--white);
+}
+
+.main-card p {
+    display: none;
+}
+
+.main-card>* {
+    position: relative;
+}
+
+--- Dashboard_temp/app/static/css/components/wellbeing-card.css ---
+
+.card-wellbeing {
+    background-color: var(--card4-bg);
+}
+
+/* Illustration sizing specific to Wellbeing card */
+.main-card .illustration.house {
+    bottom: 16px;
+    width: 110px;
+}
+
+/* Background sparkles and coins specific to Wellbeing card */
+.card-wellbeing .bg-shapes {
+    height: 100%;
+}
+
+.card-wellbeing .sparkle {
+    position: absolute;
+    width: 8px;
+    height: 8px;
+    opacity: 0.6;
+}
+
+.card-wellbeing .sparkle::before,
+.card-wellbeing .sparkle::after {
+    content: '';
+    position: absolute;
+    background-color: var(--card3-sparkle);
+}
+
+.card-wellbeing .sparkle::before {
+    width: 100%;
+    height: 2px;
+    top: 50%;
+    left: 0;
+    transform: translateY(-50%);
+}
+
+.card-wellbeing .sparkle::after {
+    width: 2px;
+    height: 100%;
+    left: 50%;
+    top: 0;
+    transform: translateX(-50%);
+}
+
+.card-wellbeing .sparkle1 {
+    top: 20%;
+    left: 15%;
+}
+
+.card-wellbeing .sparkle2 {
+    top: 40%;
+    left: 10%;
+}
+
+.card-wellbeing .sparkle3 {
+    top: 60%;
+    left: 20%;
+}
+
+.card-wellbeing .sparkle4 {
+    top: 30%;
+    left: 25%;
+}
+
+.card-wellbeing .sparkle5 {
+    top: 50%;
+    left: 5%;
+}
+
+.card-wellbeing .coin-shape {
+    position: absolute;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background-color: var(--card3-coin-bg);
+    border: 3px solid var(--card3-coin-border);
+    opacity: 0.7;
+}
+
+.card-wellbeing .coin-shape::after {
+    content: '$';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: var(--card3-coin-text);
+    font-weight: 700;
+    font-size: 20px;
+}
+
+.card-wellbeing .coin1 {
+    bottom: 20%;
+    left: 8%;
+}
+
+.card-wellbeing .coin2 {
+    bottom: 35%;
+    left: 18%;
+    width: 35px;
+    height: 35px;
+}
+
+.card-wellbeing .coin3 {
+    bottom: 10%;
+    left: 22%;
+    width: 30px;
+    height: 30px;
+}
+
+--- Dashboard_temp/app/static/css/components/illustrations.css ---
+
+.main-card .illustration {
+    position: absolute;
+    right: 20px;
+}
+
+--- Dashboard_temp/app/static/css/components/behavior-card.css ---
+
+.card-behavior {
+    background-color: var(--card2-bg);
+}
+
+/* Illustration sizing specific to Behavior card */
+.main-card .illustration.scales {
+    bottom: 20px;
+    right: 8px;
+    width: 75px;
+}
+
+/* Footer and heading color overrides for Behavior card */
+.card-behavior .card-content h2 {
+    color: var(--card2-text);
+    font-weight: 700;
+}
+
+.card-behavior .card-footer-label {
+    color: var(--card2-text);
+    font-weight: 500;
+}
+
+.card-behavior .card-footer-label i {
+    color: var(--card2-text);
+}
+
+.card-behavior .card-footer-value {
+    color: var(--card2-text);
+}
+
+/* Background particles specific to Behavior card */
+.card-behavior .bg-shapes {
+    height: 100%;
+}
+
+.card-behavior .particle {
+    position: absolute;
+    border-radius: 50%;
+    background-color: var(--card2-particle);
+    opacity: var(--card2-particle-opacity);
+}
+
+.card-behavior .particle1 {
+    width: 8px;
+    height: 8px;
+    bottom: 25%;
+    left: 12%;
+}
+
+.card-behavior .particle2 {
+    width: 12px;
+    height: 12px;
+    bottom: 55%;
+    left: 20%;
+}
+
+.card-behavior .particle3 {
+    width: 6px;
+    height: 6px;
+    bottom: 70%;
+    left: 15%;
+}
+
+.card-behavior .particle4 {
+    width: 10px;
+    height: 10px;
+    bottom: 40%;
+    left: 8%;
+}
+
+.card-behavior .particle5 {
+    width: 14px;
+    height: 14px;
+    bottom: 15%;
+    left: 18%;
+}
+
+.card-behavior .particle6 {
+    width: 7px;
+    height: 7px;
+    bottom: 60%;
+    left: 10%;
+}
+
+.card-behavior .particle7 {
+    width: 9px;
+    height: 9px;
+    bottom: 35%;
+    left: 22%;
+}
+
+--- Dashboard_temp/app/static/css/components/background-shapes.css ---
+
+.bg-shapes {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 50%;
+    z-index: -1;
+}
+
+.bg-shapes .shape {
+    position: absolute;
+    border-radius: 50%;
+    opacity: 0.5;
+}
+
+--- Dashboard_temp/app/static/css/components/knowledge-card.css ---
+
+.card-knowledge {
+    background-color: var(--card1-bg);
+}
+
+/* Illustration sizing specific to Knowledge card */
+.main-card .illustration.light {
+    top: 90px;
+    width: 55px;
+    height: 55px;
+}
+
+/* Background shapes specific to Knowledge card */
+.card-knowledge .shape1 {
+    background-color: var(--card1-illust-bg-shape1);
+    width: 200px;
+    height: 200px;
+    bottom: -100px;
+    left: 120px;
+}
+
+.card-knowledge .shape2 {
+    background-color: var(--card1-illust-bg-shape2);
+    width: 150px;
+    height: 150px;
+    bottom: -75px;
+    left: 50px;
+}
+
+.card-knowledge .shape3 {
+    background-color: var(--card1-illust-bg-shape3);
+    width: 180px;
+    height: 180px;
+    bottom: -90px;
+    right: -20px;
+}
+
+--- Dashboard_temp/app/static/css/components/card-footer.css ---
+
+.card-footer {
+    margin-top: auto;
+    display: flex;
+    gap: 12px;
+    flex-wrap: nowrap;
+    position: relative;
+    z-index: 2;
+}
+
+.card-footer-item {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column-reverse;
+}
+
+.card-footer-label {
+    font-size: 7px;
+    color: var(--card1-text-secondary);
+    margin-top: 4px;
+    margin-bottom: 0;
+    line-height: 1.2;
+    white-space: normal;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.card-footer-label i {
+    font-size: 10px;
+    opacity: 0.8;
+}
+
+.card-footer-label span {
+    flex: 1;
+}
+
+.card-footer-value {
+    font-size: 2rem;
+    font-weight: 700;
+    line-height: 1;
+    color: var(--card1-text);
+}
+
+--- Dashboard_temp/app/static/css/components/hero-section.css ---
+
+.hero-section {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--padding);
+    padding: var(--padding);
+    padding-top: calc(var(--padding) * 2);
+    align-items: center;
+}
+
+.hero-section__left {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    grid-column: 1 / span 2;
+}
+
+.hero-title {
+    font-size: 3.5rem;
+    font-weight: 800;
+    margin: 0;
+    line-height: 1.1;
+    letter-spacing: -0.03em;
+    color: var(--text-primary);
+    background: var(--card1-bg);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+/* MODIFIED: Replaced old .hero-description with a container */
+.hero-description-container {
+    display: flex;
+    align-items: baseline;
+    gap: 0.5em;
+    font-size: 1.1rem;
+    color: var(--text-secondary);
+    max-width: 90%;
+    line-height: 1.6;
+}
+
+.hero-description {
+    margin: 0;
+    /* Remove default paragraph margin */
+}
+
+.line-wrapper {
+    overflow: hidden;
+    padding-bottom: 4px;
+}
+
+.line-content {
+    display: block;
+}
+
+.hero-section__right {
+    display: flex;
+    justify-content: flex-end;
+    grid-column: 3;
+}
+
+
+.hero-chart-container {
+    background-color: var(--white);
+    border-radius: var(--border-radius);
+    padding: 20px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.05);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    width: 95%;
+    top: 69px;
+    height: 230px;
+}
+
+.hero-chart-container--chart {
+    /* MODIFIED: Set a fixed height to fix the layout */
+    height: 230px;
+    margin-top: 16px;
+}
+
+/* Specific styles for the anxiety score stat panel */
+.hero-chart-container--stat {
+    position: relative;
+    cursor: pointer;
+}
+
+/* Custom Dropdown */
+.custom-dropdown {
+    position: relative;
+    display: inline-block;
+    cursor: pointer;
+}
+
+.dropdown-selected {
+    font-weight: 700;
+    color: var(--card2-bg);
+    border-bottom: 2px solid var(--card2-bg);
+    padding-bottom: 2px;
+}
+
+.dropdown-options {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    list-style: none;
+    padding: 0;
+    margin: 10px 0 0;
+    background-color: var(--white);
+    border-radius: var(--border-radius);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    z-index: 10;
+    opacity: 0;
+    transform: translateY(10px);
+    pointer-events: none;
+    transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.custom-dropdown.open .dropdown-options {
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: auto;
+}
+
+.dropdown-options li {
+    padding: 12px 20px;
+    transition: background-color 0.2s ease;
+}
+
+.dropdown-options li:hover {
+    background-color: var(--ui-subtle-bg);
+}
+
+.anxiety-face-wrapper {
+    position: relative;
+    width: 100px;
+    height: 100px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    grid-area: face;
+}
+
+.anxiety-face-wrapper svg {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+}
+
+/* Anxiety stat: face + vertical gauge side-by-side */
+.anxiety-stat {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    flex-grow: 1;
+    width: 100%;
+    height: 100%;
+}
+
+.anxiety-gauge {
+    position: absolute;
+    right: 20px;
+    top: 50%;
+    transform: translateY(-50%);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.anxiety-gauge__track {
+    position: relative;
+    width: 18px;
+    height: 120px;
+    /* match face height */
+    border-radius: 999px;
+    background: var(--ui-subtle-bg);
+    box-shadow: inset 0 0 0 1px var(--border-color);
+    overflow: hidden;
+}
+
+.anxiety-gauge__fill {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 0%;
+    background: var(--card2-bg);
+}
+
+.anxiety-gauge__scale {
+    display: flex;
+    flex-direction: column-reverse;
+    justify-content: space-between;
+    height: 110px;
+    font-size: 0.7rem;
+    color: var(--text-tertiary);
+}
+
+.anxiety-gauge__scale span {
+    line-height: 1;
+}
+
+.anxiety-gauge__value {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    line-height: 1;
+}
+
+.stat-label {
+    font-size: 0.8rem;
+    color: var(--text-tertiary);
+    font-weight: 500;
+    margin: 0;
+    margin-top: auto;
+}
+
+.hero-chart {
+    width: 90%;
+    height: 100%;
+    /* Make chart fill container */
+}
+
+--- Dashboard_temp/app/static/css/base/base.css ---
+
+body {
+    margin: 0;
+    background-color: var(--bg-color);
+    font-family: 'Inter', sans-serif;
+    color: var(--text-primary);
+}
+
+.dashboard-window {
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    background: transparent;
+    box-shadow: none;
+    border: none;
+    border-radius: 0;
+    overflow: visible;
+}
+
+--- Dashboard_temp/app/static/css/base/colors.css ---
+
+:root {
+    /* General Palette */
+    --bg-color: #F6F9FC;
+    --text-primary: #3A4150;
+    --text-secondary: #5E6573;
+    --text-tertiary: #8C93A0;
+    --text-monospace: #888888;
+    --border-color: #E1E4E8;
+    --ui-subtle-bg: #F7F8FA;
+    --white: #FFFFFF;
+
+    /* Card Backgrounds - BOLD & SATURATED */
+    --card1-bg: #FF6B9D;
+    /* Bold Pink */
+    --card2-bg: #5DADE2;
+    /* Bold Orange */
+    --card3-bg: #ff8114;
+    /* Bold Blue */
+    --card4-bg: #9B59B6;
+    /* Bold Purple */
+
+    /* Card 1 (Knowledge) - Pink Theme */
+    --card1-illust-main: #FFE5EE;
+    --card1-illust-bg-shape1: rgba(255, 255, 255, 0.2);
+    --card1-illust-bg-shape2: rgba(255, 255, 255, 0.15);
+    --card1-illust-bg-shape3: rgba(255, 255, 255, 0.25);
+    --card1-text: #FFFFFF;
+    --card1-text-secondary: rgba(255, 255, 255, 0.85);
+
+    /* Card 2 (Behavior) - Orange Theme with Dark Text */
+    --card2-illust-main: #FFF4E6;
+    --card2-illust-accent: #FFF4E6;
+    --card2-text: #FFF4E6;
+    --card2-text-secondary: #FFF4E6;
+    --card2-particle: #7aebfa;
+    --card2-particle-opacity: 0.3;
+
+
+
+    /* --card2-illust-accent: #602e0f;
+    --card2-text: #602e0f;
+    --card2-text-secondary: #602e0f;
+    --card2-particle: #ec803c;
+    --card2-particle-opacity: 1;
+ */
+    /* Card 3 (Wellbeing) - Purple Theme */
+    --card3-illust-main: #F8E9FF;
+    --card3-illust-accent: #E5C9F5;
+    --card3-illust-dark: #7B3FA0;
+    --card3-illust-roof: #E89B9B;
+    --card3-text: #FFFFFF;
+    --card3-text-secondary: rgba(255, 255, 255, 0.85);
+    --card3-sparkle: rgba(255, 255, 255, 0.8);
+    --card3-coin-bg: rgba(255, 255, 255, 0.15);
+    --card3-coin-border: rgba(255, 255, 255, 0.3);
+    --card3-coin-text: rgba(255, 255, 255, 0.5);
+
+    /* Card 4 (Small Cards) */
+    --card4-text: #FFFFFF;
+    --card4-text-secondary: rgba(255, 255, 255, 0.9);
+    --card4-text-tertiary: rgba(255, 255, 255, 0.7);
+
+    /* Shared Illustration Colors */
+    --illust-base: #D3D3D3;
+    --illust-stroke: #2C3E50;
+    --illust-ground: #95A5A6;
+    --illust-window-body: #FFFFFF;
+
+    /* Button Colors */
+    --button-hover: #e9e1d9;
+}
+
+--- Dashboard_temp/app/static/css/base/variables.css ---
+
+:root {
+    /* Layout & Spacing */
+    --border-radius: 20px;
+    --padding: 24px;
+}
+
+--- Dashboard_temp/app/static/css/main.css ---
+
+/* Import all modular stylesheets */
+@import url('base/colors.css');
+@import url('base/variables.css');
+@import url('base/base.css');
+@import url('layout/layout.css');
+@import url('components/main-cards.css');
+@import url('components/illustrations.css');
+@import url('components/card-footer.css');
+@import url('components/background-shapes.css');
+@import url('components/small-cards.css');
+@import url('components/hero-section.css');
+@import url('components/knowledge-card.css');
+@import url('components/behavior-card.css');
+@import url('components/wellbeing-card.css');
+
+--- Dashboard_temp/app/__init__.py ---
+
+from flask import Flask
+
+app = Flask(__name__)
+
+from app import routes
+
+
+--- Dashboard_temp/app/routes.py ---
+
+from flask import render_template, jsonify
+from app import app
+from app.services import get_main_metrics, get_anxiety_by_employment_status, get_filtered_metrics
+
+@app.route('/')
+def index():
+    main_metrics = get_main_metrics()
+    scores = main_metrics['scores']
+
+    page_data = {
+        "hero_section": {
+            "title": "Gen Z Financial Health Dashboard",
+            "anxiety_score": main_metrics['average_anxiety_score']
+        },
+        "knowledge_card": {
+            "title": "Financial Knowledge",
+            "score_literasi_finansial": scores.get('Literasi Finansial', 0),
+            "score_literasi_digital": scores.get('Literasi Keuangan Digital', 0)
+        },
+        "behavior_card": {
+            "title": "Financial Behavior",
+            "score_pengelolaan": scores.get('Pengelolaan Keuangan', 0),
+            "score_perilaku": scores.get('Sikap Finansial', 0),
+            "score_disiplin": scores.get('Disiplin Finansial', 0)
+        },
+        "wellbeing_card": {
+            "title": "Financial Wellbeing",
+            "score_kesejahteraan": scores.get('Kesejahteraan Finansial', 0),
+            "score_investasi": scores.get('Investasi Aset', 0)
+        }
+    }
+    return render_template('index.html', data=page_data)
+
+@app.route('/data/anxiety_by/<filter_by>')
+def anxiety_by_filter(filter_by):
+    data = get_anxiety_by_employment_status()
+    return jsonify(categories=data['categories'], scores=data['scores'])
+
+@app.route('/api/filter_metrics/<employment_status>')
+def filtered_metrics(employment_status):
+    metrics = get_filtered_metrics(employment_status)
+    return jsonify(scores=metrics['scores'], average_anxiety_score=metrics['average_anxiety_score'])
+
+
+
+--- Dashboard_temp/app/services.py ---
+
+import pandas as pd
+
+def _calculate_scores(df):
+    metrics = {
+        'Literasi Finansial': [
+            'I am able to identify risks and discrepancies and view numbers in a complex way',
+            'I am able to understand what is behind the numbers',
+            'I am able to understand numbers and financial metrics',
+            'I am able to understand what drives cash flow and profits',
+            "I am able to understand the company's financial statements and some core performance measures",
+            'I pay attention to news about the economy as it may affect my family'
+        ],
+        'Literasi Keuangan Digital': [
+            'Awareness about the potential of financial risk in using digital financial provider or fintech, such as the legality of the fintech provider, interest rate and transaction fee',
+            'Having experience in using the product and service of fintech for digital payment',
+            'Having a good understanding of digital payment products such as E-Debit, E-Credit, E-Money, Mobile/Internet banking, E -wallet',
+            'Having a good understanding of digital alternatives',
+            'Having a good understanding of digital insurance',
+            'Having a good understanding of customer rights and protection as well as the procedure to complain about the service from digital  financial providers'
+        ],
+        'Investasi Aset': [
+            'I am able to recognize a good financial investment',
+            'Experience in using the product and service of fintech for financing (loan) and investment',
+            'Experience in using the product and service of fintech for asset management',
+            'Having a good understanding of product digital asset management'
+        ],
+        'Pengelolaan Keuangan': [
+            'I am able to and divide it accordingly across an allotted period to the right concerned areas',
+            'I am able to project the amount of cash that will be available to me in the future',
+            'I take part in domestic expense planning',
+            'I suggest at home that we keep money aside for emergencies',
+            'I am able to search for economic options during financial decision making',
+            'I am able to foresee the long term and short-term consequences of the financial decisions I undertake'
+        ],
+        'Disiplin Finansial': [
+            'I am able to plan ahead to avoid impulse spending',
+            'I always try to save some money to do things I really like',
+            'I always like to negotiate prices when I buy',
+            'I keep an eye on promotions and discounts',
+            'I like to think thoroughly before deciding to buy something',
+            'I like to research prices whenever I buy something'
+        ],
+        'Sikap Finansial': [
+            'I usually have a critical view of the way my friends deal with money',
+            'I like to participate in family decision making when we buy something expensive for home',
+            'I advise others on money matters',
+            'I often do things without giving them much thought',
+            'I am impulsive',
+            'I say things before I have thought them through',
+            'I am able to quickly change my financial decisions as per the changes in circumstance',
+            'Appraise of personal risk helps me in better financial decision making',
+            'I make sound financial decision by comparing results over the time',
+            'I make sound financial decisions by comparing results over expenses involved',
+            'Previously used decision strategies help me in better financial decision making'
+        ],
+        'Kesejahteraan Finansial': [
+            'I am becoming financially secure',
+            'I am securing my financial future',
+            'I will achieve the financial goals that I have set for myself',
+            'I have saved (or will be able to save) enough money to last me to the end of my life',
+            'Because of my money situation, I feel I will never have the things I want in life',
+            'I am behind with my finances',
+            'My finances control my life',
+            'Whenever I feel in control of my finances, something happens that sets me back',
+            'I am unable to enjoy life because I obsess too much about money'
+        ]
+    }
+
+    negative_polarity_questions = [
+        'I often do things without giving them much thought',
+        'I am impulsive',
+        'I say things before I have thought them through',
+        'Because of my money situation, I feel I will never have the things I want in life',
+        'I am behind with my finances',
+        'My finances control my life',
+        'Whenever I feel in control of my finances, something happens that sets me back',
+        'I am unable to enjoy life because I obsess too much about money'
+    ]
+
+    df_copy = df.copy()
+    for question in negative_polarity_questions:
+        if question in df_copy.columns:
+            df_copy[question] = 5 - df_copy[question]
+
+    scores = {}
+    for metric, questions in metrics.items():
+        existing_questions = [q for q in questions if q in df_copy.columns]
+        if existing_questions:
+            metric_scores = df_copy[existing_questions].mean(axis=1)
+            avg_score = metric_scores.mean()
+            if pd.isna(avg_score):
+                scores[metric] = 0
+            else:
+                scores[metric] = round(((avg_score - 1) / 3) * 100)
+        else:
+            scores[metric] = 0
+    return scores
+
+def get_main_metrics():
+    df = pd.read_csv('dataset/Sheet2.csv')
+    scores = _calculate_scores(df)
+    df_anxiety = pd.read_csv('dataset/Sheet1.csv')
+    average_anxiety_score = df_anxiety['financial_anxiety_score'].mean()
+    return {"scores": scores, "average_anxiety_score": average_anxiety_score}
+
+def get_anxiety_by_employment_status():
+    df = pd.read_csv('dataset/Sheet1.csv')
+    anxiety_by_status = df.groupby('employment_status')['financial_anxiety_score'].mean().round(1).reset_index()
+    return {
+        'categories': anxiety_by_status['employment_status'].tolist(),
+        'scores': anxiety_by_status['financial_anxiety_score'].tolist()
+    }
+
+def get_filtered_metrics(employment_status):
+    df1 = pd.read_csv('dataset/Sheet1.csv')
+    df2 = pd.read_csv('dataset/Sheet2.csv')
+
+    respondent_ids = df1[df1['employment_status'] == employment_status]['user_id ID']
+    df_filtered = df2[df2['user_id ID'].isin(respondent_ids)]
+
+    scores = _calculate_scores(df_filtered)
+
+    filtered_anxiety_df = df1[df1['user_id ID'].isin(respondent_ids)]
+    average_anxiety_score = filtered_anxiety_df['financial_anxiety_score'].mean()
+
+    return {"scores": scores, "average_anxiety_score": average_anxiety_score}
+
+
+--- Dashboard_temp/app/templates/components/knowledge-card.html ---
+
+<!-- Knowledge Card -->
+<div class="main-card card-knowledge">
+    <div class="card-content">
+        <h2>{{ data.knowledge_card.title }}</h2>
+    </div>
+    <div class="illustration light" id="lightbulb">
+        <svg viewBox="0 0 100 100">
+            <g id="bulb-base">
+                <rect x="35" y="75" width="30" height="5" rx="2" fill="var(--illust-base)"/>
+                <rect x="38" y="80" width="24" height="4" rx="2" fill="var(--illust-base)"/>
+                <rect x="35" y="84" width="30" height="5" rx="2" fill="var(--illust-base)"/>
+                <path d="M 40 89 H 60" stroke="var(--illust-base)" stroke-width="3" stroke-linecap="round"/>
+            </g>
+            <path id="bulb-glass" d="M50,0 C30,0 20,20 20,40 C20,65 35,75 50,75 C65,75 80,65 80,40 C80,20 70,0 50,0 Z" fill="var(--card1-illust-main)" stroke="var(--illust-stroke)" stroke-width="2" fill-opacity="0.2"/>
+            <g id="bulb-filament" stroke="var(--illust-stroke)" stroke-width="2" stroke-linecap="round">
+                <line x1="40" y1="75" x2="45" y2="55" />
+                <line x1="60" y1="75" x2="55" y2="55" />
+                <line x1="45" y1="55" x2="55" y2="55" />
+            </g>
+            <g id="bulb-rays" stroke="var(--illust-stroke)" stroke-width="2" stroke-linecap="round" opacity="0">
+                <line x1="50" y1="-10" x2="50" y2="-20" />
+                <line x1="75" y1="15" x2="85" y2="5" />
+                <line x1="90" y1="40" x2="100" y2="40" />
+                <line x1="25" y1="15" x2="15" y2="5" />
+                <line x1="10" y1="40" x2="0" y2="40" />
+            </g>
+        </svg>
+    </div>
+    <div class="card-footer">
+        <div class="card-footer-item">
+            <div class="card-footer-label">
+                <i class="fa-solid fa-book-open"></i>
+                <span>Literasi Finansial</span>
+            </div>
+            <div class="card-footer-value" id="scoreLiterasiFin" data-score="{{ data.knowledge_card.score_literasi_finansial }}">{{ data.knowledge_card.score_literasi_finansial }}</div>
+        </div>
+        <div class="card-footer-item">
+            <div class="card-footer-label">
+                <i class="fa-solid fa-laptop"></i>
+                <span>Literasi Keuangan Digital</span>
+            </div>
+            <div class="card-footer-value" id="scoreLiterasiDigital" data-score="{{ data.knowledge_card.score_literasi_digital }}">{{ data.knowledge_card.score_literasi_digital }}</div>
+        </div>
+    </div>
+    <div class="bg-shapes">
+        <div class="shape shape1"></div>
+        <div class="shape shape2"></div>
+        <div class="shape shape3"></div>
+    </div>
+</div>
+
+
+--- Dashboard_temp/app/templates/components/wellbeing-card.html ---
+
+<!-- Wellbeing Card -->
+<div class="main-card card-wellbeing">
+    <div class="card-content">
+        <h2>{{ data.wellbeing_card.title }}</h2>
+    </div>
+    <div class="illustration house" id="wellbeing">
+        <svg viewBox="0 0 220 150">
+            <line x1="20" y1="120" x2="200" y2="120" stroke="var(--illust-ground)" stroke-width="2" />
+            <g id="coins" fill="var(--card3-illust-main)" stroke="var(--card3-illust-dark)" stroke-width="1">
+                <circle class="coin" cx="55" cy="116" r="6" />
+                <circle class="coin" cx="70" cy="112" r="6" />
+                <circle class="coin" cx="85" cy="108" r="6" />
+            </g>
+            <g id="house">
+                <g id="roof" fill="var(--card3-illust-roof)" stroke="var(--illust-stroke)" stroke-width="2">
+                    <polygon points="110,45 70,70 150,70"/>
+                </g>
+                <g id="body" fill="var(--illust-window-body)" stroke="var(--illust-stroke)" stroke-width="2">
+                    <rect x="75" y="70" width="80" height="50" rx="6"/>
+                    <rect x="110" y="90" width="18" height="30" fill="var(--illust-base)" stroke="var(--illust-stroke)"/>
+                    <rect id="left-window" x="85" y="80" width="16" height="14" rx="2" fill="var(--card3-illust-accent)" stroke="var(--illust-stroke)"/>
+                    <rect id="right-window" x="134" y="80" width="16" height="14" rx="2" fill="var(--card3-illust-accent)" stroke="var(--illust-stroke)"/>
+                </g>
+            </g>
+        </svg>
+    </div>
+    <div class="card-footer">
+        <div class="card-footer-item">
+            <div class="card-footer-label">
+                <i class="fa-solid fa-heart"></i>
+                <span>Kesejahteraan Finansial</span>
+            </div>
+            <div class="card-footer-value" id="scoreKesejahteraan" data-score="{{ data.wellbeing_card.score_kesejahteraan }}">{{ data.wellbeing_card.score_kesejahteraan }}</div>
+        </div>
+        <div class="card-footer-item">
+            <div class="card-footer-label">
+                <i class="fa-solid fa-coins"></i>
+                <span>Investasi Aset</span>
+            </div>
+            <div class="card-footer-value" id="scoreInvestasi" data-score="{{ data.wellbeing_card.score_investasi }}">{{ data.wellbeing_card.score_investasi }}</div>
+        </div>
+    </div>
+    <div class="bg-shapes">
+        <div class="sparkle sparkle1"></div>
+        <div class="sparkle sparkle2"></div>
+        <div class="sparkle sparkle3"></div>
+        <div class="sparkle sparkle4"></div>
+        <div class="sparkle sparkle5"></div>
+        <div class="coin-shape coin1"></div>
+        <div class="coin-shape coin2"></div>
+        <div class="coin-shape coin3"></div>
+    </div>
+</div>
+
+
+--- Dashboard_temp/app/templates/components/behavior-card.html ---
+
+<!-- Behavior Card -->
+<div class="main-card card-behavior">
+    <div class="card-content">
+        <h2>{{ data.behavior_card.title }}</h2>
+    </div>
+    <div class="illustration scales" id="scales">
+        <svg viewBox="0 0 200 150">
+            <g id="scale-stand" stroke="var(--illust-stroke)" stroke-width="2" fill="none">
+                <line x1="100" y1="120" x2="100" y2="30"/>
+                <line x1="70" y1="120" x2="130" y2="120"/>
+            </g>
+            <g id="scale-beam" stroke="var(--illust-stroke)" stroke-width="2" fill="none" transform-origin="100 30">
+                <path d="M 20 30 Q 100 20 180 30" stroke="var(--card2-illust-main)" stroke-width="4"/>
+                <g id="left-pan">
+                    <line x1="20" y1="30" x2="35" y2="70" />
+                    <path d="M 10 70 Q 35 85 60 70" fill="var(--card2-illust-accent)" stroke-linecap="round"/>
+                </g>
+                <g id="right-pan">
+                    <line x1="180" y1="30" x2="165" y2="70" />
+                    <path d="M 140 70 Q 165 85 190 70" fill="var(--card2-illust-accent)" stroke-linecap="round"/>
+                </g>
+            </g>
+        </svg>
+    </div>
+    <div class="card-footer">
+        <div class="card-footer-item">
+            <div class="card-footer-label">
+                <i class="fa-solid fa-wallet"></i>
+                <span>Pengelolaan Keuangan</span>
+            </div>
+            <div class="card-footer-value" id="scorePengelolaan" data-score="{{ data.behavior_card.score_pengelolaan }}">{{ data.behavior_card.score_pengelolaan }}</div>
+        </div>
+        <div class="card-footer-item">
+            <div class="card-footer-label">
+                <i class="fa-solid fa-chart-line"></i>
+                <span>Sikap Finansial</span>
+            </div>
+            <div class="card-footer-value" id="scorePerilaku" data-score="{{ data.behavior_card.score_perilaku }}">{{ data.behavior_card.score_perilaku }}</div>
+        </div>
+        <div class="card-footer-item">
+            <div class="card-footer-label">
+                <i class="fa-solid fa-star"></i>
+                <span>Disiplin Finansial</span>
+            </div>
+            <div class="card-footer-value" id="scoreDisiplin" data-score="{{ data.behavior_card.score_disiplin }}">{{ data.behavior_card.score_disiplin }}</div>
+        </div>
+    </div>
+    <div class="bg-shapes">
+        <div class="particle particle1"></div>
+        <div class="particle particle2"></div>
+        <div class="particle particle3"></div>
+        <div class="particle particle4"></div>
+        <div class="particle particle5"></div>
+        <div class="particle particle6"></div>
+        <div class="particle particle7"></div>
+    </div>
+</div>
+
+
+--- Dashboard_temp/app/templates/components/hero-section.html ---
+
+<div class="hero-section">
+    <div class="hero-section__left">
+        <h1 class="hero-title">{{ data.hero_section.title }}</h1>
+        
+        <!-- MODIFIED: Separated text and dropdown to fix JS error -->
+        <div class="hero-description-container">
+            <p class="hero-description">
+                Data Gen Z Paling Financially anxious berdasarkan
+            </p>
+            <span class="custom-dropdown">
+                <span class="dropdown-selected">💼 Pekerjaan</span>
+                <ul class="dropdown-options">
+                    <li data-value="employment_status">💼 Pekerjaan</li>
+                    <li data-value="education_level">🎓 Pendidikan</li>
+                    <li data-value="gender">🚻 Jenis Kelamin</li>
+                    <li data-value="birth_year">🎂 Usia</li>
+                </ul>
+            </span>
+        </div>
+
+        <div class="hero-chart-container hero-chart-container--chart">
+             <div id="anxietyBarChart" class="hero-chart"></div>
+        </div>
+    </div>
+    <div class="hero-section__right">
+        <div class="hero-chart-container hero-chart-container--stat" id="anxiety-container">
+            <div class="anxiety-stat" aria-label="Financial anxiety gauge">
+                <!-- ANXIOUS FACE SVG -->
+                <div class="anxiety-face-wrapper">
+                    <svg id="anxious-face" viewBox="0 0 100 100">
+                        <g id="face-group">
+                            <!-- Head -->
+                            <circle cx="50" cy="50" r="45" fill="var(--ui-subtle-bg)" stroke="var(--illust-stroke)" stroke-width="2"/>
+
+                            <!-- Eyes -->
+                            <g id="eyes-group">
+                                <circle id="eye-left" cx="35" cy="45" r="5" fill="var(--illust-stroke)"/>
+                                <circle id="eye-right" cx="65" cy="45" r="5" fill="var(--illust-stroke)"/>
+                            </g>
+
+                            <!-- Mouth -->
+                            <path id="mouth" d="M 35 70 Q 50 70 65 70" stroke="var(--illust-stroke)" stroke-width="2" fill="none" stroke-linecap="round"/>
+
+                            <!-- Sweat Drop -->
+                            <path id="sweat-drop" d="M 75 25 Q 80 35 75 45 Q 70 35 75 25" fill="var(--card2-bg)" opacity="0"/>
+                        </g>
+                    </svg>
+                </div>
+
+                <!-- Vertical Gauge -->
+                <div class="anxiety-gauge">
+                    <div class="anxiety-gauge__track">
+                        <div id="anxiety-gauge-fill" class="anxiety-gauge__fill" style="height: 0%"></div>
+                    </div>
+                    <div class="anxiety-gauge__scale" aria-hidden="true">
+                        <span>1</span>
+                        <span>2</span>
+                        <span>3</span>
+                        <span>4</span>
+                        <span>5</span>
+                    </div>
+                </div>
+                <div id="avgAnxietyScore" class="anxiety-gauge__value" data-score="{{ data.hero_section.anxiety_score }}">{{ data.hero_section.anxiety_score }}</div>
+            </div>
+            <p class="stat-label">Average Financial Anxiety Score (1-5)</p>
+        </div>
+    </div>
+</div>
+
+--- Dashboard_temp/app/templates/index.html ---
+
+<!-- templates/index.html -->
+{% extends "layout.html" %}
+
+{% block title %}
+    Dashboard Overview
+{% endblock %}
+
+{% block content %}
+<div class="dashboard-window">
+    
+    <!-- Insert the hero section -->
+    {% include 'components/hero-section.html' %}
+
+    <!-- Create the card grid container -->
+    <main class="card-grid">
+        <!-- Insert each card component -->
+        {% include 'components/knowledge-card.html' %}
+        {% include 'components/behavior-card.html' %}
+        {% include 'components/wellbeing-card.html' %}
+    </main>
+</div>
+{% endblock %}
+
+--- Dashboard_temp/app/templates/layout.html ---
+
+<!-- templates/layout.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Define a block for the title -->
+    <title>{% block title %}Gen Z Financial Dashboard{% endblock %}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+    
+    <!-- Define a block for any extra head content -->
+    {% block head %}{% endblock %}
+</head>
+<body>
+
+    <!-- Define the main content block -->
+    {% block content %}{% endblock %}
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.4/gsap.min.js"></script>
+    <script src="https://code.highcharts.com/highcharts.js"></script>
+    <script src="https://code.highcharts.com/highcharts-more.js"></script>
+
+    <script src="{{ url_for('static', filename='js/scrollTrigger.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/components/lightbulb-animation.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/components/scales-animation.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/components/wellbeing-animation.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/components/hero-text-animation.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/components/dropdown-animation.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/components/hero-charts.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/background-shapes.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/counter.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/animations.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>
+
+--- Dashboard_temp/STYLE_GUIDE_PROMPT.md ---
+
+# System Prompt: Gen Z Financial Dashboard Style Guide
+
+You are an expert front-end developer tasked with maintaining and extending the "Gen Z Financial Dashboard" project. Your primary goal is to adhere strictly to the existing architecture, coding style, and design principles to ensure consistency, maintainability, and a high-quality developer experience (DX).
+
+## Core Principles
+1.  **Modularity:** The entire codebase is modular. Every new feature or component must be broken down into its own dedicated files for HTML, CSS, and JavaScript.
+2.  **DRY (Don't Repeat Yourself):** Actively look for opportunities to create reusable functions, styles, and variables. Avoid code duplication at all costs.
+3.  **Clarity and Readability:** Write clean, well-commented code. File and function names should be descriptive and intuitive.
+
+---
+
+## 1. HTML Structure
+
+-   **Component-Based:** The `index.html` file is a simple shell. All UI elements are defined as separate HTML fragments in the `/components` directory.
+-   **Dynamic Loading:** A central script (`scripts/main.js`) is responsible for fetching these HTML components and dynamically injecting them into the main page. When adding a new UI section, you must create a new file in `/components` and add it to the loading sequence in `scripts/main.js`.
+-   **Semantic HTML:** Use semantic tags (`<header>`, `<main>`, `<nav>`, etc.) where appropriate.
+
+---
+
+## 2. CSS Styling
+
+-   **Directory Structure:**
+    -   `/styles/base`: Global styles, variables, and resets (`base.css`, `colors.css`, `variables.css`).
+    -   `/styles/components`: Shared, cross-component styles (e.g., `main-cards.css`, `card-footer.css`, `background-shapes.css`). Keep this for generic rules only.
+    -   `/styles/layout`: Major layout rules, like the main grid (`layout.css`).
+    -   Component-scoped CSS is colocated with the component: `components/<component>/<component>.css` (e.g., `components/knowledge-card/knowledge-card.css`).
+-   **CSS Variables are Mandatory:**
+    -   **All colors** must be defined as CSS variables in `styles/base/colors.css`. Never use hardcoded hex codes or color names in component stylesheets. Always reference colors using `var(--color-name)`.
+    -   **All reusable spacing values** (padding, margins, gaps) and layout properties (border-radius) must be defined as variables in `styles/base/variables.css`.
+-   **Entry Point:** The `styles/main.css` file is the single entry point, which uses `@import` to load all other stylesheets in the correct cascade order. When adding a new component, add its `@import` rule to `main.css`, using a relative path to the component folder (e.g., `@import url('../components/header/header.css');`).
+-   **Naming Convention:** Use a descriptive, BEM-like naming convention (e.g., `.card-footer`, `.card-footer-label`, `.card-footer-value`) to keep styles scoped and understandable.
+
+---
+
+## 3. JavaScript and Animations
+
+-   **GSAP is the Standard:** All animations must be implemented using the GSAP (GreenSock Animation Platform) library.
+-   **Animation Vibe:** Animations should be smooth, fluid, and engaging.
+    -   Use gentle easing functions like `"power3.out"` or `"sine.inOut"` as a default.
+    -   Animations should feel responsive and interactive (e.g., triggering on hover or scroll).
+    -   Strive for subtlety. Avoid overly fast or jarring movements.
+-   **Modular, Component-Colocated Animations:**
+    -   Do not write all animation code in one file.
+    -   Each distinct animated component must have its own JavaScript file colocated with the component under `components/<component>/` (e.g., `components/knowledge-card/lightbulb-animation.js`, `components/behavior-card/scales-animation.js`).
+    -   Cross-component/shared animation utilities (e.g., background shapes, counters) live in `/scripts/` (e.g., `scripts/background-shapes.js`, `scripts/counter.js`).
+    -   All modular animation files should expose self-contained `init...()` functions.
+-   **Centralized Initialization:** `scripts/animations.js` remains the main animation controller. It imports nothing directly; instead, it assumes component animation scripts are loaded on the page and calls their `init...()` functions inside `initAllAnimations()`.
+    -   Load order in `index.html`: GSAP + ScrollTrigger, component animation scripts, shared animation utilities, then `scripts/animations.js`, then `scripts/main.js`.
+-   **Performance:** Use `ScrollTrigger` (or the existing `IntersectionObserver` in `scrollTrigger.js`) to ensure animations only run when elements are visible in the viewport.
+
+
+--- Dashboard_temp/METRIC_CALCULATION.md ---
+
+# Financial Health Metric Calculation Logic
+
+## Overview
+
+This document explains how the raw survey data from `dataset/Sheet2.csv` is processed to calculate the seven financial health metrics displayed on the dashboard. The raw score for each question is on a **1 to 4 scale**. The process involves three key steps:
+
+1.  **Categorization**: Each relevant question from the survey is mapped to one of the seven core financial metrics.
+2.  **Polarity Reversal**: Certain questions are phrased negatively, where a high score indicates a poor outcome. These questions have their scores reversed.
+3.  **Normalization**: The final average score for each metric is converted to a percentage (0-100) for display on the dashboard.
+
+## 1. Metric Categorization
+
+The following table shows which questions from `Sheet2.csv` are averaged to calculate each of the seven metrics.
+
+### Knowledge Card
+
+| Metric | Questions from `Sheet2.csv` |
+| :--- | :--- |
+| **Literasi Finansial** | `I am able to identify risks and discrepancies and view numbers in a complex way` <br> `I am able to understand what is behind the numbers` <br> `I am able to understand numbers and financial metrics` <br> `I am able to understand what drives cash flow and profits` <br> `I am able to understand the company's financial statements and some core performance measures` <br> `I pay attention to news about the economy as it may affect my family` |
+| **Literasi Keuangan Digital** | `Awareness about the potential of financial risk in using digital financial provider or fintech, such as the legality of the fintech provider, interest rate and transaction fee` <br> `Having experience in using the product and service of fintech for digital payment` <br> `Having a good understanding of digital payment products such as E-Debit, E-Credit, E-Money, Mobile/Internet banking, E -wallet` <br> `Having a good understanding of digital alternatives` <br> `Having a good understanding of digital insurance` <br> `Having a good understanding of customer rights and protection as well as the procedure to complain about the service from digital  financial providers` |
+
+### Behavior Card
+
+| Metric | Questions from `Sheet2.csv` |
+| :--- | :--- |
+| **Pengelolaan Keuangan** | `I am able to and divide it accordingly across an allotted period to the right concerned areas` <br> `I am able to project the amount of cash that will be available to me in the future` <br> `I take part in domestic expense planning` <br> `I suggest at home that we keep money aside for emergencies` <br> `I am able to search for economic options during financial decision making` <br> `I am able to foresee the long term and short-term consequences of the financial decisions I undertake` |
+| **Sikap Finansial** | `I usually have a critical view of the way my friends deal with money` <br> `I like to participate in family decision making when we buy something expensive for home` <br> `I advise others on money matters` <br> `I often do things without giving them much thought` <br> `I am impulsive` <br> `I say things before I have thought them through` <br> `I am able to quickly change my financial decisions as per the changes in circumstance` <br> `Appraise of personal risk helps me in better financial decision making` <br> `I make sound financial decision by comparing results over the time` <br> `I make sound financial decisions by comparing results over expenses involved` <br> `Previously used decision strategies help me in better financial decision making` |
+| **Disiplin Finansial** | `I am able to plan ahead to avoid impulse spending` <br> `I always try to save some money to do things I really like` <br> `I always like to negotiate prices when I buy` <br> `I keep an eye on promotions and discounts` <br> `I like to think thoroughly before deciding to buy something` <br> `I like to research prices whenever I buy something` |
+
+### Wellbeing Card
+
+| Metric | Questions from `Sheet2.csv` |
+| :--- | :--- |
+| **Kesejahteraan Finansial** | `I am becoming financially secure` <br> `I am securing my financial future` <br> `I will achieve the financial goals that I have set for myself` <br> `I have saved (or will be able to save) enough money to last me to the end of my life` <br> `Because of my money situation, I feel I will never have the things I want in life` <br> `I am behind with my finances` <br> `My finances control my life` <br> `Whenever I feel in control of my finances, something happens that sets me back` <br> `I am unable to enjoy life because I obsess too much about money` |
+| **Investasi Aset** | `I am able to recognize a good financial investment` <br> `Experience in using the product and service of fintech for financing (loan) and investment` <br> `Experience in using the product and service of fintech for asset management` <br> `Having a good understanding of product digital asset management` |
+
+---
+
+## 2. Negative Polarity Questions
+
+For standard questions, a higher score is better. However, for negative polarity questions, a higher score indicates a negative behavior or feeling. For example, strongly agreeing with "I am impulsive" is not a positive financial indicator.
+
+To correct for this, we reverse the scores for these questions using the following formula:
+
+`new_score = 5 - original_score`
+
+The following questions are treated as having negative polarity:
+
+- `I often do things without giving them much thought`
+- `I am impulsive`
+- `I say things before I have thought them through`
+- `Because of my money situation, I feel I will never have the things I want in life`
+- `I am behind with my finances`
+- `My finances control my life`
+- `Whenever I feel in control of my finances, something happens that sets me back`
+- `I am unable to enjoy life because I obsess too much about money`
+
+
+--- Dashboard_temp/requirements.txt ---
+
+blinker==1.9.0
+cachetools==6.2.1
+certifi==2025.10.5
+charset-normalizer==3.4.4
+click==8.3.0
+Flask==3.1.2
+google-auth==2.41.1
+google-auth-oauthlib==1.2.3
+gspread==6.2.1
+idna==3.11
+itsdangerous==2.2.0
+Jinja2==3.1.6
+MarkupSafe==3.0.3
+numpy==2.3.4
+oauthlib==3.3.1
+pandas==2.3.3
+pyasn1==0.6.1
+pyasn1_modules==0.4.2
+python-dateutil==2.9.0.post0
+pytz==2025.2
+requests==2.32.5
+requests-oauthlib==2.0.0
+rsa==4.9.1
+six==1.17.0
+tzdata==2025.2
+urllib3==2.5.0
+Werkzeug==3.1.3
+
+
+--- Dashboard_temp/run.py ---
+
+from app import app
+
+if __name__ == '__main__':
+    app.run(debug=True)

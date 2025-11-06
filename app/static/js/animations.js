@@ -30,6 +30,7 @@ function initAllAnimations() {
     initPageAnimations();
     initHeroCharts();
     initHeroTextAnimation();
+    initDropdownAnimation();
 
     // NEW DYNAMIC COUNTER LOGIC
     // Find all elements with an ID starting with 'score' and a data-score attribute

@@ -1,6 +1,6 @@
 .hero-section {
     display: grid;
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(3, 1fr);
     gap: var(--padding);
     padding: var(--padding);
     padding-top: calc(var(--padding) * 2);
@@ -11,7 +11,7 @@
     display: flex;
     flex-direction: column;
     gap: 16px;
-    align-self: start;
+    grid-column: 1 / span 2;
 }
 
 .hero-title {
@@ -21,18 +21,26 @@
     line-height: 1.1;
     letter-spacing: -0.03em;
     color: var(--text-primary);
-    background: linear-gradient(135deg, var(--card1-bg), var(--card2-bg), var(--card4-bg));
+    background: var(--card1-bg);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
 }
 
-.hero-description {
-    font-size: 1rem;
+/* MODIFIED: Replaced old .hero-description with a container */
+.hero-description-container {
+    display: flex;
+    align-items: baseline;
+    gap: 0.5em;
+    font-size: 1.1rem;
     color: var(--text-secondary);
     max-width: 90%;
     line-height: 1.6;
+}
+
+.hero-description {
     margin: 0;
+    /* Remove default paragraph margin */
 }
 
 .line-wrapper {
@@ -45,10 +53,11 @@
 }
 
 .hero-section__right {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: var(--padding);
+    display: flex;
+    justify-content: flex-end;
+    grid-column: 3;
 }
+
 
 .hero-chart-container {
     background-color: var(--white);
@@ -60,13 +69,68 @@
     justify-content: center;
     align-items: center;
     text-align: center;
-    height: 200px;
+    width: 95%;
+    top: 69px;
+    height: 230px;
+}
+
+.hero-chart-container--chart {
+    /* MODIFIED: Set a fixed height to fix the layout */
+    height: 230px;
+    margin-top: 16px;
 }
 
 /* Specific styles for the anxiety score stat panel */
 .hero-chart-container--stat {
     position: relative;
     cursor: pointer;
+}
+
+/* Custom Dropdown */
+.custom-dropdown {
+    position: relative;
+    display: inline-block;
+    cursor: pointer;
+}
+
+.dropdown-selected {
+    font-weight: 700;
+    color: var(--card2-bg);
+    border-bottom: 2px solid var(--card2-bg);
+    padding-bottom: 2px;
+}
+
+.dropdown-options {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    list-style: none;
+    padding: 0;
+    margin: 10px 0 0;
+    background-color: var(--white);
+    border-radius: var(--border-radius);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    z-index: 10;
+    opacity: 0;
+    transform: translateY(10px);
+    pointer-events: none;
+    transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.custom-dropdown.open .dropdown-options {
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: auto;
+}
+
+.dropdown-options li {
+    padding: 12px 20px;
+    transition: background-color 0.2s ease;
+}
+
+.dropdown-options li:hover {
+    background-color: var(--ui-subtle-bg);
 }
 
 .anxiety-face-wrapper {
@@ -156,6 +220,7 @@
 }
 
 .hero-chart {
-    width: 100%;
-    height: 150px;
+    width: 90%;
+    height: 100%;
+    /* Make chart fill container */
 }

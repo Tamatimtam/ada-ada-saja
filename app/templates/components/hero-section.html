@@ -1,8 +1,26 @@
-<section class="hero-section">
+<div class="hero-section">
     <div class="hero-section__left">
         <h1 class="hero-title">{{ data.hero_section.title }}</h1>
-        <p class="hero-description">
-Lorem ipsum        </p>
+        
+        <!-- MODIFIED: Separated text and dropdown to fix JS error -->
+        <div class="hero-description-container">
+            <p class="hero-description">
+                Data Gen Z Paling Financially anxious berdasarkan
+            </p>
+            <span class="custom-dropdown">
+                <span class="dropdown-selected">💼 Pekerjaan</span>
+                <ul class="dropdown-options">
+                    <li data-value="employment_status">💼 Pekerjaan</li>
+                    <li data-value="education_level">🎓 Pendidikan</li>
+                    <li data-value="gender">🚻 Jenis Kelamin</li>
+                    <li data-value="birth_year">🎂 Usia</li>
+                </ul>
+            </span>
+        </div>
+
+        <div class="hero-chart-container hero-chart-container--chart">
+             <div id="anxietyBarChart" class="hero-chart"></div>
+        </div>
     </div>
     <div class="hero-section__right">
         <div class="hero-chart-container hero-chart-container--stat" id="anxiety-container">
@@ -13,22 +31,22 @@ Lorem ipsum        </p>
                         <g id="face-group">
                             <!-- Head -->
                             <circle cx="50" cy="50" r="45" fill="var(--ui-subtle-bg)" stroke="var(--illust-stroke)" stroke-width="2"/>
-                            
+
                             <!-- Eyes -->
                             <g id="eyes-group">
                                 <circle id="eye-left" cx="35" cy="45" r="5" fill="var(--illust-stroke)"/>
                                 <circle id="eye-right" cx="65" cy="45" r="5" fill="var(--illust-stroke)"/>
                             </g>
-                            
+
                             <!-- Mouth -->
                             <path id="mouth" d="M 35 70 Q 50 70 65 70" stroke="var(--illust-stroke)" stroke-width="2" fill="none" stroke-linecap="round"/>
-                            
+
                             <!-- Sweat Drop -->
                             <path id="sweat-drop" d="M 75 25 Q 80 35 75 45 Q 70 35 75 25" fill="var(--card2-bg)" opacity="0"/>
                         </g>
                     </svg>
                 </div>
-                
+
                 <!-- Vertical Gauge -->
                 <div class="anxiety-gauge">
                     <div class="anxiety-gauge__track">
@@ -46,9 +64,5 @@ Lorem ipsum        </p>
             </div>
             <p class="stat-label">Average Financial Anxiety Score (1-5)</p>
         </div>
-        <div class="hero-chart-container hero-chart-container--chart">
-             <div id="digitalTimeChart" class="hero-chart"></div>
-             <p class="stat-label">Daily Digital Time Spent (Hours)</p>
-        </div>
     </div>
-</section>
+</div>
