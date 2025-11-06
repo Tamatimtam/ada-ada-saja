@@ -91,9 +91,12 @@ function initHeroCharts() {
     }
 
 
-    // --- 2. The NEW Anxiety Bar Chart ---
+    // --- 2. The NEW Anxiety Bar Chart with Interactive Filtering ---
     const anxietyBarChartEl = document.getElementById('anxietyBarChart');
     if (anxietyBarChartEl) {
+        let selectedFilter = null; // Track selected filter {category, value, pointIndex}
+        let currentFilterCategory = 'employment_status'; // Track current chart category
+
         let chart = Highcharts.chart('anxietyBarChart', {
             chart: {
                 type: 'bar',
@@ -127,7 +130,10 @@ function initHeroCharts() {
                 }
             },
             tooltip: {
-                valueSuffix: ' '
+                valueSuffix: ' ',
+                formatter: function () {
+                    return `<b>${this.x}</b><br/>Anxiety Score: ${this.y.toFixed(1)}<br/><i>Click to filter</i>`;
+                }
             },
             plotOptions: {
                 series: {
@@ -135,45 +141,92 @@ function initHeroCharts() {
                         duration: 1000,
                         easing: 'easeOutBounce'
                     },
+                    cursor: 'pointer',
                     point: {
                         events: {
                             click: function () {
-                                const filterValue = this.category;
-                                fetch(`/api/filter_metrics/${filterValue}`)
-                                    .then(response => response.json())
-                                    .then(data => {
-                                        // Update the 7 metrics with animation
-                                        animateCounter('scoreLiterasiFin', data.scores['Literasi Finansial']);
-                                        animateCounter('scoreLiterasiDigital', data.scores['Literasi Keuangan Digital']);
-                                        animateCounter('scorePengelolaan', data.scores['Pengelolaan Keuangan']);
-                                        animateCounter('scorePerilaku', data.scores['Sikap Finansial']);
-                                        animateCounter('scoreDisiplin', data.scores['Disiplin Finansial']);
-                                        animateCounter('scoreKesejahteraan', data.scores['Kesejahteraan Finansial']);
-                                        animateCounter('scoreInvestasi', data.scores['Investasi Aset']);
+                                const clickedCategory = this.category;
+                                const clickedIndex = this.index;
 
-                                        // Update the main anxiety score and trigger its animation
-                                        const anxietyScoreEl = document.getElementById('avgAnxietyScore');
-                                        const anxietyGaugeFill = document.getElementById('anxiety-gauge-fill');
-                                        const oldScore = parseFloat(anxietyScoreEl.getAttribute('data-score'));
-                                        const newScore = data.average_anxiety_score;
-                                        anxietyScoreEl.setAttribute('data-score', newScore);
-
-                                        // GSAP animation to update the score smoothly
-                                        gsap.to(anxietyScoreEl, {
-                                            duration: 1.5,
-                                            innerText: newScore,
-                                            roundProps: "innerText",
-                                            ease: "power3.out",
-                                            onUpdate: function() {
-                                                anxietyScoreEl.textContent = parseFloat(this.targets()[0].innerText).toFixed(1);
-                                            }
-                                        });
-                                        gsap.to(anxietyGaugeFill, {
-                                            height: `${(newScore / 5) * 100}%`,
-                                            duration: 1.5,
-                                            ease: "power1.inOut"
-                                        });
+                                // Check if clicking the same bar (deselect)
+                                if (selectedFilter &&
+                                    selectedFilter.value === clickedCategory &&
+                                    selectedFilter.category === currentFilterCategory) {
+                                    // Deselect - reset to original data
+                                    selectedFilter = null;
+                                    resetAllData();
+                                    // Reset all bars to normal state
+                                    chart.series[0].points.forEach(point => {
+                                        point.update({
+                                            color: null,
+                                            borderWidth: 0
+                                        }, false);
                                     });
+                                    chart.redraw();
+                                } else {
+                                    // Select new filter
+                                    selectedFilter = {
+                                        category: currentFilterCategory,
+                                        value: clickedCategory,
+                                        index: clickedIndex
+                                    };
+
+                                    // Highlight selected bar
+                                    chart.series[0].points.forEach((point, idx) => {
+                                        if (idx === clickedIndex) {
+                                            point.update({
+                                                color: '#FFD700', // Gold color for selected
+                                                borderWidth: 3,
+                                                borderColor: '#FFA500'
+                                            }, false);
+                                        } else {
+                                            point.update({
+                                                color: null,
+                                                borderWidth: 0
+                                            }, false);
+                                        }
+                                    });
+                                    chart.redraw();
+
+                                    // Fetch and update filtered data
+                                    fetch(`/api/filter_metrics/${currentFilterCategory}/${encodeURIComponent(clickedCategory)}`)
+                                        .then(response => response.json())
+                                        .then(data => {
+                                            // Update the 7 metrics with animation
+                                            animateCounter('scoreLiterasiFin', data.scores['Literasi Finansial']);
+                                            animateCounter('scoreLiterasiDigital', data.scores['Literasi Keuangan Digital']);
+                                            animateCounter('scorePengelolaan', data.scores['Pengelolaan Keuangan']);
+                                            animateCounter('scorePerilaku', data.scores['Sikap Finansial']);
+                                            animateCounter('scoreDisiplin', data.scores['Disiplin Finansial']);
+                                            animateCounter('scoreKesejahteraan', data.scores['Kesejahteraan Finansial']);
+                                            animateCounter('scoreInvestasi', data.scores['Investasi Aset']);
+
+                                            // Update the main anxiety score and trigger its animation
+                                            const anxietyScoreEl = document.getElementById('avgAnxietyScore');
+                                            const anxietyGaugeFill = document.getElementById('anxiety-gauge-fill');
+                                            const newScore = data.average_anxiety_score;
+                                            anxietyScoreEl.setAttribute('data-score', newScore);
+
+                                            // GSAP animation to update the score smoothly
+                                            gsap.to(anxietyScoreEl, {
+                                                duration: 1.5,
+                                                innerText: newScore,
+                                                roundProps: "innerText",
+                                                ease: "power3.out",
+                                                onUpdate: function () {
+                                                    anxietyScoreEl.textContent = parseFloat(this.targets()[0].innerText).toFixed(1);
+                                                }
+                                            });
+                                            gsap.to(anxietyGaugeFill, {
+                                                height: `${(newScore / 5) * 100}%`,
+                                                duration: 1.5,
+                                                ease: "power1.inOut"
+                                            });
+                                        })
+                                        .catch(error => {
+                                            console.error('Error fetching filtered metrics:', error);
+                                        });
+                                }
                             }
                         }
                     }
@@ -189,7 +242,17 @@ function initHeroCharts() {
                         '#9B59B6',
                         '#F1C40F',
                         '#E67E22',
-                        '#1ABC9C'
+                        '#1ABC9C',
+                        '#E74C3C',
+                        '#27AE60',
+                        '#3498DB',
+                        '#8E44AD',
+                        '#F39C12',
+                        '#D35400',
+                        '#16A085',
+                        '#C0392B',
+                        '#2C3E50',
+                        '#7F8C8D'
                     ]
                 }
             },
@@ -205,13 +268,77 @@ function initHeroCharts() {
             }]
         });
 
+        // Function to reset to original unfiltered data
+        const resetAllData = () => {
+            // Get original scores from data attributes
+            const originalScores = {
+                'Literasi Finansial': parseFloat(document.getElementById('scoreLiterasiFin').getAttribute('data-original-score')),
+                'Literasi Keuangan Digital': parseFloat(document.getElementById('scoreLiterasiDigital').getAttribute('data-original-score')),
+                'Pengelolaan Keuangan': parseFloat(document.getElementById('scorePengelolaan').getAttribute('data-original-score')),
+                'Sikap Finansial': parseFloat(document.getElementById('scorePerilaku').getAttribute('data-original-score')),
+                'Disiplin Finansial': parseFloat(document.getElementById('scoreDisiplin').getAttribute('data-original-score')),
+                'Kesejahteraan Finansial': parseFloat(document.getElementById('scoreKesejahteraan').getAttribute('data-original-score')),
+                'Investasi Aset': parseFloat(document.getElementById('scoreInvestasi').getAttribute('data-original-score'))
+            };
+
+            // Animate back to original values
+            animateCounter('scoreLiterasiFin', originalScores['Literasi Finansial']);
+            animateCounter('scoreLiterasiDigital', originalScores['Literasi Keuangan Digital']);
+            animateCounter('scorePengelolaan', originalScores['Pengelolaan Keuangan']);
+            animateCounter('scorePerilaku', originalScores['Sikap Finansial']);
+            animateCounter('scoreDisiplin', originalScores['Disiplin Finansial']);
+            animateCounter('scoreKesejahteraan', originalScores['Kesejahteraan Finansial']);
+            animateCounter('scoreInvestasi', originalScores['Investasi Aset']);
+
+            // Reset anxiety score
+            const anxietyScoreEl = document.getElementById('avgAnxietyScore');
+            const anxietyGaugeFill = document.getElementById('anxiety-gauge-fill');
+            const originalAnxietyScore = parseFloat(anxietyScoreEl.getAttribute('data-original-score'));
+            anxietyScoreEl.setAttribute('data-score', originalAnxietyScore);
+
+            gsap.to(anxietyScoreEl, {
+                duration: 1.5,
+                innerText: originalAnxietyScore,
+                roundProps: "innerText",
+                ease: "power3.out",
+                onUpdate: function () {
+                    anxietyScoreEl.textContent = parseFloat(this.targets()[0].innerText).toFixed(1);
+                }
+            });
+            gsap.to(anxietyGaugeFill, {
+                height: `${(originalAnxietyScore / 5) * 100}%`,
+                duration: 1.5,
+                ease: "power1.inOut"
+            });
+        };
+
         // Function to update the chart
         const updateChart = (filterBy) => {
+            currentFilterCategory = filterBy;
+            selectedFilter = null; // Reset selection when changing chart category
+
             fetch(`/data/anxiety_by/${filterBy}`)
                 .then(response => response.json())
                 .then(data => {
                     chart.xAxis[0].setCategories(data.categories, false);
                     chart.series[0].setData(data.scores, true);
+
+                    // Reset all bars to normal state after data update
+                    setTimeout(() => {
+                        chart.series[0].points.forEach(point => {
+                            point.update({
+                                color: null,
+                                borderWidth: 0
+                            }, false);
+                        });
+                        chart.redraw();
+                    }, 100);
+
+                    // Reset to original unfiltered data
+                    resetAllData();
+                })
+                .catch(error => {
+                    console.error('Error updating chart:', error);
                 });
         };
 

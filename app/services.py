@@ -103,24 +103,49 @@ def get_main_metrics():
     average_anxiety_score = df_anxiety['financial_anxiety_score'].mean()
     return {"scores": scores, "average_anxiety_score": average_anxiety_score}
 
-def get_anxiety_by_employment_status():
+def get_anxiety_by_category(filter_by='employment_status'):
     df = pd.read_csv('dataset/Sheet1.csv')
-    anxiety_by_status = df.groupby('employment_status')['financial_anxiety_score'].mean().round(1).reset_index()
+    anxiety_by_category = df.groupby(filter_by)['financial_anxiety_score'].mean().round(1).reset_index()
     return {
-        'categories': anxiety_by_status['employment_status'].tolist(),
-        'scores': anxiety_by_status['financial_anxiety_score'].tolist()
+        'categories': anxiety_by_category[filter_by].tolist(),
+        'scores': anxiety_by_category['financial_anxiety_score'].tolist()
     }
 
-def get_filtered_metrics(employment_status):
+def get_filtered_metrics(filter_by, filter_value):
     df1 = pd.read_csv('dataset/Sheet1.csv')
     df2 = pd.read_csv('dataset/Sheet2.csv')
 
-    respondent_ids = df1[df1['employment_status'] == employment_status]['user_id ID']
-    df_filtered = df2[df2['user_id ID'].isin(respondent_ids)]
-
+    # Map Sheet1 column names to Sheet2 column names
+    column_mapping = {
+        'employment_status': 'Job',
+        'education_level': 'Last Education',
+        'gender': 'Gender',
+        'birth_year': 'Year of Birth'
+    }
+    
+    # Map Sheet1 values to Sheet2 values (for education level)
+    value_mapping = {
+        'Elementary School': 'Elementary School (SD)',
+        'Junior High School': 'Junior High School (SMP)',
+        'Senior High School': 'Senior High School (SMA)'
+    }
+    
+    # Get the corresponding Sheet2 column name
+    sheet2_column = column_mapping.get(filter_by, filter_by)
+    
+    # Map the filter value if needed
+    sheet2_filter_value = value_mapping.get(filter_value, filter_value)
+    
+    # Handle birth_year as integer
+    if filter_by == 'birth_year':
+        sheet2_filter_value = int(sheet2_filter_value)
+    
+    # Filter Sheet1 for anxiety score
+    filtered_df1 = df1[df1[filter_by] == filter_value]
+    average_anxiety_score = filtered_df1['financial_anxiety_score'].mean()
+    
+    # Filter Sheet2 directly using its own columns
+    df_filtered = df2[df2[sheet2_column] == sheet2_filter_value]
     scores = _calculate_scores(df_filtered)
-
-    filtered_anxiety_df = df1[df1['user_id ID'].isin(respondent_ids)]
-    average_anxiety_score = filtered_anxiety_df['financial_anxiety_score'].mean()
 
     return {"scores": scores, "average_anxiety_score": average_anxiety_score}

@@ -1,6 +1,6 @@
 from flask import render_template, jsonify
 from app import app
-from app.services import get_main_metrics, get_anxiety_by_employment_status, get_filtered_metrics
+from app.services import get_main_metrics, get_anxiety_by_category, get_filtered_metrics
 
 @app.route('/')
 def index():
@@ -33,11 +33,14 @@ def index():
 
 @app.route('/data/anxiety_by/<filter_by>')
 def anxiety_by_filter(filter_by):
-    data = get_anxiety_by_employment_status()
+    data = get_anxiety_by_category(filter_by)
     return jsonify(categories=data['categories'], scores=data['scores'])
 
-@app.route('/api/filter_metrics/<employment_status>')
-def filtered_metrics(employment_status):
-    metrics = get_filtered_metrics(employment_status)
-    return jsonify(scores=metrics['scores'], average_anxiety_score=metrics['average_anxiety_score'])
+@app.route('/api/filter_metrics/<filter_by>/<path:filter_value>')
+def filtered_metrics(filter_by, filter_value):
+    try:
+        metrics = get_filtered_metrics(filter_by, filter_value)
+        return jsonify(scores=metrics['scores'], average_anxiety_score=metrics['average_anxiety_score'])
+    except Exception as e:
+        return jsonify(error=str(e)), 500
 
