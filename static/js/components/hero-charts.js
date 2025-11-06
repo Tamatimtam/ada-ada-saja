@@ -7,7 +7,7 @@ function initHeroCharts() {
     const mouth = document.getElementById('mouth');
     const eyes = document.querySelectorAll('#eye-left, #eye-right');
     const sweatDrop = document.getElementById('sweat-drop');
-    const parsedScore = parseFloat((anxietyScoreEl && anxietyScoreEl.textContent) ? anxietyScoreEl.textContent : '0');
+    const parsedScore = parseFloat(anxietyScoreEl ? anxietyScoreEl.getAttribute('data-score') : '0');
     const targetScore = isNaN(parsedScore) ? 3.2 : parsedScore;
 
     if (anxietyContainer && anxietyScoreEl && anxietyGaugeFill && face && mouth && eyes && sweatDrop) {

@@ -8,7 +8,7 @@
 @import url('components/card-footer.css');
 @import url('components/background-shapes.css');
 @import url('components/small-cards.css');
-@import url('../components/hero-section/hero-section.css');
-@import url('../components/knowledge-card/knowledge-card.css');
-@import url('../components/behavior-card/behavior-card.css');
-@import url('../components/wellbeing-card/wellbeing-card.css');
+@import url('components/hero-section.css');
+@import url('components/knowledge-card.css');
+@import url('components/behavior-card.css');
+@import url('components/wellbeing-card.css');

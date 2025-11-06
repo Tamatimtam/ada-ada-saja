@@ -1,9 +1,11 @@
-// Helper to get CSS variables
+// static/js/animations.js - UPDATED
+
+// ... (keep the getColor helper function) ...
 const rootStyles = getComputedStyle(document.documentElement);
 const getColor = (variable) => rootStyles.getPropertyValue(variable).trim();
 
-// Initialize page animations
 function initPageAnimations() {
+    // ... (this function is fine as is) ...
     const dashboardWindow = document.querySelector(".dashboard-window");
     const mainCards = document.querySelectorAll(".main-card");
 
@@ -22,32 +24,27 @@ function initPageAnimations() {
     }
 }
 
-// Initialize all animations
 function initAllAnimations() {
     console.log('Initializing all animations...');
 
     initPageAnimations();
-    // REMOVED old header animation call
-    // initHeaderTitleAnimation();
-
-    // Initializing new hero charts
     initHeroCharts();
-    initHeroTextAnimation(); // Animate title and description
+    initHeroTextAnimation();
 
-    // Card 1 - Knowledge scores
-    animateCounter('scoreLiterasiFin', 78);
-    animateCounter('scoreLiterasiDigital', 82);
+    // NEW DYNAMIC COUNTER LOGIC
+    // Find all elements with an ID starting with 'score' and a data-score attribute
+    const scoreElements = document.querySelectorAll('[id^="score"][data-score]');
+    scoreElements.forEach(el => {
+        const targetValue = parseFloat(el.getAttribute('data-score'));
+        // Check if the target is a valid number before animating
+        if (!isNaN(targetValue)) {
+            // We pass the element's ID and the dynamic target value
+            animateCounter(el.id, targetValue);
+        }
+    });
 
-    // Card 2 - Behavior scores
-    animateCounter('scorePengelolaan', 85);
-    animateCounter('scorePerilaku', 73);
-    animateCounter('scoreDisiplin', 68);
-
-    // Card 3 - Wellbeing scores
-    animateCounter('scoreKesejahteraan', 76);
-    animateCounter('scoreInvestasi', 71);
-
-    animateSmallCardValues();
+    // The rest of the initializations are fine
+    animateSmallCardValues(); // This function should also be checked if it uses hardcoded values
     initLightbulbAnimation();
     initScalesAnimation();
     initBgShapesAnimation();

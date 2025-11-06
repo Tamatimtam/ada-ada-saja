@@ -1,7 +1,7 @@
 <!-- Wellbeing Card -->
 <div class="main-card card-wellbeing">
     <div class="card-content">
-        <h2>Kesejahteraan & Sikap Finansial</h2>
+        <h2>{{ data.wellbeing_card.title }}</h2>
     </div>
     <div class="illustration house" id="wellbeing">
         <svg viewBox="0 0 220 150">
@@ -30,14 +30,14 @@
                 <i class="fa-solid fa-heart"></i>
                 <span>Kesejahteraan Finansial</span>
             </div>
-            <div class="card-footer-value" id="scoreKesejahteraan">76</div>
+            <div class="card-footer-value" id="scoreKesejahteraan" data-score="{{ data.wellbeing_card.score_kesejahteraan }}">{{ data.wellbeing_card.score_kesejahteraan }}</div>
         </div>
         <div class="card-footer-item">
             <div class="card-footer-label">
                 <i class="fa-solid fa-coins"></i>
                 <span>Investasi Aset</span>
             </div>
-            <div class="card-footer-value" id="scoreInvestasi">71</div>
+            <div class="card-footer-value" id="scoreInvestasi" data-score="{{ data.wellbeing_card.score_investasi }}">{{ data.wellbeing_card.score_investasi }}</div>
         </div>
     </div>
     <div class="bg-shapes">

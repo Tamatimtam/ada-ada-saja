@@ -1,6 +1,6 @@
 <section class="hero-section">
     <div class="hero-section__left">
-        <h1 class="hero-title">Denyut Finansial Gen Z</h1>
+        <h1 class="hero-title">{{ data.hero_section.title }}</h1>
         <p class="hero-description">
 Lorem ipsum        </p>
     </div>
@@ -42,7 +42,7 @@ Lorem ipsum        </p>
                         <span>5</span>
                     </div>
                 </div>
-                <div id="avgAnxietyScore" class="anxiety-gauge__value">3.2</div>
+                <div id="avgAnxietyScore" class="anxiety-gauge__value" data-score="{{ data.hero_section.anxiety_score }}">{{ data.hero_section.anxiety_score }}</div>
             </div>
             <p class="stat-label">Average Financial Anxiety Score (1-5)</p>
         </div>

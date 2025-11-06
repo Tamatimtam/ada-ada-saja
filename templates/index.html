@@ -1,0 +1,25 @@
+<!-- templates/index.html -->
+{% extends "layout.html" %}
+
+{% block title %}
+    Dashboard Overview
+{% endblock %}
+
+{% block content %}
+<div class="dashboard-window">
+    
+    <!-- Use Jinja's include to insert the header -->
+    {% include 'components/header.html' %}
+
+    <!-- Insert the hero section -->
+    {% include 'components/hero-section.html' %}
+
+    <!-- Create the card grid container -->
+    <main class="card-grid">
+        <!-- Insert each card component -->
+        {% include 'components/knowledge-card.html' %}
+        {% include 'components/behavior-card.html' %}
+        {% include 'components/wellbeing-card.html' %}
+    </main>
+</div>
+{% endblock %}

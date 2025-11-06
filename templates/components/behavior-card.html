@@ -1,7 +1,7 @@
 <!-- Behavior Card -->
 <div class="main-card card-behavior">
     <div class="card-content">
-        <h2>Perilaku & Pengambilan Keputusan Finansial</h2>
+        <h2>{{ data.behavior_card.title }}</h2>
     </div>
     <div class="illustration scales" id="scales">
         <svg viewBox="0 0 200 150">
@@ -28,21 +28,21 @@
                 <i class="fa-solid fa-wallet"></i>
                 <span>Pengelolaan Keuangan</span>
             </div>
-            <div class="card-footer-value" id="scorePengelolaan">85</div>
+            <div class="card-footer-value" id="scorePengelolaan" data-score="{{ data.behavior_card.score_pengelolaan }}">{{ data.behavior_card.score_pengelolaan }}</div>
         </div>
         <div class="card-footer-item">
             <div class="card-footer-label">
                 <i class="fa-solid fa-chart-line"></i>
                 <span>Sikap Finansial</span>
             </div>
-            <div class="card-footer-value" id="scorePerilaku">73</div>
+            <div class="card-footer-value" id="scorePerilaku" data-score="{{ data.behavior_card.score_perilaku }}">{{ data.behavior_card.score_perilaku }}</div>
         </div>
         <div class="card-footer-item">
             <div class="card-footer-label">
                 <i class="fa-solid fa-star"></i>
                 <span>Disiplin Finansial</span>
             </div>
-            <div class="card-footer-value" id="scoreDisiplin">68</div>
+            <div class="card-footer-value" id="scoreDisiplin" data-score="{{ data.behavior_card.score_disiplin }}">{{ data.behavior_card.score_disiplin }}</div>
         </div>
     </div>
     <div class="bg-shapes">
