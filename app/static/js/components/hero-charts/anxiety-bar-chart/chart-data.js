@@ -99,9 +99,26 @@ function updateChart(chart, state, filterBy) {
     fetch(`/data/anxiety_by/${filterBy}`)
         .then(response => response.json())
         .then(data => {
+            // NEW: Generate colors based on the sorted data
+            const baseColor = '#ff8114';
+            const numScores = data.scores.length;
+            const generatedColors = data.scores.map((_, index) => {
+                // Brighten more for lower values (higher index)
+                const brightenAmount = (index / (numScores - 1 || 1)) * 0.5;
+                return Highcharts.color(baseColor).brighten(brightenAmount).get();
+            });
+
+            // Store colors on the chart object for the click handler to use
+            chart.generatedColors = generatedColors;
+
+            const processedData = data.scores.map((score, index) => ({
+                y: score,
+                color: generatedColors[index]
+            }));
+
             // Update the chart's categories and data. Highcharts will apply the pink gradient automatically.
             chart.xAxis[0].setCategories(data.categories, false);
-            chart.series[0].setData(data.scores, true);
+            chart.series[0].setData(processedData, true);
 
             // Reset all metrics to their original state.
             resetAllData();

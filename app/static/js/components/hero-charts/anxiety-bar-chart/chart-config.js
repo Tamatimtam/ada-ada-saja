@@ -1,9 +1,9 @@
-function getChartConfig(originalColors) {
+function getChartConfig() {
     // 1. This function returns the configuration object for the Highcharts chart.
     return {
         // 2. Basic chart settings.
         chart: {
-            type: 'bar',
+            type: 'column',
             backgroundColor: 'transparent',
             height: '16%'
         },
@@ -12,14 +12,21 @@ function getChartConfig(originalColors) {
         xAxis: {
             categories: [], // To be filled with data later
             title: { text: null },
-            labels: { step: 1, style: { fontSize: '10px' } }
+            labels: {
+                step: 1,
+                style: { fontSize: '10px', color: '#666' },
+                rotation: 0
+            },
+            lineWidth: 0,
+            tickWidth: 0
         },
         // 4. Y-axis configuration.
         yAxis: {
             min: 0,
             max: 4,
-            title: { text: 'Average Anxiety Score', align: 'middle' },
-            labels: { overflow: 'justify' }
+            title: { text: null },
+            labels: { enabled: false },
+            gridLineWidth: 0
         },
         // 5. Tooltip customization.
         tooltip: {
@@ -41,10 +48,18 @@ function getChartConfig(originalColors) {
                 }
             },
             // 8. Bar-specific options.
-            bar: {
-                dataLabels: { enabled: true },
-                colorByPoint: true,
-                colors: originalColors
+            column: {
+                dataLabels: {
+                    enabled: true,
+                    format: '{y:.1f}',
+                    style: {
+                        fontSize: '9px',
+                        color: '#333',
+                        textOutline: 'none'
+                    }
+                },
+                borderRadius: 4,
+                borderWidth: 0
             }
         },
         legend: { enabled: false },

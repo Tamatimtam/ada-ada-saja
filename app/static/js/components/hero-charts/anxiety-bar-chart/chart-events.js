@@ -2,18 +2,17 @@ function chartClickHandler() {
     // 1. `this` refers to the point that was clicked.
     const chart = this.series.chart;
     const state = chart.state;
-    const originalColors = chart.originalColors;
 
     const clickedCategory = this.category;
     const clickedIndex = this.index;
 
     // 2. Check if the same bar is clicked again to deselect it.
-    if (state.selectedFilter && state.selectedFilter.value === clickedCategory && state.selectedFilter.category === state.currentFilterCategory) {
+    if (state.selectedFilter && state.selectedFilter.index === clickedIndex && state.selectedFilter.category === state.currentFilterCategory) {
         state.selectedFilter = null;
         resetAllData(); // 3. Reset all metrics to their original state.
         // 4. Reset bar colors to the original gradient.
         chart.series[0].points.forEach((point, idx) => {
-            point.update({ color: originalColors[idx % originalColors.length], borderWidth: 0 }, false);
+            point.update({ color: chart.generatedColors[idx], borderWidth: 0 }, false);
         });
         chart.redraw();
     } else {
@@ -22,9 +21,12 @@ function chartClickHandler() {
 
         // 6. Highlight the selected bar.
         chart.series[0].points.forEach((point, idx) => {
-            const config = (idx === clickedIndex)
-                ? { color: '#FFD700', borderWidth: 3, borderColor: '#FFA500' }
-                : { color: null, borderWidth: 0 };
+            const isSelected = idx === clickedIndex;
+            const config = {
+                color: isSelected ? '#FFD700' : chart.generatedColors[idx],
+                borderWidth: isSelected ? 2 : 0,
+                borderColor: isSelected ? '#FFA500' : 'transparent'
+            };
             point.update(config, false);
         });
         chart.redraw();
