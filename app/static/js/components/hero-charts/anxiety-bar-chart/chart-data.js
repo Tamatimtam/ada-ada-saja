@@ -99,16 +99,45 @@ function updateChart(chart, state, filterBy) {
     fetch(`/data/anxiety_by/${filterBy}`)
         .then(response => response.json())
         .then(data => {
-            // NEW: Generate colors based on the sorted data
+            // *** NEW DYNAMIC LOGIC STARTS HERE ***
+
+            const numCategories = data.categories.length;
+            const threshold = 6; // Switch to bar chart if 6 or fewer categories
+            const isBarChart = numCategories <= threshold;
+
+            // Define the dynamic chart options based on the number of categories
+            const newOptions = {
+                chart: {
+                    type: isBarChart ? 'bar' : 'column'
+                },
+                xAxis: {
+                    labels: {
+                        // Keep labels straight for bar charts or non-rotated columns
+                        rotation: isBarChart ? 0 : (numCategories > 10 ? -45 : 0)
+                    }
+                },
+                yAxis: {
+                    // Reverse the axes titles for bar charts (optional, but good practice)
+                    title: {
+                        text: isBarChart ? null : 'Average Anxiety Score'
+                    }
+                },
+            };
+
+            // Update the chart configuration BEFORE setting the new data
+            chart.update(newOptions, false); // false prevents immediate redraw
+
+            // *** DYNAMIC LOGIC ENDS HERE ***
+
+
+            // Generate colors based on the sorted data
             const baseColor = '#ff8114';
             const numScores = data.scores.length;
             const generatedColors = data.scores.map((_, index) => {
-                // Brighten more for lower values (higher index)
-                const brightenAmount = (index / (numScores - 1 || 1)) * 0.5;
+                const brightenAmount = (index / (numScores - 1 || 1)) * 0.6;
                 return Highcharts.color(baseColor).brighten(brightenAmount).get();
             });
 
-            // Store colors on the chart object for the click handler to use
             chart.generatedColors = generatedColors;
 
             const processedData = data.scores.map((score, index) => ({
@@ -116,9 +145,9 @@ function updateChart(chart, state, filterBy) {
                 color: generatedColors[index]
             }));
 
-            // Update the chart's categories and data. Highcharts will apply the pink gradient automatically.
+            // Now, update the chart's data, which will trigger a redraw with the new settings
             chart.xAxis[0].setCategories(data.categories, false);
-            chart.series[0].setData(processedData, true);
+            chart.series[0].setData(processedData, true); // true triggers the final redraw
 
             // Reset all metrics to their original state.
             resetAllData();

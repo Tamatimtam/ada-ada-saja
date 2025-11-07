@@ -55,6 +55,13 @@
     /* Allow containers to fill their grid area */
 }
 
+/* MODIFIED: Remove background for the anxiety container */
+#anxiety-container {
+    background-color: transparent;
+    box-shadow: none;
+    /* Also remove shadow if present */
+}
+
 .hero-chart-container--stat {
     position: relative;
     cursor: pointer;
@@ -159,7 +166,7 @@
     right: 0;
     bottom: 0;
     height: 0%;
-    background: var(--card2-bg);
+    background: linear-gradient(to bottom, rgb(255, 255, 173), rgba(255, 255, 173, 0.3));
 }
 
 .anxiety-gauge__scale {

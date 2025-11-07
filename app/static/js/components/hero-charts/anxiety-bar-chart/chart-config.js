@@ -3,6 +3,7 @@ function getChartConfig() {
     return {
         // 2. Basic chart settings.
         chart: {
+            // Default to column, but this will be updated dynamically
             type: 'column',
             backgroundColor: 'transparent',
             height: '16%'
@@ -47,13 +48,26 @@ function getChartConfig() {
                     }
                 }
             },
-            // 8. Bar-specific options.
+            // 8. Define options for BOTH column and bar types
             column: {
                 dataLabels: {
                     enabled: true,
                     format: '{y:.1f}',
                     style: {
                         fontSize: '9px',
+                        color: '#333',
+                        textOutline: 'none'
+                    }
+                },
+                borderRadius: 4,
+                borderWidth: 0
+            },
+            bar: {
+                dataLabels: {
+                    enabled: true,
+                    format: '{y:.1f}',
+                    style: {
+                        fontSize: '11px',
                         color: '#333',
                         textOutline: 'none'
                     }
