@@ -9,7 +9,7 @@ def index():
 
     page_data = {
         "hero_section": {
-            "title": "Gen Z Financial Health Dashboard",
+            "title": "Gen Z Financial Dashboard",
             "anxiety_score": main_metrics['average_anxiety_score']
         },
         "knowledge_card": {

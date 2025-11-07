@@ -155,10 +155,28 @@ function initHeroCharts() {
                                     // Deselect - reset to original data
                                     selectedFilter = null;
                                     resetAllData();
-                                    // Reset all bars to normal state
-                                    chart.series[0].points.forEach(point => {
+                                    // Reset all bars to original colors (gradient from pink)
+                                    const originalColors = [
+                                        '#FF6B9D', // Highest anxiety - Full saturation
+                                        '#FF7FAA',
+                                        '#FF93B7',
+                                        '#FFA7C4',
+                                        '#FFBBD1',
+                                        '#FFCFDE',
+                                        '#FFE3EB',
+                                        '#FFF0F5', // Lowest anxiety - Very light
+                                        '#FF6B9D',
+                                        '#FF7FAA',
+                                        '#FF93B7',
+                                        '#FFA7C4',
+                                        '#FFBBD1',
+                                        '#FFCFDE',
+                                        '#FFE3EB',
+                                        '#FFF0F5'
+                                    ];
+                                    chart.series[0].points.forEach((point, idx) => {
                                         point.update({
-                                            color: null,
+                                            color: originalColors[idx % originalColors.length],
                                             borderWidth: 0
                                         }, false);
                                     });
@@ -237,22 +255,22 @@ function initHeroCharts() {
                     },
                     colorByPoint: true,
                     colors: [
+                        '#FF6B9D', // Highest anxiety - Full saturation
+                        '#FF7FAA',
+                        '#FF93B7',
+                        '#FFA7C4',
+                        '#FFBBD1',
+                        '#FFCFDE',
+                        '#FFE3EB',
+                        '#FFF0F5', // Lowest anxiety - Very light
                         '#FF6B9D',
-                        '#5DADE2',
-                        '#9B59B6',
-                        '#F1C40F',
-                        '#E67E22',
-                        '#1ABC9C',
-                        '#E74C3C',
-                        '#27AE60',
-                        '#3498DB',
-                        '#8E44AD',
-                        '#F39C12',
-                        '#D35400',
-                        '#16A085',
-                        '#C0392B',
-                        '#2C3E50',
-                        '#7F8C8D'
+                        '#FF7FAA',
+                        '#FF93B7',
+                        '#FFA7C4',
+                        '#FFBBD1',
+                        '#FFCFDE',
+                        '#FFE3EB',
+                        '#FFF0F5'
                     ]
                 }
             },

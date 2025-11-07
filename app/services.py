@@ -106,6 +106,8 @@ def get_main_metrics():
 def get_anxiety_by_category(filter_by='employment_status'):
     df = pd.read_csv('dataset/Sheet1.csv')
     anxiety_by_category = df.groupby(filter_by)['financial_anxiety_score'].mean().round(1).reset_index()
+    # Sort by anxiety score in descending order
+    anxiety_by_category = anxiety_by_category.sort_values('financial_anxiety_score', ascending=False)
     return {
         'categories': anxiety_by_category[filter_by].tolist(),
         'scores': anxiety_by_category['financial_anxiety_score'].tolist()
