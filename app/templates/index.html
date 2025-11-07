@@ -8,12 +8,12 @@
 {% block content %}
 <div class="dashboard-window">
     
-    <!-- Insert the hero section -->
-    {% include 'components/hero-section.html' %}
+    <!-- This is now the single, unified grid for the whole page -->
+    <main class="dashboard-grid">
+        <!-- The hero section's direct children will be placed on the grid -->
+        {% include 'components/hero-section.html' %}
 
-    <!-- Create the card grid container -->
-    <main class="card-grid">
-        <!-- Insert each card component -->
+        <!-- The cards are now direct children of the main grid -->
         {% include 'components/knowledge-card.html' %}
         {% include 'components/behavior-card.html' %}
         {% include 'components/wellbeing-card.html' %}
