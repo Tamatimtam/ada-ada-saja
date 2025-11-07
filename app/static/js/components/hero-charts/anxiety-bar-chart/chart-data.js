@@ -99,17 +99,9 @@ function updateChart(chart, state, filterBy) {
     fetch(`/data/anxiety_by/${filterBy}`)
         .then(response => response.json())
         .then(data => {
-            // Update the chart's categories and data.
+            // Update the chart's categories and data. Highcharts will apply the pink gradient automatically.
             chart.xAxis[0].setCategories(data.categories, false);
             chart.series[0].setData(data.scores, true);
-
-            // A short delay to ensure the chart is ready before redrawing.
-            setTimeout(() => {
-                chart.series[0].points.forEach(point => {
-                    point.update({ color: null, borderWidth: 0 }, false);
-                });
-                chart.redraw();
-            }, 100);
 
             // Reset all metrics to their original state.
             resetAllData();
