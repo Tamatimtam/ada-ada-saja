@@ -1,4 +1,3 @@
-
 function createFaceAnimation(elements, targetScore) {
     // 1. This function creates the GSAP timeline for the face animation.
     const { anxietyScoreEl, anxietyGaugeFill, face, mouth, eyes, sweatDrop } = elements;
@@ -29,16 +28,17 @@ function createFaceAnimation(elements, targetScore) {
 
     // 6. Define the animation's duration and the gauge's target height.
     const animationDuration = 2.6;
-    const targetHeight = (targetScore / 5) * 100;
+    // MODIFIED: Use the corrected formula to accurately map the 1-5 score to a 0-100% range.
+    const targetHeight = Math.max(0, (targetScore - 1) / 4) * 100;
 
     // 7. Animate the counter and the gauge fill at the same time.
     tl.to(counter, { val: targetScore, duration: animationDuration }, 0)
-      .to(anxietyGaugeFill, { height: `${targetHeight}%`, duration: animationDuration, ease: "power1.inOut" }, 0);
+        .to(anxietyGaugeFill, { height: `${targetHeight}%`, duration: animationDuration, ease: "power1.inOut" }, 0);
 
     // 8. Schedule expression changes at specific points in the timeline.
     tl.to(mouth, { attr: { d: "M 35 70 Q 50 62 65 70" }, duration: 0.5 }, animationDuration * (1.5 / targetScore))
-      .to(eyes, { scale: 1.3, transformOrigin: 'center center', duration: 0.4, ease: "back.out(2)" }, animationDuration * (2.5 / targetScore))
-      .fromTo(sweatDrop, { opacity: 0, y: 0 }, { opacity: 1, y: 20, duration: 1.2, ease: "none" }, animationDuration * (3.0 / targetScore));
+        .to(eyes, { scale: 1.3, transformOrigin: 'center center', duration: 0.4, ease: "back.out(2)" }, animationDuration * (2.5 / targetScore))
+        .fromTo(sweatDrop, { opacity: 0, y: 0 }, { opacity: 1, y: 20, duration: 1.2, ease: "none" }, animationDuration * (3.0 / targetScore));
 
     // 9. Return the timeline.
     return tl;
