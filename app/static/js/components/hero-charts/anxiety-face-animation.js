@@ -7,10 +7,7 @@ function initAnxietyFaceAnimation() {
     const parsedScore = parseFloat(elements.anxietyScoreEl.getAttribute('data-score') || '0');
     const targetScore = isNaN(parsedScore) ? 3.2 : parsedScore;
 
-    // 3. Create the main GSAP animation timeline, but don't play it yet.
-    const animationTimeline = createFaceAnimation(elements, targetScore);
-    animationTimeline.pause();
-
-    // 4. Set up the Intersection Observer and hover event listeners.
-    setupFaceAnimationObservers(elements, animationTimeline);
+    // 3. MODIFIED: We no longer create a timeline here.
+    // Instead, we pass the data the observer needs to trigger the animation itself.
+    setupFaceAnimationObservers(elements, targetScore);
 }
