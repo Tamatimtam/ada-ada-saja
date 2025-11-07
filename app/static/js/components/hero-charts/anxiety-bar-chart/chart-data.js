@@ -29,6 +29,9 @@ function updateAnxietyGauge(newScore) {
         duration: 1.5,
         ease: "power1.inOut"
     });
+
+    // 6. NEW: Call the centralized emoji update function to keep it in sync.
+    updateAnxietyEmoji(newScore);
 }
 
 // 6. Function to reset all metrics to their original, unfiltered state.

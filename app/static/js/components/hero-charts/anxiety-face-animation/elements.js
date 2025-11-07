@@ -1,14 +1,11 @@
-
 function getFaceAnimationElements() {
     // 1. This function gets all the DOM elements needed for the face animation.
     const elements = {
         anxietyContainer: document.getElementById('anxiety-container'),
         anxietyScoreEl: document.getElementById('avgAnxietyScore'),
         anxietyGaugeFill: document.getElementById('anxiety-gauge-fill'),
-        face: document.getElementById('face-group'),
-        mouth: document.getElementById('mouth'),
-        eyes: document.querySelectorAll('#eye-left, #eye-right'),
-        sweatDrop: document.getElementById('sweat-drop')
+        // MODIFIED: Replaced SVG elements with the new emoji container
+        emojiContainer: document.getElementById('anxiety-emoji')
     };
 
     // 2. Check if all elements are present.
