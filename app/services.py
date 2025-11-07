@@ -117,6 +117,15 @@ def get_filtered_metrics(filter_by, filter_value):
     df1 = pd.read_csv('dataset/Sheet1.csv')
     df2 = pd.read_csv('dataset/Sheet2.csv')
 
+    # MODIFIED: Convert birth_year to an integer at the very beginning.
+    # This is the fix.
+    if filter_by == 'birth_year':
+        try:
+            filter_value = int(filter_value)
+        except ValueError:
+            # Handle cases where the value might not be a valid number
+            return {"scores": {}, "average_anxiety_score": 0}
+
     # Map Sheet1 column names to Sheet2 column names
     column_mapping = {
         'employment_status': 'Job',
@@ -137,16 +146,12 @@ def get_filtered_metrics(filter_by, filter_value):
     
     # Map the filter value if needed
     sheet2_filter_value = value_mapping.get(filter_value, filter_value)
-    
-    # Handle birth_year as integer
-    if filter_by == 'birth_year':
-        sheet2_filter_value = int(sheet2_filter_value)
-    
-    # Filter Sheet1 for anxiety score
+        
+    # Filter Sheet1 for anxiety score. This comparison is now number-to-number.
     filtered_df1 = df1[df1[filter_by] == filter_value]
     average_anxiety_score = filtered_df1['financial_anxiety_score'].mean()
     
-    # Filter Sheet2 directly using its own columns
+    # Filter Sheet2 directly using its own columns. This comparison is also number-to-number.
     df_filtered = df2[df2[sheet2_column] == sheet2_filter_value]
     scores = _calculate_scores(df_filtered)
 

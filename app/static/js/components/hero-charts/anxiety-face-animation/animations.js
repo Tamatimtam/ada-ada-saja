@@ -2,7 +2,7 @@
 function getEmojiForScore(score) {
     if (score <= 2.7) return '🙂';
     if (score <= 3.0) return '🥲';
-    if (score <= 3.3) return '😥';
+    if (score <= 3.2) return '😥';
     return '😭';
 }
 
