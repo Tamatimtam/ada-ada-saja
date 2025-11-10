@@ -6,8 +6,8 @@ function initHeroTextAnimation() {
         const chars = heroTitle.textContent.split('').map(char => {
             const span = document.createElement('span');
             span.textContent = char;
-            // Use &nbsp; for space to ensure it's not collapsed
-            if (char === ' ') span.innerHTML = '&nbsp;';
+            // MODIFIED: Removed the line that converted spaces to &nbsp;
+            // The browser will now correctly handle wrapping.
             return span;
         });
         heroTitle.innerHTML = '';

@@ -1,70 +1,60 @@
 /* static/css/layout/layout.css */
 
-/* The main dashboard-grid definition */
-.dashboard-grid {
+/* The main container for the new two-column layout */
+.dashboard-container {
+    display: grid;
+    /* A ratio of roughly 30% to 70%. Using minmax for a responsive sidebar. */
+    grid-template-columns: minmax(380px, 3fr) 7fr;
+    gap: var(--padding);
     padding: var(--padding);
     padding-top: calc(var(--padding) * 2);
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    grid-auto-rows: auto;
-    gap: var(--padding);
-    /* NEW: Align items to the start of their cell to prevent unwanted stretching */
-    align-items: start;
+    /* Maintain original top padding */
+    height: 100vh;
+    box-sizing: border-box;
 }
 
-/* 
-  MODIFIED: Updated grid placement rules to match the new layout
-*/
-
-/* Row 1: Title now spans all 3 columns */
-.hero-text-content {
-    grid-column: 1 / span 3;
-    grid-row: 1;
+/* The left "sidebar" panel */
+.left-panel {
     display: flex;
     flex-direction: column;
+    gap: var(--padding);
+    overflow-y: auto;
+    /* Allow scrolling if content overflows */
+}
+
+/* The right "main content" panel */
+.right-panel {
+    display: flex;
+    flex-direction: column;
+    gap: var(--padding);
+    overflow-y: auto;
+    /* Allow scrolling if content overflows */
+}
+
+/* NEW: Styles for the sidebar header */
+.sidebar-header {
+    display: flex;
+    justify-content: space-between;
+    /* Pushes title and stat to opposite ends */
+    align-items: center;
+    /* Vertically aligns them */
     gap: 16px;
 }
 
-/* Row 2: Bar chart spans two columns */
+.sidebar-header__title {
+    flex: 1;
+    /* Allows the title to take up remaining space */
+}
+
+.sidebar-header__stat {
+    flex-shrink: 0;
+    /* Prevents the stat from shrinking */
+}
+
+/* MODIFIED: Bar chart container adjustments */
 .hero-chart-container--chart {
-    grid-column: 1 / span 2;
-    grid-row: 2;
-    /* NEW: Constrain the height to prevent it from being too tall */
-    max-height: 350px;
-}
-
-/* Row 2: Anxiety score takes the third column, aligned with the chart */
-.hero-chart-container--stat {
-    grid-column: 3;
-    grid-row: 2;
-    /* NEW: Ensure it takes up the same height as the chart next to it */
-    height: 100%;
-}
-
-/* Row 3: Main cards are placed explicitly in the third row */
-.card-knowledge {
-    grid-column: 1;
-    grid-row: 3;
-}
-
-.card-behavior {
-    grid-column: 2;
-    grid-row: 3;
-}
-
-.card-wellbeing {
-    grid-column: 3;
-    grid-row: 3;
-}
-
-/* Row 4: Visual Analytics Panel */
-.visualization-grid {
-    grid-column: 1 / span 3;
-    grid-row: 4;
-}
-
-/* Row 5: Charts Section Panel */
-.charts-section-panel {
-    grid-column: 1 / span 3;
-    grid-row: 5;
+    max-height: 280px;
+    /* It now contains text, so it needs to be a flex column */
+    display: flex;
+    flex-direction: column;
 }

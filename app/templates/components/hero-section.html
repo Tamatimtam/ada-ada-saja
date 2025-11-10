@@ -1,8 +1,35 @@
 <!-- templates/components/hero-section.html -->
 
-<!-- A new wrapper for the title and description -->
-<div class="hero-text-content">
-    <h1 class="hero-title">{{ data.hero_section.title }}</h1>
+<!-- New header to split the title and the anxiety stat -->
+<div class="sidebar-header">
+    <div class="sidebar-header__title">
+        <h1 class="hero-title">{{ data.hero_section.title }}</h1>
+    </div>
+    <div class="sidebar-header__stat">
+        <!-- The entire anxiety stat component is moved here -->
+        <div class="hero-chart-container hero-chart-container--stat" id="anxiety-container">
+            <div class="anxiety-stat" aria-label="Financial anxiety gauge">
+                <div class="anxiety-face-wrapper">
+                    <div id="anxiety-emoji" class="anxiety-emoji"></div>
+                </div>
+                <div class="anxiety-gauge">
+                    <div class="anxiety-gauge__track">
+                        <div id="anxiety-gauge-fill" class="anxiety-gauge__fill" style="height: 0%"></div>
+                    </div>
+                    <div class="anxiety-gauge__scale" aria-hidden="true">
+                        <span>1</span><span>2</span><span>3</span><span>4</span><span>5</span>
+                    </div>
+                </div>
+                <div id="avgAnxietyScore" class="anxiety-gauge__value" data-score="{{ data.hero_section.anxiety_score }}" data-original-score="{{ data.hero_section.anxiety_score }}">{{ data.hero_section.anxiety_score }}</div>
+            </div>
+            <p class="stat-label">Average Financial Anxiety Score (1-5)</p>
+        </div>
+    </div>
+</div>
+
+<!-- The Bar Chart Container now includes the description -->
+<div class="hero-chart-container hero-chart-container--chart">
+    <!-- The description is now inside this container -->
     <div class="hero-description-container">
         <p class="hero-description">
             Data Gen Z Paling Financially anxious berdasarkan
@@ -17,29 +44,6 @@
             </ul>
         </span>
     </div>
-</div>
-
-<!-- The Bar Chart Container -->
-<div class="hero-chart-container hero-chart-container--chart">
+    <!-- The chart itself -->
     <div id="anxietyBarChart" class="hero-chart"></div>
-</div>
-
-<!-- The Anxiety Score Container -->
-<div class="hero-chart-container hero-chart-container--stat" id="anxiety-container">
-    <div class="anxiety-stat" aria-label="Financial anxiety gauge">
-        <div class="anxiety-face-wrapper">
-            <!-- MODIFIED: Replaced the SVG with a div for the emoji -->
-            <div id="anxiety-emoji" class="anxiety-emoji"></div>
-        </div>
-        <div class="anxiety-gauge">
-            <div class="anxiety-gauge__track">
-                <div id="anxiety-gauge-fill" class="anxiety-gauge__fill" style="height: 0%"></div>
-            </div>
-            <div class="anxiety-gauge__scale" aria-hidden="true">
-                <span>1</span><span>2</span><span>3</span><span>4</span><span>5</span>
-            </div>
-        </div>
-        <div id="avgAnxietyScore" class="anxiety-gauge__value" data-score="{{ data.hero_section.anxiety_score }}" data-original-score="{{ data.hero_section.anxiety_score }}">{{ data.hero_section.anxiety_score }}</div>
-    </div>
-    <p class="stat-label">Average Financial Anxiety Score (1-5)</p>
 </div>

@@ -8,19 +8,21 @@
 {% block content %}
 <div class="dashboard-window">
     
-    <!-- This is now the single, unified grid for the whole page -->
-    <main class="dashboard-grid">
-        <!-- The hero section's direct children will be placed on the grid -->
-        {% include 'components/hero-section.html' %}
+    <!-- This is the new two-column container -->
+    <div class="dashboard-container">
+        <!-- Left Sidebar Panel -->
+        <aside class="left-panel">
+            {% include 'components/hero-section.html' %}
+            {% include 'components/knowledge-card.html' %}
+            {% include 'components/behavior-card.html' %}
+            {% include 'components/wellbeing-card.html' %}
+        </aside>
 
-        <!-- The cards are now direct children of the main grid -->
-        {% include 'components/knowledge-card.html' %}
-        {% include 'components/behavior-card.html' %}
-        {% include 'components/wellbeing-card.html' %}
-
-        <!-- New components from Dashboard B -->
-        {% include 'components/visual_analytics.html' %}
-        {% include 'components/loan_overview.html' %}
-    </main>
+        <!-- Right Main Content Panel -->
+        <main class="right-panel">
+            {% include 'components/visual_analytics.html' %}
+            {% include 'components/loan_overview.html' %}
+        </main>
+    </div>
 </div>
 {% endblock %}
