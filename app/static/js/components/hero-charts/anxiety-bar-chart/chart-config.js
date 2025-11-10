@@ -5,8 +5,8 @@ function getChartConfig() {
         chart: {
             type: 'column',
             backgroundColor: 'transparent',
-            // MODIFIED: Increased the height for better vertical spacing
-            height: 120
+            // MODIFIED: Increase height so all labels fit
+            height: 125
         },
         title: { text: null },
         // 3. X-axis configuration.

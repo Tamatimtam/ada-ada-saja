@@ -195,6 +195,22 @@ def get_filtered_metrics(filter_by, filter_value):
         except ValueError:
             return {"scores": {}, "average_anxiety_score": 0}
 
+    # Normalize Sheet2 Job values to collapse variants into a single canonical form
+    if "Job" in df2.columns:
+        df2["Job"] = df2["Job"].astype(str).str.strip()
+        # Normalize Civil Servant/BUMN variations (with or without extra descriptors)
+        df2["Job"] = df2["Job"].replace(
+            {r"^Civil\s*Servant\s*/\s*BUMN(?:.*)?$": "Civil Servant/BUMN"}, regex=True
+        )
+        # Normalize common variations for other jobs as well
+        df2["Job"] = df2["Job"].replace(
+            {
+                "entrepreneur": "Entrepreneur",
+                "Enterpreneur": "Entrepreneur",
+                "enterpreneur": "Entrepreneur",
+            }
+        )
+
     column_mapping = {
         "employment_status": "Job",
         "education_level": "Last Education",
@@ -210,7 +226,8 @@ def get_filtered_metrics(filter_by, filter_value):
         "Not Working": "Not Working",
         "Student": "Student",
         "Private Employee": "Private Employee",
-        "Civil Servant/BUMN": "Civil Servant/BUMN or Local Government",
+        # After normalization, Sheet2 uses 'Civil Servant/BUMN'
+        "Civil Servant/BUMN": "Civil Servant/BUMN",
     }
 
     sheet2_column = column_mapping.get(filter_by, filter_by)
