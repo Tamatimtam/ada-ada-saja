@@ -44,13 +44,13 @@ function renderLoanChart(data) {
     }];
 
     const layout = {
-        title: { text: `<b>💳 Outstanding Loan Distribution${filterText}</b>`, x: 0.5, xanchor: 'center', font: { size: 16, color: '#2c3e50' } },
-        annotations: [{ text: centerText, x: 0.5, y: 0.5, font: { size: 16 }, showarrow: false }],
+        title: { text: `<b>💳 Outstanding Loan Distribution${filterText}</b>`, x: 0.5, xanchor: 'center', font: { size: 12, color: '#2c3e50' } },
+        annotations: [{ text: centerText, x: 0.5, y: 0.5, font: { size: 12 }, showarrow: false }],
         showlegend: true,
-        legend: { orientation: 'v', yanchor: 'middle', y: 0.5, xanchor: 'left', x: 1.05, font: { size: 10 } },
-        margin: { l: 40, r: 140, t: 60, b: 40 },
+        legend: { orientation: 'h', x: 0.5, xanchor: 'center', y: -0.08, yanchor: 'top', font: { size: 7 } },
+        margin: { l: 25, r: 70, t: 35, b: 35 },
         paper_bgcolor: 'white',
-        height: 340,
+        height: 240,
         template: 'plotly_white'
     };
 
@@ -79,11 +79,13 @@ function renderLoanPurposeChart(data, category) {
         values: percentages,
         labels: labels,
         type: 'pie',
-        domain: { x: [0, 0.40], y: [0, 1] }, // a bit narrower for more gap
-        marker: { colors: colors, line: { color: '#ffffff', width: 2 } },
-        textposition: 'inside',
-        textinfo: 'percent',
-        textfont: { size: 11, color: '#ffffff' },
+        // Reduce pie size - smaller domain
+        domain: { x: [0, 0.35], y: [0.15, 0.95] },
+        marker: { colors: colors, line: { color: '#ffffff', width: 1.5 } },
+        textposition: 'outside',
+        textinfo: 'label+percent',
+        textfont: { size: 9, color: '#2c3e50' },
+        automargin: true,
         insidetextorientation: 'auto',
         hovertemplate: '<b>%{label}</b><br>%{value:.1f}%<br>(%{customdata} borrowers)<extra></extra>',
         customdata: counts,
@@ -97,29 +99,30 @@ function renderLoanPurposeChart(data, category) {
         orientation: 'h',
         xaxis: 'x2',
         yaxis: 'y2',
-        marker: { color: colors, line: { color: '#ffffff', width: 1 } },
-        text: counts.map(c => `${c}`), textposition: 'outside', textfont: { size: 11 },
-        hovertemplate: '<b>%{y}</b><br>Count: %{x}<extra></extra>', width: 0.6
+        marker: { color: colors, line: { color: '#ffffff', width: 0.5 } },
+        text: counts.map(c => `${c}`), textposition: 'outside', textfont: { size: 9 },
+        hovertemplate: '<b>%{y}</b><br>Count: %{x}<extra></extra>', width: 0.5,
+        cliponaxis: false
     };
 
     const layout = {
-        title: { text: `<b>🎯 ${titleText}</b>`, x: 0.5, xanchor: 'center', font: { size: 16 } },
-        height: 340,
+        title: { text: `<b>🎯 ${titleText}</b>`, x: 0.5, xanchor: 'center', font: { size: 13 } },
+        height: 240,
         template: 'plotly_white',
-        margin: { l: 80, r: 20, t: 50, b: 40 },
+        margin: { l: 12, r: 35, t: 35, b: 20 },
         showlegend: false,
         xaxis2: {
-            domain: [0.42, 1], // more room between pie and bars
+            domain: [0.35, 1],
             anchor: 'y2',
-            showgrid: true,
+            showgrid: false,
             range: [0, Math.ceil(Math.max(...counts) * 1.15)]
         },
         yaxis2: {
             domain: [0, 1],
             anchor: 'x2',
             showgrid: false,
-            tickfont: { size: 12 },
-            // Preserve incoming order (already sorted on backend with Undefined last)
+            tickfont: { size: 8 },
+            side: 'right',
             categoryorder: 'array',
             categoryarray: purposesWithIcons
         }
