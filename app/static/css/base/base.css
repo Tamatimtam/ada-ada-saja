@@ -5,14 +5,70 @@ body {
     color: var(--text-primary);
 }
 
+/* Make sure page never produces horizontal scroll due to viewport-width quirk,
+   but allow normal vertical scrolling when content grows. */
+html,
+body {
+    overflow-x: hidden;
+}
+
+/* Use full available width (not 100vw) to avoid extra horizontal scroll from scrollbars,
+   remove strict centering so layout can use full width with small padding. */
 .dashboard-window {
     width: 100%;
-    /* max-width: 1600px;s 
-    /* Increased from 1200px */
-    /* margin: 0 auto; */
-    background: transparent;
-    box-shadow: none;
-    border: none;
-    border-radius: 0;
+    max-width: none;
+    margin: 0;
+    padding: 12px 16px;
+    box-sizing: border-box;
+    overflow-x: hidden;
+    /* prevent horizontal overflow */
+    overflow-y: visible;
+    /* allow vertical flow / page scroll */
+}
+
+/* Two-column container used in index.html */
+.dashboard-container {
+    display: flex;
+    gap: 20px;
+    align-items: flex-start;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+/* Left sidebar: fixed sensible width */
+.left-panel {
+    flex: 0 0 360px;
+    max-width: 360px;
+    min-width: 220px;
+    box-sizing: border-box;
+}
+
+/* Right panel: flexible and allowed to grow; do NOT force internal scroll here
+   so the whole page will scroll when content is tall (prevents inner overlay scrollbar). */
+.right-panel {
+    flex: 1 1 auto;
+    min-width: 0;
+    /* critical for flex children to wrap instead of overflow */
+    box-sizing: border-box;
     overflow: visible;
+    /* let page scroll rather than internal scrollbar overlapping chart */
+}
+
+/* Important: allow visualization blocks to expand vertically (avoid clipping)
+   but still prevent them forcing horizontal overflow. */
+.viz-content,
+.visualization-grid,
+.viz-panel {
+    min-width: 0;
+    overflow-x: hidden;
+    overflow-y: visible;
+    box-sizing: border-box;
+}
+
+/* Ensure Plotly/chart containers don't inject fixed large inline widths */
+.chart-container>div,
+.viz-content>div {
+    width: 100% !important;
+    max-width: 100%;
+    box-sizing: border-box;
 }
