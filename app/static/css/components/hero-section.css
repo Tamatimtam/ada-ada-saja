@@ -1,11 +1,8 @@
-@import url('https://fonts.googleapis.com/css2?family=Stack+Sans+Notch:wght@200..700&display=swap');
-
 /* static/css/components/hero-section.css */
 
 /* The .hero-text-content rule is now removed */
 
 .hero-title {
-    font-family: 'Stack Sans Notch', sans-serif;
     font-size: 2rem;
     font-weight: 800;
     margin: 0;

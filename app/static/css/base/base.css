@@ -1,8 +1,12 @@
 body {
     margin: 0;
     background-color: var(--bg-color);
-    font-family: 'Inter', sans-serif;
+    font-family: 'Plus Jakarta Sans', sans-serif;
     color: var(--text-primary);
+}
+
+h1, h2, h3, h4, h5, h6 {
+    font-family: 'Plus Jakarta Sans', sans-serif;
 }
 
 .dashboard-window {
