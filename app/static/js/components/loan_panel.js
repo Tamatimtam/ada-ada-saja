@@ -16,19 +16,19 @@ function updateKPICard(elementId, value) {
 function renderLoanChart(data) {
     const chartDiv = document.getElementById('loan-overview-chart');
     if (!chartDiv) return;
-    
+
     const distribution = data.distribution || [];
     const categories = distribution.map(d => d.category);
     const percentages = distribution.map(d => d.percentage);
     const counts = distribution.map(d => d.count);
-    
+
     const colorMapping = { 'No Loan': '#27ae60', '<5M': '#ffb3ba', '5M-10M': '#ff8a8a', '10M-15M': '#ff5757', '>15M': '#e74c3c' };
     const colors = categories.map(cat => colorMapping[cat] || '#95a5a6');
-    
+
     const totalWithLoans = distribution.filter(d => d.category !== 'No Loan').reduce((sum, d) => sum + d.count, 0);
     const filterText = data.filter_applied && data.filter_applied !== 'All' ? ` (${totalWithLoans} borrowers in ${data.filter_applied})` : ` (${totalWithLoans} borrowers)`;
     const centerText = data.filter_applied && data.filter_applied !== 'All' ? `<b style="font-size:22px">${data.with_loan}</b><br><span style='font-size:12px;color:#7f8c8d'>with loans</span><br><span style='font-size:10px;color:#95a5a6'>in ${data.filter_applied}</span>` : `<b style="font-size:22px">${data.with_loan}</b><br><span style='font-size:12px;color:#7f8c8d'>with loans</span>`;
-    
+
     const chartData = [{
         labels: categories,
         values: percentages,
@@ -42,7 +42,7 @@ function renderLoanChart(data) {
         direction: 'clockwise',
         sort: false
     }];
-    
+
     const layout = {
         title: { text: `<b>💳 Outstanding Loan Distribution${filterText}</b>`, x: 0.5, xanchor: 'center', font: { size: 16, color: '#2c3e50' } },
         annotations: [{ text: centerText, x: 0.5, y: 0.5, font: { size: 16 }, showarrow: false }],
@@ -53,7 +53,7 @@ function renderLoanChart(data) {
         height: 340,
         template: 'plotly_white'
     };
-    
+
     Plotly.newPlot(chartDiv, chartData, layout, { displayModeBar: false, responsive: true });
 }
 
@@ -66,7 +66,9 @@ function renderLoanPurposeChart(data, category) {
         return;
     }
 
-    const purposesWithIcons = data.map(d => `${d.icon} ${d.purpose}`);
+    // Clean, consistent labels
+    const labels = data.map(d => d.purpose);                 // For pie (no emoji to avoid clutter)
+    const purposesWithIcons = data.map(d => `${d.icon} ${d.purpose}`); // For bar
     const counts = data.map(d => d.count);
     const percentages = data.map(d => d.percentage);
     const colors = data.map(d => d.color);
@@ -74,15 +76,27 @@ function renderLoanPurposeChart(data, category) {
     const titleText = category && category !== 'All' ? `Loan Usage (${totalCount} borrowers in ${category})` : `Loan Usage Purpose (${totalCount} borrowers)`;
 
     const pieTrace = {
-        values: percentages, labels: purposesWithIcons, type: 'pie', domain: { x: [0, 0.45], y: [0, 1] },
+        values: percentages,
+        labels: labels,
+        type: 'pie',
+        domain: { x: [0, 0.40], y: [0, 1] }, // a bit narrower for more gap
         marker: { colors: colors, line: { color: '#ffffff', width: 2 } },
-        textposition: 'auto', textinfo: 'label+percent', textfont: { size: 11 },
+        textposition: 'inside',
+        textinfo: 'percent',
+        textfont: { size: 11, color: '#ffffff' },
+        insidetextorientation: 'auto',
         hovertemplate: '<b>%{label}</b><br>%{value:.1f}%<br>(%{customdata} borrowers)<extra></extra>',
-        customdata: counts, showlegend: false
+        customdata: counts,
+        showlegend: false
     };
 
     const barTrace = {
-        y: purposesWithIcons, x: counts, type: 'bar', orientation: 'h', xaxis: 'x2', yaxis: 'y2',
+        y: purposesWithIcons,
+        x: counts,
+        type: 'bar',
+        orientation: 'h',
+        xaxis: 'x2',
+        yaxis: 'y2',
         marker: { color: colors, line: { color: '#ffffff', width: 1 } },
         text: counts.map(c => `${c}`), textposition: 'outside', textfont: { size: 11 },
         hovertemplate: '<b>%{y}</b><br>Count: %{x}<extra></extra>', width: 0.6
@@ -90,9 +104,25 @@ function renderLoanPurposeChart(data, category) {
 
     const layout = {
         title: { text: `<b>🎯 ${titleText}</b>`, x: 0.5, xanchor: 'center', font: { size: 16 } },
-        height: 340, template: 'plotly_white', margin: { l: 80, r: 20, t: 50, b: 40 }, showlegend: false,
-        xaxis2: { domain: [0.50, 1], anchor: 'y2', showgrid: true, range: [0, Math.max(...counts) * 1.15] },
-        yaxis2: { domain: [0, 1], anchor: 'x2', autorange: 'reversed', showgrid: false, tickfont: { size: 12 } }
+        height: 340,
+        template: 'plotly_white',
+        margin: { l: 80, r: 20, t: 50, b: 40 },
+        showlegend: false,
+        xaxis2: {
+            domain: [0.42, 1], // more room between pie and bars
+            anchor: 'y2',
+            showgrid: true,
+            range: [0, Math.ceil(Math.max(...counts) * 1.15)]
+        },
+        yaxis2: {
+            domain: [0, 1],
+            anchor: 'x2',
+            showgrid: false,
+            tickfont: { size: 12 },
+            // Preserve incoming order (already sorted on backend with Undefined last)
+            categoryorder: 'array',
+            categoryarray: purposesWithIcons
+        }
     };
 
     Plotly.newPlot(chartDiv, [pieTrace, barTrace], layout, { displayModeBar: false, responsive: true });
