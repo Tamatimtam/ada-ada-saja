@@ -20,10 +20,10 @@ class LoanProcessor:
 
     # Loan purpose visual mapping - ADDED 'Undefined'
     LOAN_PURPOSE_MAP = {
-        'Konsumsi': {'color': '#3498db', 'icon': '🛒'},
-        'Pendidikan': {'color': '#9b59b6', 'icon': '🎓'},
-        'Usaha': {'color': '#2ecc71', 'icon': '💼'},
-        'Gaya': {'color': '#e74c3c', 'icon': '💄'},
+        'Konsumsi': {'color': '#ff8b53', 'icon': '🛒'},
+        'Pendidikan': {'color': '#1ba991', 'icon': '🎓'},
+        'Usaha': {'color': '#5DADE2', 'icon': '💼'},
+        'Gaya': {'color': '#f24f09', 'icon': '💄'},
         'Lainnya': {'color': '#95a5a6', 'icon': '📊'},
         'Undefined': {'color': '#bdc3c7', 'icon': '❓'}
     }

@@ -97,7 +97,7 @@
     /* >15M */
 
     /* Digital Time Chart */
-    --chart-digital-main: #3498db;
+    --chart-digital-main: #1ba991;
     /* Used for line and bars */
     --chart-digital-baseline: rgba(128, 128, 128, 0.5);
 }
