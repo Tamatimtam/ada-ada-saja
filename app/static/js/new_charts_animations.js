@@ -14,25 +14,34 @@ function initializeNewCharts() {
         initializeVisualAnalyticsCharts();
     }
 
-    // Set up a listener for the filter changes from the main anxiety bar chart
-    document.addEventListener('filterChanged', (e) => {
-        // When the main chart's filter changes, we want to update the new charts.
-        // We can get the filter value from the event detail.
-        // For now, we'll just log it. A full implementation would require knowing the data structure.
-        console.log('Filter changed event detected in new charts:', e.detail.filterBy);
+    // Set up a listener for the filter changes from the main diverging bar chart
+    document.addEventListener('categoryFiltered', (e) => {
+        console.log('Category filter changed event detected in new charts:', e.detail.category);
         
-        // Here you would call the update functions for the new charts
-        // For example:
-        // updateLoanPanel(e.detail.filterBy);
-        // updateDigitalTimeChart(e.detail.filterBy);
+        if (typeof updateLoanPanel === 'function') {
+            updateLoanPanel(e.detail.category);
+        }
+        if (typeof updateLoanPurposeChart === 'function') {
+            updateLoanPurposeChart(e.detail.category);
+        }
+        if (typeof updateDigitalTimeChart === 'function') {
+            updateDigitalTimeChart(e.detail.category);
+        }
     });
 
     // We also need to handle the reset event
-    document.addEventListener('filterReset', () => {
-        console.log('Filter reset event detected in new charts');
-        // Reset all new charts to their default state
-        // updateLoanPanel(null);
-        // updateDigitalTimeChart(null);
+    document.addEventListener('categoryFilterReset', () => {
+        console.log('Category filter reset event detected in new charts');
+        
+        if (typeof updateLoanPanel === 'function') {
+            updateLoanPanel(null);
+        }
+        if (typeof updateLoanPurposeChart === 'function') {
+            updateLoanPurposeChart(null);
+        }
+        if (typeof updateDigitalTimeChart === 'function') {
+            updateDigitalTimeChart(null);
+        }
     });
 }
 
