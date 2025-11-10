@@ -3,11 +3,10 @@ function getChartConfig() {
     return {
         // 2. Basic chart settings.
         chart: {
-            // Default to column, but this will be updated dynamically
             type: 'column',
             backgroundColor: 'transparent',
             // MODIFIED: Increased the height for better vertical spacing
-            height: 80
+            height: 120
         },
         title: { text: null },
         // 3. X-axis configuration.
@@ -18,9 +17,8 @@ function getChartConfig() {
                 step: 1,
                 style: { fontSize: '8px', color: '#666' },
                 rotation: 0,
-                // MODIFIED: Added 'y' to adjust label position.
-                // A negative value moves the labels UP, closer to the bars.
-                y: -5
+                // MODIFIED: Removed the y adjustment; let Highcharts handle default positioning
+                y: 0
             },
             lineWidth: 0,
             tickWidth: 0

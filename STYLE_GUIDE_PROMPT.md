@@ -14,6 +14,7 @@ You are an expert front-end developer tasked with maintaining and extending the 
 -   **Component-Based:** The `index.html` file is a simple shell. All UI elements are defined as separate HTML fragments in the `/components` directory.
 -   **Dynamic Loading:** A central script (`scripts/main.js`) is responsible for fetching these HTML components and dynamically injecting them into the main page. When adding a new UI section, you must create a new file in `/components` and add it to the loading sequence in `scripts/main.js`.
 -   **Semantic HTML:** Use semantic tags (`<header>`, `<main>`, `<nav>`, etc.) where appropriate.
+-   **Data Normalization:** When handling categorical data (e.g., employment status, education levels), ensure that variations in spelling and casing are normalized in the backend (`services.py`) before rendering to maintain consistency across charts and filters.
 
 ---
 

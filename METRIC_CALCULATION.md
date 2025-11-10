@@ -23,7 +23,7 @@ The following table shows which questions from `Sheet2.csv` are averaged to calc
 
 | Metric | Questions from `Sheet2.csv` |
 | :--- | :--- |
-| **Pengelolaan Keuangan** | `I am able to and divide it accordingly across an allotted period to the right concerned areas` <br> `I am able to project the amount of cash that will be available to me in the future` <br> `I take part in domestic expense planning` <br> `I suggest at home that we keep money aside for emergencies` <br> `I am able to search for economic options during financial decision making` <br> `I am able to foresee the long term and short-term consequences of the financial decisions I undertake` |
+| **Pengelolaan Keuangan** | `I am able to manage my budget and divide it accordingly across an allotted period to the right concerned areas` <br> `I am able to project the amount of cash that will be available to me in the future` <br> `I take part in domestic expense planning` <br> `I suggest at home that we keep money aside for emergencies` <br> `I am able to search for economic options during financial decision making` <br> `I am able to foresee the long term and short-term consequences of the financial decisions I undertake` |
 | **Sikap Finansial** | `I usually have a critical view of the way my friends deal with money` <br> `I like to participate in family decision making when we buy something expensive for home` <br> `I advise others on money matters` <br> `I often do things without giving them much thought` <br> `I am impulsive` <br> `I say things before I have thought them through` <br> `I am able to quickly change my financial decisions as per the changes in circumstance` <br> `Appraise of personal risk helps me in better financial decision making` <br> `I make sound financial decision by comparing results over the time` <br> `I make sound financial decisions by comparing results over expenses involved` <br> `Previously used decision strategies help me in better financial decision making` |
 | **Disiplin Finansial** | `I am able to plan ahead to avoid impulse spending` <br> `I always try to save some money to do things I really like` <br> `I always like to negotiate prices when I buy` <br> `I keep an eye on promotions and discounts` <br> `I like to think thoroughly before deciding to buy something` <br> `I like to research prices whenever I buy something` |
 
@@ -54,3 +54,18 @@ The following questions are treated as having negative polarity:
 - `My finances control my life`
 - `Whenever I feel in control of my finances, something happens that sets me back`
 - `I am unable to enjoy life because I obsess too much about money`
+
+---
+
+## Data Quality Notes
+
+### Employment Status Normalization
+
+The system normalizes various spellings of employment categories to ensure consistency:
+- **Entrepreneur**: Handles variations like "Enterpreneur", "entrepreneur"
+- **Civil Servant/BUMN**: Maps to "Civil Servant/BUMN or Local Government" in Sheet2
+- **Not Working**: Standardized across datasets
+- **Student**: Standardized across datasets
+- **Private Employee**: Standardized across datasets
+
+This normalization occurs automatically during data loading and filtering to prevent mismatches between user selections and actual data values.
