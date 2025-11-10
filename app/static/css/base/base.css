@@ -1,12 +1,21 @@
+@import url('https://fonts.googleapis.com/css2?family=Anta&family=Doto:wght@100..900&family=Outfit:wght@100..900&family=Pixelify+Sans:wght@400..700&family=Press+Start+2P&family=Stack+Sans+Notch:wght@200..700&display=swap');
+
 body {
     margin: 0;
     background-color: var(--bg-color);
-    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-family: 'Outfit', sans-serif;
     color: var(--text-primary);
 }
 
-h1, h2, h3, h4, h5, h6 {
-    font-family: 'Plus Jakarta Sans', sans-serif;
+
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+    font-family: 'Stack Sans Notch', sans-serif;
 }
 
 .dashboard-window {

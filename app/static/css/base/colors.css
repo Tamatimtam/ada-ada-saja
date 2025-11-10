@@ -1,6 +1,6 @@
 :root {
     /* General Palette */
-    --bg-color: #fff5ee;
+    --bg-color: #ddf2ed;
     --text-primary: #3A4150;
     --text-secondary: #5E6573;
     --text-tertiary: #8C93A0;
@@ -10,13 +10,13 @@
     --white: #FFFFFF;
 
     /* Card Backgrounds - BOLD & SATURATED */
-    --card1-bg: #FF6B9D;
+    --card1-bg: #1ba991;
     /* Bold Pink */
     --card2-bg: #5DADE2;
     /* Bold Orange */
     --card3-bg: #ff8114;
     /* Bold Blue */
-    --card4-bg: #9B59B6;
+    --card4-bg: #fac800af;
     /* Bold Purple */
 
     /* Card 1 (Knowledge) - Pink Theme */
@@ -51,9 +51,9 @@
     --card3-text: #FFFFFF;
     --card3-text-secondary: rgba(255, 255, 255, 0.85);
     --card3-sparkle: rgba(255, 255, 255, 0.8);
-    --card3-coin-bg: rgba(255, 255, 255, 0.15);
-    --card3-coin-border: rgba(255, 255, 255, 0.3);
-    --card3-coin-text: rgba(255, 255, 255, 0.5);
+    --card3-coin-bg: rgba(254, 239, 16, 0.4);
+    --card3-coin-border: rgba(254, 239, 16, 0.4);
+    --card3-coin-text: rgba(254, 239, 16, 1);
 
     /* Card 4 (Small Cards) */
     --card4-text: #FFFFFF;

@@ -129,7 +129,7 @@ function updateChart(chart, state, filterBy) {
 
 
             // Generate colors based on the sorted data
-            const baseColor = '#ff8114';
+            const baseColor = '#5DADE2';
             const numScores = data.scores.length;
             const generatedColors = data.scores.map((_, index) => {
                 const brightenAmount = (index / (numScores - 1 || 1)) * 0.6;

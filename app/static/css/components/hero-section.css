@@ -8,8 +8,8 @@
     margin: 0;
     line-height: 1.1;
     letter-spacing: -0.03em;
-    color: var(--text-primary);
-    background: var(--card1-bg);
+    color: #181829;
+    background: #1ba991;
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
