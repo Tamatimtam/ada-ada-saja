@@ -3,12 +3,14 @@
 /* The main container for the new two-column layout */
 .dashboard-container {
     display: grid;
-    /* A ratio of roughly 30% to 70%. Using minmax for a responsive sidebar. */
     grid-template-columns: minmax(380px, 3fr) 7fr;
+    /* This ensures the grid rows don't overflow the container */
+    grid-template-rows: minmax(0, 1fr);
     gap: var(--padding);
     padding: var(--padding);
-    padding-top: calc(var(--padding) * 2);
-    /* Maintain original top padding */
+    padding-top: calc(var(--padding) * 1);
+    /* MODIFIED: Revert to a fixed height matching the screen. */
+    /* This prevents the whole page from scrolling. */
     height: 100vh;
     box-sizing: border-box;
 }
@@ -18,8 +20,8 @@
     display: flex;
     flex-direction: column;
     gap: var(--padding);
-    overflow-y: auto;
-    /* Allow scrolling if content overflows */
+    width: 380px;
+    /* The sidebar's content is short, so no scrollbar is needed here. */
 }
 
 /* The right "main content" panel */
@@ -27,34 +29,30 @@
     display: flex;
     flex-direction: column;
     gap: var(--padding);
+    /* MODIFIED: This is the key change. */
+    /* Only the right panel will have a scrollbar if its content is too tall. */
     overflow-y: auto;
-    /* Allow scrolling if content overflows */
 }
 
-/* NEW: Styles for the sidebar header */
+/* Styles for the sidebar header */
 .sidebar-header {
     display: flex;
     justify-content: space-between;
-    /* Pushes title and stat to opposite ends */
     align-items: center;
-    /* Vertically aligns them */
     gap: 16px;
 }
 
 .sidebar-header__title {
     flex: 1;
-    /* Allows the title to take up remaining space */
 }
 
 .sidebar-header__stat {
     flex-shrink: 0;
-    /* Prevents the stat from shrinking */
 }
 
-/* MODIFIED: Bar chart container adjustments */
+/* Bar chart container adjustments */
 .hero-chart-container--chart {
-    max-height: 280px;
-    /* It now contains text, so it needs to be a flex column */
+    max-height: 500px;
     display: flex;
     flex-direction: column;
 }

@@ -7,7 +7,7 @@ function getChartConfig() {
             type: 'column',
             backgroundColor: 'transparent',
             // MODIFIED: Increased the height for better vertical spacing
-            height: 200
+            height: 80
         },
         title: { text: null },
         // 3. X-axis configuration.
@@ -16,7 +16,7 @@ function getChartConfig() {
             title: { text: null },
             labels: {
                 step: 1,
-                style: { fontSize: '10px', color: '#666' },
+                style: { fontSize: '8px', color: '#666' },
                 rotation: 0,
                 // MODIFIED: Added 'y' to adjust label position.
                 // A negative value moves the labels UP, closer to the bars.
