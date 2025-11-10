@@ -1,0 +1,39 @@
+<!-- templates/components/visual_analytics.html -->
+<div class="visualization-grid">
+    <!-- Main Chart - 60% -->
+    <div class="viz-panel viz-main">
+        <div class="viz-content">
+            {{ chart_html|safe }}
+        </div>
+        <div class="viz-footer">
+            <small class="text-muted">
+                <i class="fas fa-mouse-pointer me-1"></i>
+                Interactive filtering enabled • Selected category shows in <strong style="color: #e67e22;">orange</strong>
+            </small>
+        </div>
+    </div>
+    
+    <!-- Profession Chart - 20% -->
+    <div class="viz-panel viz-side" id="profession-panel">
+        <div class="viz-content">
+            {{ profession_chart|safe }}
+        </div>
+        <div class="viz-footer">
+            <small class="text-muted">
+                Employment status vs financial outcomes
+            </small>
+        </div>
+    </div>
+    
+    <!-- Education Chart - 20% -->
+    <div class="viz-panel viz-side" id="education-panel">
+        <div class="viz-content">
+            {{ education_chart|safe }}
+        </div>
+        <div class="viz-footer">
+            <small class="text-muted">
+                Education level's impact on stability
+            </small>
+        </div>
+    </div>
+</div>

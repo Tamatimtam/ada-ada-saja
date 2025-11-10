@@ -52,4 +52,9 @@ function initAllAnimations() {
     initWellbeingAnimations();
     initSparkleAnimations();
     initCoinAnimations();
+
+    // Initialize charts from Dashboard B
+    if (typeof initializeNewCharts === 'function') {
+        initializeNewCharts();
+    }
 }

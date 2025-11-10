@@ -1,4 +1,8 @@
 import pandas as pd
+from app.utils.loan_processor import LoanProcessor
+from app.utils.engagement_processor import EngagementProcessor
+from app.utils.chart_generator import ChartGenerator
+import os
 
 def _calculate_scores(df):
     metrics = {
@@ -97,16 +101,15 @@ def _calculate_scores(df):
     return scores
 
 def get_main_metrics():
-    df = pd.read_csv('dataset/Sheet2.csv')
+    df = pd.read_csv(os.path.join(os.path.dirname(__file__), '..', 'dataset', 'Sheet2.csv'))
     scores = _calculate_scores(df)
-    df_anxiety = pd.read_csv('dataset/Sheet1.csv')
+    df_anxiety = pd.read_csv(os.path.join(os.path.dirname(__file__), '..', 'dataset', 'Sheet1.csv'))
     average_anxiety_score = df_anxiety['financial_anxiety_score'].mean()
     return {"scores": scores, "average_anxiety_score": average_anxiety_score}
 
 def get_anxiety_by_category(filter_by='employment_status'):
-    df = pd.read_csv('dataset/Sheet1.csv')
+    df = pd.read_csv(os.path.join(os.path.dirname(__file__), '..', 'dataset', 'Sheet1.csv'))
     anxiety_by_category = df.groupby(filter_by)['financial_anxiety_score'].mean().round(1).reset_index()
-    # Sort by anxiety score in descending order
     anxiety_by_category = anxiety_by_category.sort_values('financial_anxiety_score', ascending=False)
     return {
         'categories': anxiety_by_category[filter_by].tolist(),
@@ -114,19 +117,15 @@ def get_anxiety_by_category(filter_by='employment_status'):
     }
 
 def get_filtered_metrics(filter_by, filter_value):
-    df1 = pd.read_csv('dataset/Sheet1.csv')
-    df2 = pd.read_csv('dataset/Sheet2.csv')
+    df1 = pd.read_csv(os.path.join(os.path.dirname(__file__), '..', 'dataset', 'Sheet1.csv'))
+    df2 = pd.read_csv(os.path.join(os.path.dirname(__file__), '..', 'dataset', 'Sheet2.csv'))
 
-    # MODIFIED: Convert birth_year to an integer at the very beginning.
-    # This is the fix.
     if filter_by == 'birth_year':
         try:
             filter_value = int(filter_value)
         except ValueError:
-            # Handle cases where the value might not be a valid number
             return {"scores": {}, "average_anxiety_score": 0}
 
-    # Map Sheet1 column names to Sheet2 column names
     column_mapping = {
         'employment_status': 'Job',
         'education_level': 'Last Education',
@@ -134,25 +133,115 @@ def get_filtered_metrics(filter_by, filter_value):
         'birth_year': 'Year of Birth'
     }
     
-    # Map Sheet1 values to Sheet2 values (for education level)
     value_mapping = {
         'Elementary School': 'Elementary School (SD)',
         'Junior High School': 'Junior High School (SMP)',
         'Senior High School': 'Senior High School (SMA)'
     }
     
-    # Get the corresponding Sheet2 column name
     sheet2_column = column_mapping.get(filter_by, filter_by)
-    
-    # Map the filter value if needed
     sheet2_filter_value = value_mapping.get(filter_value, filter_value)
         
-    # Filter Sheet1 for anxiety score. This comparison is now number-to-number.
     filtered_df1 = df1[df1[filter_by] == filter_value]
     average_anxiety_score = filtered_df1['financial_anxiety_score'].mean()
     
-    # Filter Sheet2 directly using its own columns. This comparison is also number-to-number.
     df_filtered = df2[df2[sheet2_column] == sheet2_filter_value]
     scores = _calculate_scores(df_filtered)
 
     return {"scores": scores, "average_anxiety_score": average_anxiety_score}
+
+# --- New functions from Dashboard B ---
+
+NEW_DATASET_PATH = os.path.join(os.path.dirname(__file__), '..', 'dataset', 'dataset_gelarrasa_genzfinancialprofile.csv')
+
+class DataLoader:
+    def __init__(self, csv_path):
+        self.csv_path = csv_path
+        self.df = None
+        self.category_order = ['N/A', '<2jt', '2-4jt', '4-6jt', '6-10jt', '10-15jt', '>15jt']
+        
+    def load_data(self):
+        if not os.path.exists(self.csv_path):
+            raise FileNotFoundError(f"CSV file not found: {self.csv_path}")
+        self.df = pd.read_csv(self.csv_path)
+        return self.df
+    
+    def get_chart_data(self):
+        if self.df is None: self.load_data()
+        income_counts = self.df['avg_income_category'].value_counts()
+        expense_counts = self.df['avg_expense_category'].value_counts()
+        income_pct = (income_counts / income_counts.sum() * 100).round(2)
+        expense_pct = (expense_counts / expense_counts.sum() * 100).round(2)
+        viz_data = pd.DataFrame({'Income_Count': income_counts, 'Income_Percentage': income_pct, 'Expense_Count': expense_counts, 'Expense_Percentage': expense_pct}).fillna(0)
+        existing_categories = [cat for cat in self.category_order if cat in viz_data.index]
+        viz_data = viz_data.reindex(existing_categories)
+        return {'categories': list(viz_data.index), 'income_percentages': viz_data['Income_Percentage'].tolist(), 'expense_percentages': viz_data['Expense_Percentage'].tolist(), 'income_counts': viz_data['Income_Count'].astype(int).tolist(), 'expense_counts': viz_data['Expense_Count'].astype(int).tolist()}
+    
+    def get_profession_chart_data(self):
+        if self.df is None: self.load_data()
+        profession_standing = pd.crosstab(self.df['employment_status'], self.df['financial_standing'], normalize='index') * 100
+        employment_counts = self.df['employment_status'].value_counts()
+        profession_standing = profession_standing.reindex(employment_counts.index)
+        categories = profession_standing.index.tolist()
+        colors = {'Surplus': '#2ecc71', 'Break-even': '#f39c12', 'Deficit': '#e74c3c'}
+        chart_data = {'categories': categories, 'financial_standings': list(profession_standing.columns), 'data': {}, 'colors': colors, 'total_counts': employment_counts.to_dict()}
+        for standing in profession_standing.columns:
+            chart_data['data'][standing] = profession_standing[standing].round(1).tolist() if standing in profession_standing.columns else [0] * len(categories)
+        return chart_data
+
+    def get_education_chart_data(self):
+        if self.df is None: self.load_data()
+        education_order = ['Elementary School', 'Junior High School', 'Senior High School', 'Diploma I/II/III', 'Bachelor (S1)/Diploma IV', 'Postgraduate']
+        education_standing = pd.crosstab(self.df['education_level'], self.df['financial_standing'], normalize='index') * 100
+        existing_education = [edu for edu in education_order if edu in education_standing.index]
+        education_standing = education_standing.reindex(existing_education)
+        education_counts = self.df['education_level'].value_counts()
+        categories = education_standing.index.tolist()
+        colors = {'Surplus': '#2ecc71', 'Break-even': '#f39c12', 'Deficit': '#e74c3c'}
+        chart_data = {'categories': categories, 'financial_standings': list(education_standing.columns), 'data': {}, 'colors': colors, 'total_counts': education_counts.to_dict()}
+        for standing in education_standing.columns:
+            chart_data['data'][standing] = education_standing[standing].round(1).tolist() if standing in education_standing.columns else [0] * len(categories)
+        return chart_data
+
+    def get_filtered_loan_overview(self, income_category=None):
+        if self.df is None: self.load_data()
+        return LoanProcessor(self.df).get_filtered_loan_data_by_income(income_category)
+
+    def get_filtered_loan_purpose_data(self, income_category=None):
+        if self.df is None: self.load_data()
+        filtered_df = self.df[self.df['avg_income_category'] == income_category].copy() if income_category and income_category != 'All' else self.df.copy()
+        return LoanProcessor(filtered_df).get_loan_purpose_distribution()
+
+    def get_filtered_engagement_data(self, income_category=None):
+        if self.df is None: self.load_data()
+        baseline_data = EngagementProcessor(self.df).get_engagement_distribution()
+        if income_category and income_category != 'All':
+            filtered_df = self.df[self.df['avg_income_category'] == income_category].copy()
+            filtered_data = EngagementProcessor(filtered_df).get_engagement_distribution()
+        else:
+            filtered_data = baseline_data
+        return {'filtered_data': filtered_data, 'baseline_kde': baseline_data['kde']}
+
+def get_visual_analytics_data():
+    loader = DataLoader(NEW_DATASET_PATH)
+    chart_data = loader.get_chart_data()
+    profession_data = loader.get_profession_chart_data()
+    education_data = loader.get_education_chart_data()
+    
+    return {
+        "chart_html": ChartGenerator.create_diverging_bar_chart(chart_data),
+        "profession_chart": ChartGenerator.create_profession_chart(profession_data),
+        "education_chart": ChartGenerator.create_education_chart(education_data)
+    }
+
+def get_filtered_loan_data(category):
+    loader = DataLoader(NEW_DATASET_PATH)
+    return loader.get_filtered_loan_overview(category)
+
+def get_loan_purpose_data(category):
+    loader = DataLoader(NEW_DATASET_PATH)
+    return loader.get_filtered_loan_purpose_data(category)
+
+def get_digital_time_data(category):
+    loader = DataLoader(NEW_DATASET_PATH)
+    return loader.get_filtered_engagement_data(category)

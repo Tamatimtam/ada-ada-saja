@@ -14,17 +14,20 @@
     
     <!-- Define a block for any extra head content -->
     {% block head %}{% endblock %}
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.4/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.4/ScrollTrigger.min.js"></script>
+    <script>gsap.registerPlugin(ScrollTrigger);</script>
+    <script src="https://code.highcharts.com/highcharts.js"></script>
+    <script src="https://code.highcharts.com/highcharts-more.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/plotly.js-dist-min@latest/plotly.min.js"></script>
 </head>
 <body>
 
     <!-- Define the main content block -->
     {% block content %}{% endblock %}
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.4/gsap.min.js"></script>
-    <script src="https://code.highcharts.com/highcharts.js"></script>
-    <script src="https://code.highcharts.com/highcharts-more.js"></script>
 
-    <script src="{{ url_for('static', filename='js/scrollTrigger.js') }}"></script>
+
     <script src="{{ url_for('static', filename='js/components/lightbulb-animation.js') }}"></script>
     <script src="{{ url_for('static', filename='js/components/scales-animation.js') }}"></script>
     <script src="{{ url_for('static', filename='js/components/wellbeing-animation.js') }}"></script>
@@ -39,9 +42,12 @@
     <script src="{{ url_for('static', filename='js/components/hero-charts/anxiety-bar-chart/chart-events.js') }}"></script>
     <script src="{{ url_for('static', filename='js/components/hero-charts/anxiety-bar-chart.js') }}"></script>
     <script src="{{ url_for('static', filename='js/components/hero-charts.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/components/loan_panel.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/components/digital_time_chart.js') }}"></script>
     <script src="{{ url_for('static', filename='js/background-shapes.js') }}"></script>
     <script src="{{ url_for('static', filename='js/counter.js') }}"></script>
     <script src="{{ url_for('static', filename='js/animations.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/new_charts_animations.js') }}"></script>
     <script src="{{ url_for('static', filename='js/main.js') }}"></script>
 </body>
 </html>

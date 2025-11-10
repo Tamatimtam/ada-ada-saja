@@ -1,0 +1,111 @@
+/* static/css/components/charts_panel.css */
+
+.charts-section-panel {
+    background-color: #ffffff;
+    padding: 2rem;
+    border-radius: var(--border-radius);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.05);
+    border: 1px solid var(--border-color);
+}
+
+.charts-section-panel h4 {
+    font-weight: 600;
+    color: var(--text-primary);
+    text-align: center;
+    margin-bottom: 1.5rem !important;
+    font-size: 1.4rem;
+}
+
+.loan-kpi-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.loan-kpi-card {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 12px;
+    padding: 1.25rem;
+    text-align: center;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    transition: all 0.3s ease;
+    position: relative;
+    color: white;
+}
+
+.loan-kpi-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 6px 16px rgba(0,0,0,0.15);
+}
+
+.loan-kpi-card.primary {
+    background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+}
+
+.loan-kpi-card.success {
+    background: linear-gradient(135deg, #27ae60 0%, #229954 100%);
+}
+
+.loan-kpi-card.warning {
+    background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);
+}
+
+.loan-kpi-card.danger {
+    background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+}
+
+.loan-kpi-label {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    opacity: 0.9;
+    margin-bottom: 8px;
+    font-weight: 600;
+}
+
+.loan-kpi-value {
+    font-size: 1.8rem;
+    font-weight: 700;
+    margin-bottom: 4px;
+    line-height: 1.2;
+}
+
+.loan-kpi-subtext {
+    font-size: 0.7rem;
+    opacity: 0.85;
+    margin-top: 4px;
+}
+
+#loan-overview-chart,
+#loan-purpose-chart,
+#digital-time-chart {
+    transition: opacity 0.3s ease;
+    min-height: 340px;
+}
+
+.chart-container {
+    background-color: white;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    height: 100%;
+    min-height: 380px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+}
+
+.chart-container .js-plotly-plot,
+.chart-container .plotly,
+.chart-container .plotly-graph-div {
+    width: 100% !important;
+    height: 100% !important;
+}
+
+.placeholder-content {
+    text-align: center;
+    color: #6c757d;
+    padding: 20px;
+}

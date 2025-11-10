@@ -56,3 +56,15 @@
     grid-column: 3;
     grid-row: 3;
 }
+
+/* Row 4: Visual Analytics Panel */
+.visualization-grid {
+    grid-column: 1 / span 3;
+    grid-row: 4;
+}
+
+/* Row 5: Charts Section Panel */
+.charts-section-panel {
+    grid-column: 1 / span 3;
+    grid-row: 5;
+}
