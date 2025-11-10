@@ -72,3 +72,34 @@ body {
     max-width: 100%;
     box-sizing: border-box;
 }
+
+/* Make sure Plotly containers behave responsively and don't force horizontal overflow */
+.chart-container,
+.viz-content {
+    width: 100%;
+    box-sizing: border-box;
+    overflow: visible;
+    /* allow markers/labels to show */
+}
+
+/* Limit any generated Plotly divs/svg to the parent's width */
+.plotly-graph-div,
+.plotly .main-svg {
+    max-width: 100% !important;
+    width: 100% !important;
+    height: auto !important;
+    box-sizing: border-box;
+}
+
+/* Ensure long chart titles / legend labels wrap instead of overflow */
+.plotly .gtitle text,
+.plotly .legend text,
+.plotly-graph-div .modebar-container {
+    white-space: normal !important;
+}
+
+/* Slightly reduce outer padding to reclaim edge space */
+.dashboard-window {
+    padding-left: 12px;
+    padding-right: 12px;
+}
