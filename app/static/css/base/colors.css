@@ -44,10 +44,10 @@
     --card2-particle-opacity: 1;
  */
     /* Card 3 (Wellbeing) - Purple Theme */
-    --card3-illust-main: #F8E9FF;
-    --card3-illust-accent: #E5C9F5;
-    --card3-illust-dark: #7B3FA0;
-    --card3-illust-roof: #E89B9B;
+    --card3-illust-main: #fffbe9;
+    --card3-illust-accent: #f5eac9;
+    --card3-illust-dark: #f7b23c;
+    --card3-illust-roof: #f4ad28;
     --card3-text: #FFFFFF;
     --card3-text-secondary: rgba(255, 255, 255, 0.85);
     --card3-sparkle: rgba(255, 255, 255, 0.8);
@@ -68,4 +68,36 @@
 
     /* Button Colors */
     --button-hover: #e9e1d9;
+
+    /* 
+    ==============================================
+    NEW: Centralized Chart Color Palette 
+    ==============================================
+    */
+    /* Diverging Bar Chart (Income vs Expense) */
+    --chart-income: #1ba991;
+    --chart-income-border: #119d85;
+    --chart-expense: #ff8b53;
+    --chart-expense-border: #f24f09;
+
+    /* Stacked Bar Charts (Financial Standing) */
+    --chart-surplus: #1ba991;
+    --chart-break-even: #fac800af;
+    --chart-deficit: #ff8b53;
+
+    /* Loan Pie Chart */
+    --chart-loan-no-loan: #1ba991;
+    --chart-loan-tier-1: #5DADE2;
+    /* <5M */
+    --chart-loan-tier-2: #ff8b53;
+    /* 5M-10M */
+    --chart-loan-tier-3: #f24f09;
+    /* 10M-15M */
+    --chart-loan-tier-4: #e74c3c;
+    /* >15M */
+
+    /* Digital Time Chart */
+    --chart-digital-main: #3498db;
+    /* Used for line and bars */
+    --chart-digital-baseline: rgba(128, 128, 128, 0.5);
 }

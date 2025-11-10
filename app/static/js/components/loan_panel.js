@@ -1,5 +1,14 @@
 // static/js/components/loan_panel.js
 
+/**
+ * A helper function to read a CSS variable value from the root element.
+ * @param {string} variable - The name of the CSS variable (e.g., '--chart-income').
+ * @returns {string} The computed value of the variable.
+ */
+function getCssVariable(variable) {
+    return getComputedStyle(document.documentElement).getPropertyValue(variable).trim();
+}
+
 function formatCurrency(amount) {
     if (!amount || amount === 0) return 'Rp 0';
     if (amount >= 1000000000) return `Rp ${(amount / 1000000000).toFixed(1)}B`;
@@ -16,19 +25,26 @@ function updateKPICard(elementId, value) {
 function renderLoanChart(data) {
     const chartDiv = document.getElementById('loan-overview-chart');
     if (!chartDiv) return;
-    
+
     const distribution = data.distribution || [];
     const categories = distribution.map(d => d.category);
     const percentages = distribution.map(d => d.percentage);
     const counts = distribution.map(d => d.count);
-    
-    const colorMapping = { 'No Loan': '#27ae60', '<5M': '#ffb3ba', '5M-10M': '#ff8a8a', '10M-15M': '#ff5757', '>15M': '#e74c3c' };
+
+    // MODIFIED: Colors are now read from CSS variables
+    const colorMapping = {
+        'No Loan': getCssVariable('--chart-loan-no-loan'),
+        '<5M': getCssVariable('--chart-loan-tier-1'),
+        '5M-10M': getCssVariable('--chart-loan-tier-2'),
+        '10M-15M': getCssVariable('--chart-loan-tier-3'),
+        '>15M': getCssVariable('--chart-loan-tier-4')
+    };
     const colors = categories.map(cat => colorMapping[cat] || '#95a5a6');
-    
+
     const totalWithLoans = distribution.filter(d => d.category !== 'No Loan').reduce((sum, d) => sum + d.count, 0);
     const filterText = data.filter_applied && data.filter_applied !== 'All' ? ` (${totalWithLoans} borrowers in ${data.filter_applied})` : ` (${totalWithLoans} borrowers)`;
     const centerText = data.filter_applied && data.filter_applied !== 'All' ? `<b style="font-size:22px">${data.with_loan}</b><br><span style='font-size:12px;color:#7f8c8d'>with loans</span><br><span style='font-size:10px;color:#95a5a6'>in ${data.filter_applied}</span>` : `<b style="font-size:22px">${data.with_loan}</b><br><span style='font-size:12px;color:#7f8c8d'>with loans</span>`;
-    
+
     const chartData = [{
         labels: categories,
         values: percentages,
@@ -36,27 +52,29 @@ function renderLoanChart(data) {
         type: 'pie',
         marker: { colors: colors, line: { color: '#ffffff', width: 2 } },
         textposition: 'outside',
-        textfont: { size: 11, color: '#2c3e50' },
+        textfont: { size: 11, color: '#2c3e50', family: 'Outfit, sans-serif' },
         hovertemplate: '<b>%{label}</b><br>%{value:.1f}% (%{customdata} people)<extra></extra>',
         customdata: counts,
         direction: 'clockwise',
         sort: false
     }];
-    
+
     const layout = {
-        title: { text: `<b>💳 Outstanding Loan Distribution${filterText}</b>`, x: 0.5, xanchor: 'center', font: { size: 16, color: '#2c3e50' } },
-        annotations: [{ text: centerText, x: 0.5, y: 0.5, font: { size: 16 }, showarrow: false }],
+        title: { text: `<b>💳 Outstanding Loan Distribution${filterText}</b>`, x: 0.5, xanchor: 'center', font: { size: 16, color: '#2c3e50', family: 'Outfit, sans-serif' } },
+        annotations: [{ text: centerText, x: 0.5, y: 0.5, font: { size: 16, family: 'Outfit, sans-serif' }, showarrow: false }],
         showlegend: true,
-        legend: { orientation: 'v', yanchor: 'middle', y: 0.5, xanchor: 'left', x: 1.05, font: { size: 10 } },
+        legend: { orientation: 'v', yanchor: 'middle', y: 0.5, xanchor: 'left', x: 1.05, font: { size: 10, family: 'Outfit, sans-serif' } },
         margin: { l: 40, r: 140, t: 60, b: 40 },
         paper_bgcolor: 'white',
         height: 340,
-        template: 'plotly_white'
+        template: 'plotly_white',
+        font: { family: 'Outfit, sans-serif' }
     };
-    
+
     Plotly.newPlot(chartDiv, chartData, layout, { displayModeBar: false, responsive: true });
 }
 
+// NOTE: Loan Purpose chart colors are already dynamic from the backend, so no changes are needed here.
 function renderLoanPurposeChart(data, category) {
     const chartDiv = document.getElementById('loan-purpose-chart');
     if (!chartDiv) return;
@@ -76,7 +94,7 @@ function renderLoanPurposeChart(data, category) {
     const pieTrace = {
         values: percentages, labels: purposesWithIcons, type: 'pie', domain: { x: [0, 0.45], y: [0, 1] },
         marker: { colors: colors, line: { color: '#ffffff', width: 2 } },
-        textposition: 'auto', textinfo: 'label+percent', textfont: { size: 11 },
+        textposition: 'auto', textinfo: 'label+percent', textfont: { size: 11, family: 'Outfit, sans-serif' },
         hovertemplate: '<b>%{label}</b><br>%{value:.1f}%<br>(%{customdata} borrowers)<extra></extra>',
         customdata: counts, showlegend: false
     };
@@ -84,15 +102,16 @@ function renderLoanPurposeChart(data, category) {
     const barTrace = {
         y: purposesWithIcons, x: counts, type: 'bar', orientation: 'h', xaxis: 'x2', yaxis: 'y2',
         marker: { color: colors, line: { color: '#ffffff', width: 1 } },
-        text: counts.map(c => `${c}`), textposition: 'outside', textfont: { size: 11 },
+        text: counts.map(c => `${c}`), textposition: 'outside', textfont: { size: 11, family: 'Outfit, sans-serif' },
         hovertemplate: '<b>%{y}</b><br>Count: %{x}<extra></extra>', width: 0.6
     };
 
     const layout = {
-        title: { text: `<b>🎯 ${titleText}</b>`, x: 0.5, xanchor: 'center', font: { size: 16 } },
+        title: { text: `<b>🎯 ${titleText}</b>`, x: 0.5, xanchor: 'center', font: { size: 16, family: 'Outfit, sans-serif' } },
         height: 340, template: 'plotly_white', margin: { l: 80, r: 20, t: 50, b: 40 }, showlegend: false,
         xaxis2: { domain: [0.50, 1], anchor: 'y2', showgrid: true, range: [0, Math.max(...counts) * 1.15] },
-        yaxis2: { domain: [0, 1], anchor: 'x2', autorange: 'reversed', showgrid: false, tickfont: { size: 12 } }
+        yaxis2: { domain: [0, 1], anchor: 'x2', autorange: 'reversed', showgrid: false, tickfont: { size: 12, family: 'Outfit, sans-serif' } },
+        font: { family: 'Outfit, sans-serif' }
     };
 
     Plotly.newPlot(chartDiv, [pieTrace, barTrace], layout, { displayModeBar: false, responsive: true });

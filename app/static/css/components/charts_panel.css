@@ -28,7 +28,7 @@
     border-radius: 12px;
     padding: 1.25rem;
     text-align: center;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
     transition: all 0.3s ease;
     position: relative;
     color: white;
@@ -36,23 +36,23 @@
 
 .loan-kpi-card:hover {
     transform: translateY(-4px);
-    box-shadow: 0 6px 16px rgba(0,0,0,0.15);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
 }
 
 .loan-kpi-card.primary {
-    background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+    background: linear-gradient(135deg, #5DADE2 0%, #3498db 100%);
 }
 
 .loan-kpi-card.success {
-    background: linear-gradient(135deg, #27ae60 0%, #229954 100%);
+    background: linear-gradient(135deg, #1ba991 0%, #16a085 100%);
 }
 
 .loan-kpi-card.warning {
-    background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);
+    background: linear-gradient(135deg, #ff8b53 0%, #e67e22 100%);
 }
 
 .loan-kpi-card.danger {
-    background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+    background: linear-gradient(135deg, #f24f09 0%, #c0392b 100%);
 }
 
 .loan-kpi-label {
@@ -88,7 +88,7 @@
     background-color: white;
     border-radius: 8px;
     padding: 20px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
     height: 100%;
     min-height: 380px;
     display: flex;

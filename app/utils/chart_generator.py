@@ -30,59 +30,59 @@ class ChartGenerator:
         # Create figure
         fig = go.Figure()
         
-        # Add Expense bars (negative values for left side) - Enhanced styling
+        # Add Expense bars (negative values for left side) - MODIFIED: Color removed
         fig.add_trace(go.Bar(
             name='Expense',
             y=categories,
             x=[-pct for pct in expense_pct],
             orientation='h',
             marker=dict(
-                color='#e74c3c',
-                line=dict(color='#c0392b', width=1.5),
+                # color='#e74c3c', # Color is now handled by JavaScript
+                # line=dict(color='#c0392b', width=1.5), # Color is now handled by JavaScript
                 opacity=0.9
             ),
             text=[f'{pct:.1f}%' for pct in expense_pct],
             textposition='inside',
-            textfont=dict(size=11, color='white', family='Arial, sans-serif'),
+            textfont=dict(size=11, color='white', family='Outfit, sans-serif'),
             hovertemplate='<b>%{y}</b><br>Expense: %{text}<br>Count: %{customdata}<br><extra></extra>',
             customdata=expense_counts,
             meta=[f'expense_{cat}' for cat in categories]
         ))
         
-        # Add Income bars (positive values for right side) - Enhanced styling
+        # Add Income bars (positive values for right side) - MODIFIED: Color removed
         fig.add_trace(go.Bar(
             name='Income',
             y=categories,
             x=income_pct,
             orientation='h',
             marker=dict(
-                color='#3498db',
-                line=dict(color='#2980b9', width=1.5),
+                # color='#3498db', # Color is now handled by JavaScript
+                # line=dict(color='#2980b9', width=1.5), # Color is now handled by JavaScript
                 opacity=0.9
             ),
             text=[f'{pct:.1f}%' for pct in income_pct],
             textposition='inside',
-            textfont=dict(size=11, color='white', family='Arial, sans-serif'),
+            textfont=dict(size=11, color='white', family='Outfit, sans-serif'),
             hovertemplate='<b>%{y}</b><br>Income: %{text}<br>Count: %{customdata}<br><extra></extra>',
             customdata=income_counts,
             meta=[f'income_{cat}' for cat in categories]
         ))
         
-        # Enhanced layout with better spacing
+        # ... (The rest of the layout code for this function remains the same) ...
         fig.update_layout(
             title={
                 'text': '<b>⚖️ Income vs Expense Distribution</b><br><sub style="font-size:11px; color:#7f8c8d; font-weight:normal;">Click any bar to highlight category • Click again to deselect</sub>',
                 'x': 0.5,
                 'xanchor': 'center',
-                'font': {'size': 17, 'family': 'Arial, sans-serif', 'color': '#2c3e50'}
+                'font': {'size': 17, 'family': 'Outfit, sans-serif', 'color': '#2c3e50'}
             },
             barmode='overlay',
             xaxis={
                 'title': '<b>Percentage of Population</b>',
                 'tickvals': [-40, -30, -20, -10, 0, 10, 20, 30, 40],
                 'ticktext': ['40%', '30%', '20%', '10%', '0%', '10%', '20%', '30%', '40%'],
-                'title_font': {'size': 13, 'color': '#34495e'},
-                'tickfont': {'size': 11, 'color': '#34495e'},
+                'title_font': {'size': 13, 'color': '#34495e', 'family': 'Outfit, sans-serif'},
+                'tickfont': {'size': 11, 'color': '#34495e', 'family': 'Outfit, sans-serif'},
                 'gridcolor': 'rgba(189, 195, 199, 0.3)',
                 'zeroline': True,
                 'zerolinewidth': 2,
@@ -90,8 +90,8 @@ class ChartGenerator:
             },
             yaxis={
                 'title': '<b>Financial Category (IDR/month)</b>',
-                'title_font': {'size': 13, 'color': '#34495e'},
-                'tickfont': {'size': 11, 'color': '#34495e'},
+                'title_font': {'size': 13, 'color': '#34495e', 'family': 'Outfit, sans-serif'},
+                'tickfont': {'size': 11, 'color': '#34495e', 'family': 'Outfit, sans-serif'},
                 'gridcolor': 'rgba(189, 195, 199, 0.2)',
                 'side': 'left'
             },
@@ -105,7 +105,7 @@ class ChartGenerator:
                 y=1.05,
                 xanchor='center',
                 x=0.5,
-                font={'size': 12, 'color': '#2c3e50'},
+                font={'size': 12, 'color': '#2c3e50', 'family': 'Outfit, sans-serif'},
                 bgcolor='rgba(255, 255, 255, 0.9)',
                 bordercolor='#bdc3c7',
                 borderwidth=1
@@ -116,11 +116,11 @@ class ChartGenerator:
             hoverlabel=dict(
                 bgcolor='white',
                 font_size=12,
-                font_family='Arial, sans-serif'
+                font_family='Outfit, sans-serif'
             )
         )
         
-        # Convert to HTML with custom div ID for JavaScript targeting
+        # ... (The chart_html and interactive_script part remains the same) ...
         chart_html = fig.to_html(
             # CRITICAL FIX: Set to False. The library is now loaded in base.html
             include_plotlyjs=False,
@@ -140,7 +140,6 @@ class ChartGenerator:
             }
         )
         
-        # Enhanced JavaScript with label styling
         interactive_script = """
         <script>
         (function() {
@@ -152,7 +151,7 @@ class ChartGenerator:
                 }
                 
                 let selectedCategory = null;
-                const originalTickFont = { size: 11, color: '#34495e', family: 'Arial, sans-serif' };
+                const originalTickFont = { size: 11, color: '#34495e', family: 'Outfit, sans-serif' };
                 
                 // Click handler for bar selection
                 chartDiv.on('plotly_click', function(data) {
@@ -331,7 +330,8 @@ class ChartGenerator:
         fig = go.Figure()
         
         categories = profession_data['categories']
-        colors = profession_data['colors']
+        # MODIFIED: Color dictionary is removed. It will be handled by JavaScript.
+        # colors = profession_data['colors']
         
         # Add bars for each financial standing (stacked)
         for standing in ['Surplus', 'Break-even', 'Deficit']:
@@ -351,32 +351,33 @@ class ChartGenerator:
                     x=categories,
                     y=values,
                     marker=dict(
-                        color=colors.get(standing, '#95a5a6'),
+                        # color=colors.get(standing, '#95a5a6'), # Color is now handled by JavaScript
                         line=dict(color='rgba(255,255,255,0.5)', width=1)
                     ),
                     hovertext=hover_text,
                     hoverinfo='text',
                     text=[f'{v:.0f}%' if v > 8 else '' for v in values],
                     textposition='inside',
-                    textfont=dict(size=9, color='white')
+                    textfont=dict(size=9, color='white', family='Outfit, sans-serif')
                 ))
         
+        # ... (The rest of the layout code for this function remains the same) ...
         fig.update_layout(
             title={
                 'text': '<b>👔 Employment vs Financial Standing</b>',
                 'x': 0.5,
                 'xanchor': 'center',
-                'font': {'size': 14, 'color': '#2c3e50'}
+                'font': {'size': 14, 'color': '#2c3e50', 'family': 'Outfit, sans-serif'}
             },
             xaxis={
-                'tickfont': {'size': 8, 'color': '#34495e'},
+                'tickfont': {'size': 8, 'color': '#34495e', 'family': 'Outfit, sans-serif'},
                 'showgrid': False,
                 'tickangle': -45
             },
             yaxis={
                 'title': '<b>%</b>',
-                'title_font': {'size': 10, 'color': '#34495e'},
-                'tickfont': {'size': 8, 'color': '#34495e'},
+                'title_font': {'size': 10, 'color': '#34495e', 'family': 'Outfit, sans-serif'},
+                'tickfont': {'size': 8, 'color': '#34495e', 'family': 'Outfit, sans-serif'},
                 'gridcolor': 'rgba(189, 195, 199, 0.2)',
                 'range': [0, 100]
             },
@@ -391,12 +392,12 @@ class ChartGenerator:
                 y=-0.35,
                 xanchor='center',
                 x=0.5,
-                font={'size': 9}
+                font={'size': 9, 'family': 'Outfit, sans-serif'}
             ),
             plot_bgcolor='rgba(250, 250, 250, 1)',
             paper_bgcolor='white',
             margin=dict(l=35, r=15, t=60, b=110),
-            hoverlabel=dict(bgcolor='white', font_size=10)
+            hoverlabel=dict(bgcolor='white', font_size=10, font_family='Outfit, sans-serif')
         )
         
         chart_html = fig.to_html(
@@ -421,7 +422,8 @@ class ChartGenerator:
         fig = go.Figure()
         
         categories = education_data['categories']
-        colors = education_data['colors']
+        # MODIFIED: Color dictionary is removed. It will be handled by JavaScript.
+        # colors = education_data['colors']
         
         # Abbreviate long category names for better display
         abbreviated_cats = []
@@ -462,32 +464,33 @@ class ChartGenerator:
                     x=abbreviated_cats,
                     y=values,
                     marker=dict(
-                        color=colors.get(standing, '#95a5a6'),
+                        # color=colors.get(standing, '#95a5a6'), # Color is now handled by JavaScript
                         line=dict(color='rgba(255,255,255,0.5)', width=1)
                     ),
                     hovertext=hover_text,
                     hoverinfo='text',
                     text=[f'{v:.0f}%' if v > 8 else '' for v in values],
                     textposition='inside',
-                    textfont=dict(size=9, color='white')
+                    textfont=dict(size=9, color='white', family='Outfit, sans-serif')
                 ))
         
+        # ... (The rest of the layout code for this function remains the same) ...
         fig.update_layout(
             title={
                 'text': '<b>🎓 Education vs Financial Standing</b>',
                 'x': 0.5,
                 'xanchor': 'center',
-                'font': {'size': 14, 'color': '#2c3e50'}
+                'font': {'size': 14, 'color': '#2c3e50', 'family': 'Outfit, sans-serif'}
             },
             xaxis={
-                'tickfont': {'size': 8, 'color': '#34495e'},
+                'tickfont': {'size': 8, 'color': '#34495e', 'family': 'Outfit, sans-serif'},
                 'showgrid': False,
                 'tickangle': -45
             },
             yaxis={
                 'title': '<b>%</b>',
-                'title_font': {'size': 10, 'color': '#34495e'},
-                'tickfont': {'size': 8, 'color': '#34495e'},
+                'title_font': {'size': 10, 'color': '#34495e', 'family': 'Outfit, sans-serif'},
+                'tickfont': {'size': 8, 'color': '#34495e', 'family': 'Outfit, sans-serif'},
                 'gridcolor': 'rgba(189, 195, 199, 0.2)',
                 'range': [0, 100]
             },
@@ -502,12 +505,12 @@ class ChartGenerator:
                 y=-0.35,
                 xanchor='center',
                 x=0.5,
-                font={'size': 9}
+                font={'size': 9, 'family': 'Outfit, sans-serif'}
             ),
             plot_bgcolor='rgba(250, 250, 250, 1)',
             paper_bgcolor='white',
             margin=dict(l=35, r=15, t=60, b=110),
-            hoverlabel=dict(bgcolor='white', font_size=10)
+            hoverlabel=dict(bgcolor='white', font_size=10, font_family='Outfit, sans-serif')
         )
         
         chart_html = fig.to_html(
