@@ -13,25 +13,26 @@
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
-    white-space: normal;
-    word-wrap: break-word;
 }
 
-/* MODIFIED: Style the description for its new home inside the chart card */
+/* MODIFIED: Re-aligning the description container */
 .hero-description-container {
     display: flex;
+    flex-wrap: wrap;
+    /* Allow wrapping on smaller screens */
     align-items: baseline;
-    justify-content: center;
-    /* Center the text */
+    justify-content: flex-start;
+    /* Align content to the left */
+    text-align: left;
+    /* Ensure text inside is left-aligned */
     gap: 0.5em;
-    font-size: 1.0rem;
-    /* Adjust font size for better fit */
+    font-size: 0.9rem;
     color: var(--text-secondary);
     width: 100%;
     line-height: 1.6;
     margin-bottom: 12px;
-    height: 20px;
-    /* Add space between the text and the chart */
+    padding: 0 8px;
+    /* Add slight horizontal padding */
 }
 
 .hero-description {
@@ -49,7 +50,7 @@
     justify-content: center;
     align-items: center;
     text-align: center;
-    width: 100%;
+    width: 90%;
 }
 
 /* MODIFIED: Make the anxiety component's wrapper transparent and compact */
@@ -68,8 +69,63 @@
     /* Let the content define the height */
 }
 
-/* (Custom Dropdown rules remain the same) */
-/* ... */
+/* Custom Dropdown (Styles restored and enhanced) */
+.custom-dropdown {
+    position: relative;
+    display: inline-block;
+    cursor: pointer;
+}
+
+/* MODIFIED: Restoring and enhancing the dropdown's visual style */
+.dropdown-selected {
+    font-weight: 700;
+    color: var(--card2-bg);
+    /* Use a distinct color */
+    border-bottom: 2px solid var(--card2-bg);
+    /* Add the underline */
+    padding: 0 4px 2px 4px;
+    /* Add some padding for a better click area */
+    transition: background-color 0.2s ease, transform 0.2s ease;
+}
+
+.dropdown-selected:hover {
+    background-color: rgba(93, 173, 226, 0.1);
+    /* Subtle hover effect */
+    transform: translateY(-1px);
+    /* Slight lift on hover */
+}
+
+.dropdown-options {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    list-style: none;
+    padding: 0;
+    margin: 10px 0 0;
+    background-color: var(--white);
+    border-radius: var(--border-radius);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    z-index: 10;
+    opacity: 0;
+    transform: translateY(10px);
+    pointer-events: none;
+}
+
+.custom-dropdown.open .dropdown-options {
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: auto;
+}
+
+.dropdown-options li {
+    padding: 12px 20px;
+    transition: background-color 0.2s ease;
+}
+
+.dropdown-options li:hover {
+    background-color: var(--ui-subtle-bg);
+}
 
 .anxiety-face-wrapper {
     position: relative;

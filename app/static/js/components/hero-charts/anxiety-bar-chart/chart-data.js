@@ -16,7 +16,7 @@ function updateAnxietyGauge(newScore, duration = 1.5) {
     const thresholds = [
         { score: 2.8, emoji: '🥲' },
         { score: 3.1, emoji: '😥' },
-        { score: 3.4, emoji: '😭' }
+        { score: 3.3, emoji: '😭' }
     ];
     let nextThresholdIndex = 0;
     // Find what the next threshold should be based on the starting score.
@@ -99,35 +99,33 @@ function updateChart(chart, state, filterBy) {
     fetch(`/data/anxiety_by/${filterBy}`)
         .then(response => response.json())
         .then(data => {
-            // *** NEW DYNAMIC LOGIC STARTS HERE ***
+            // *** DYNAMIC LOGIC MODIFICATION ***
 
             const numCategories = data.categories.length;
-            const threshold = 6; // Switch to bar chart if 6 or fewer categories
+            const threshold = 6;
             const isBarChart = numCategories <= threshold;
 
-            // Define the dynamic chart options based on the number of categories
             const newOptions = {
                 chart: {
                     type: isBarChart ? 'bar' : 'column'
                 },
                 xAxis: {
                     labels: {
-                        // Keep labels straight for bar charts or non-rotated columns
-                        rotation: isBarChart ? 0 : (numCategories > 10 ? -45 : 0)
+                        // MODIFIED: Force rotation to 0 to keep labels straight
+                        rotation: 0
                     }
                 },
                 yAxis: {
-                    // Reverse the axes titles for bar charts (optional, but good practice)
+                    // MODIFIED: Ensure the title is always present for column charts
                     title: {
-                        text: isBarChart ? null : 'Average Anxiety Score'
+                        text: isBarChart ? null : ''
                     }
                 },
             };
 
-            // Update the chart configuration BEFORE setting the new data
-            chart.update(newOptions, false); // false prevents immediate redraw
+            chart.update(newOptions, false);
 
-            // *** DYNAMIC LOGIC ENDS HERE ***
+            // *** END MODIFICATION ***
 
 
             // Generate colors based on the sorted data
@@ -145,11 +143,9 @@ function updateChart(chart, state, filterBy) {
                 color: generatedColors[index]
             }));
 
-            // Now, update the chart's data, which will trigger a redraw with the new settings
             chart.xAxis[0].setCategories(data.categories, false);
-            chart.series[0].setData(processedData, true); // true triggers the final redraw
+            chart.series[0].setData(processedData, true);
 
-            // Reset all metrics to their original state.
             resetAllData();
         })
         .catch(error => console.error('Error updating chart:', error));

@@ -9,15 +9,15 @@ function initDropdownAnimation() {
     selected.innerHTML = `<span>${selected.textContent}</span>`;
 
     // GSAP timeline for the dropdown opening
-    const tl = gsap.timeline({ 
+    const tl = gsap.timeline({
         paused: true,
         onReverseComplete: () => {
             // Explicitly set pointerEvents to none when closed
             gsap.set(options, { pointerEvents: 'none' });
         }
     });
-    tl.fromTo(options, 
-        { opacity: 0, y: 10, pointerEvents: 'none' }, 
+    tl.fromTo(options,
+        { opacity: 0, y: 10, pointerEvents: 'none' },
         {
             opacity: 1,
             y: 0,
@@ -29,18 +29,18 @@ function initDropdownAnimation() {
 
     // Hover animation for the selected item
     selected.addEventListener('mouseenter', () => {
-        gsap.to(selected, { 
+        gsap.to(selected, {
             scale: 1.05,
-            duration: 0.3, 
-            ease: 'power2.out' 
+            duration: 0.3,
+            ease: 'power2.out'
         });
     });
 
     selected.addEventListener('mouseleave', () => {
-        gsap.to(selected, { 
+        gsap.to(selected, {
             scale: 1,
-            duration: 0.3, 
-            ease: 'power2.out' 
+            duration: 0.3,
+            ease: 'power2.out'
         });
     });
 
@@ -57,7 +57,7 @@ function initDropdownAnimation() {
         if (e.target.tagName === 'LI') {
             const newValue = e.target.textContent;
             const textSpan = selected.querySelector('span');
-            
+
             if (textSpan && textSpan.textContent !== newValue) {
                 if (gsap.isTweening(textSpan)) return;
 
@@ -68,15 +68,15 @@ function initDropdownAnimation() {
                     duration: 0.2,
                     ease: 'power2.in'
                 })
-                .add(() => {
-                    textSpan.textContent = newValue;
-                })
-                .to(textSpan, {
-                    opacity: 1,
-                    y: 0,
-                    duration: 0.3,
-                    ease: 'power2.out'
-                });
+                    .add(() => {
+                        textSpan.textContent = newValue + ' ▼';
+                    })
+                    .to(textSpan, {
+                        opacity: 1,
+                        y: 0,
+                        duration: 0.3,
+                        ease: 'power2.out'
+                    });
             }
 
             selected.dataset.value = e.target.dataset.value;

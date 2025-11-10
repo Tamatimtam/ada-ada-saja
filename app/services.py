@@ -3,6 +3,7 @@ from app.utils.loan_processor import LoanProcessor
 from app.utils.engagement_processor import EngagementProcessor
 from app.utils.chart_generator import ChartGenerator
 import os
+from datetime import datetime # Import the datetime module
 
 def _calculate_scores(df):
     metrics = {
@@ -109,10 +110,19 @@ def get_main_metrics():
 
 def get_anxiety_by_category(filter_by='employment_status'):
     df = pd.read_csv(os.path.join(os.path.dirname(__file__), '..', 'dataset', 'Sheet1.csv'))
-    anxiety_by_category = df.groupby(filter_by)['financial_anxiety_score'].mean().round(1).reset_index()
+    
+    # MODIFIED: Logic to handle age calculation
+    category_column = filter_by
+    if filter_by == 'birth_year':
+        current_year = 2025 # As per the context of our session
+        df['age'] = current_year - df['birth_year']
+        category_column = 'age'
+
+    anxiety_by_category = df.groupby(category_column)['financial_anxiety_score'].mean().round(1).reset_index()
     anxiety_by_category = anxiety_by_category.sort_values('financial_anxiety_score', ascending=False)
+    
     return {
-        'categories': anxiety_by_category[filter_by].tolist(),
+        'categories': anxiety_by_category[category_column].tolist(),
         'scores': anxiety_by_category['financial_anxiety_score'].tolist()
     }
 
@@ -120,9 +130,15 @@ def get_filtered_metrics(filter_by, filter_value):
     df1 = pd.read_csv(os.path.join(os.path.dirname(__file__), '..', 'dataset', 'Sheet1.csv'))
     df2 = pd.read_csv(os.path.join(os.path.dirname(__file__), '..', 'dataset', 'Sheet2.csv'))
 
+    # MODIFIED: This block now handles converting age back to birth year for filtering
+    sheet1_filter_value = filter_value
     if filter_by == 'birth_year':
         try:
-            filter_value = int(filter_value)
+            # The filter_value is an age, e.g., "25"
+            age = int(filter_value)
+            current_year = 2025 # As per context
+            # Convert age back to birth year to filter the original data
+            sheet1_filter_value = current_year - age
         except ValueError:
             return {"scores": {}, "average_anxiety_score": 0}
 
@@ -130,7 +146,7 @@ def get_filtered_metrics(filter_by, filter_value):
         'employment_status': 'Job',
         'education_level': 'Last Education',
         'gender': 'Gender',
-        'birth_year': 'Year of Birth'
+        'birth_year': 'Year of Birth' # This mapping remains correct
     }
     
     value_mapping = {
@@ -140,9 +156,10 @@ def get_filtered_metrics(filter_by, filter_value):
     }
     
     sheet2_column = column_mapping.get(filter_by, filter_by)
-    sheet2_filter_value = value_mapping.get(filter_value, filter_value)
+    # The filter value for sheet2 also needs to be the calculated birth year
+    sheet2_filter_value = value_mapping.get(str(sheet1_filter_value), sheet1_filter_value)
         
-    filtered_df1 = df1[df1[filter_by] == filter_value]
+    filtered_df1 = df1[df1[filter_by] == sheet1_filter_value]
     average_anxiety_score = filtered_df1['financial_anxiety_score'].mean()
     
     df_filtered = df2[df2[sheet2_column] == sheet2_filter_value]

@@ -6,7 +6,8 @@ function getChartConfig() {
             // Default to column, but this will be updated dynamically
             type: 'column',
             backgroundColor: 'transparent',
-            height: '16%'
+            // MODIFIED: Increased the height for better vertical spacing
+            height: 200
         },
         title: { text: null },
         // 3. X-axis configuration.
@@ -16,7 +17,10 @@ function getChartConfig() {
             labels: {
                 step: 1,
                 style: { fontSize: '10px', color: '#666' },
-                rotation: 0
+                rotation: 0,
+                // MODIFIED: Added 'y' to adjust label position.
+                // A negative value moves the labels UP, closer to the bars.
+                y: -5
             },
             lineWidth: 0,
             tickWidth: 0
