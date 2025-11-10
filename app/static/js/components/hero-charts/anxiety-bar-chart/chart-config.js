@@ -7,6 +7,7 @@ function getChartConfig() {
             backgroundColor: 'transparent',
             // MODIFIED: Increase height so all labels fit
             height: 125
+
         },
         title: { text: null },
         // 3. X-axis configuration.
@@ -59,7 +60,12 @@ function getChartConfig() {
                         fontSize: '9px',
                         color: '#333',
                         textOutline: 'none'
-                    }
+                    },
+                    // Keep labels above the bar even for tall columns
+                    inside: false,
+                    crop: false,
+                    overflow: 'allow',
+                    y: -6
                 },
                 borderRadius: 4,
                 borderWidth: 0
