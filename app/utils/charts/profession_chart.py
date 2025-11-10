@@ -37,10 +37,13 @@ def create_profession_chart(profession_data):
 
     fig.update_layout(
         title={
-            "text": "<b>👔 Employment vs Financial Standing</b>",
+            "text": "<b>Employment vs<br>Financial Standing</b>",  # force line break to avoid clipping
             "x": 0.5,
             "xanchor": "center",
-            "font": {"size": 14, "color": "#2c3e50"},
+            "y": 0.98,
+            "yanchor": "top",
+            "pad": {"t": 8},  # increased padding top
+            "font": {"size": 13, "color": "#2c3e50"},
         },
         xaxis={
             "tickfont": {"size": 8, "color": "#34495e"},
@@ -59,17 +62,19 @@ def create_profession_chart(profession_data):
         height=480,
         autosize=True,
         showlegend=True,
-        legend=dict(
-            orientation="h",
-            yanchor="bottom",
-            y=-0.35,
-            xanchor="center",
-            x=0.5,
-            font={"size": 9},
-        ),
-        plot_bgcolor="rgba(250, 250, 250, 1)",
-        paper_bgcolor="white",
-        margin=dict(l=35, r=15, t=60, b=110),
+        legend={
+            "orientation": "h",
+            "x": 0.0,  # start from left edge
+            "xanchor": "left",
+            "y": -0.22,  # below plot, above caption
+            "yanchor": "top",
+            "itemwidth": 70,  # width per legend item (enables horizontal wrap)
+            "font": {"size": 9},
+            "bgcolor": "rgba(255,255,255,0.9)",
+            "bordercolor": "#e0e0e0",
+            "borderwidth": 1,
+        },
+        margin=dict(l=35, r=15, t=90, b=140),  # room for bottom legend
         hoverlabel=dict(bgcolor="white", font_size=10),
     )
 

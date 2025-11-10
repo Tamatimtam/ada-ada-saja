@@ -60,6 +60,9 @@ def create_education_chart(education_data):
             "text": "<b>🎓 Education vs Financial Standing</b>",
             "x": 0.5,
             "xanchor": "center",
+            "y": 0.98,
+            "yanchor": "top",
+            "pad": {"t": 6},  # tighten title spacing
             "font": {"size": 14, "color": "#2c3e50"},
         },
         xaxis={
@@ -79,17 +82,19 @@ def create_education_chart(education_data):
         height=480,
         autosize=True,
         showlegend=True,
-        legend=dict(
-            orientation="h",
-            yanchor="bottom",
-            y=-0.35,
-            xanchor="center",
-            x=0.5,
-            font={"size": 9},
-        ),
-        plot_bgcolor="rgba(250, 250, 250, 1)",
-        paper_bgcolor="white",
-        margin=dict(l=35, r=15, t=60, b=110),
+        legend={
+            "orientation": "h",
+            "x": 0.0,
+            "xanchor": "left",
+            "y": -0.22,  # below plot, above caption
+            "yanchor": "top",
+            "itemwidth": 90,  # wrap horizontally instead of stacking
+            "font": {"size": 9},
+            "bgcolor": "rgba(255,255,255,0.9)",
+            "bordercolor": "#e0e0e0",
+            "borderwidth": 1,
+        },
+        margin=dict(l=35, r=15, t=90, b=140),
         hoverlabel=dict(bgcolor="white", font_size=10),
     )
 

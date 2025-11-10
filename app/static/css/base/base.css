@@ -60,7 +60,8 @@ body {
 .visualization-grid,
 .viz-panel {
     min-width: 0;
-    overflow-x: hidden;
+    overflow-x: visible;
+    /* allow chart title to render fully */
     overflow-y: visible;
     box-sizing: border-box;
 }
