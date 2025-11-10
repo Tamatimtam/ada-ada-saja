@@ -32,17 +32,12 @@ function chartClickHandler() {
         chart.redraw();
 
         // 7. Fetch filtered data from the server.
-        fetch(`/api/filter_metrics/${state.currentFilterCategory}/${encodeURIComponent(clickedCategory)}`)
+        const safeValue = normalizeFilterValue(state.currentFilterCategory, clickedCategory);
+        fetch(`/api/filter_metrics/${state.currentFilterCategory}/${encodeURIComponent(safeValue)}`)
             .then(response => response.json())
             .then(data => {
-                // 8. Update all the metric cards with the new filtered data.
-                animateCounter('scoreLiterasiFin', data.scores['Literasi Finansial']);
-                animateCounter('scoreLiterasiDigital', data.scores['Literasi Keuangan Digital']);
-                animateCounter('scorePengelolaan', data.scores['Pengelolaan Keuangan']);
-                animateCounter('scorePerilaku', data.scores['Sikap Finansial']);
-                animateCounter('scoreDisiplin', data.scores['Disiplin Finansial']);
-                animateCounter('scoreKesejahteraan', data.scores['Kesejahteraan Finansial']);
-                animateCounter('scoreInvestasi', data.scores['Investasi Aset']);
+                // Update all cards through a single, consistent function
+                updateAllScoreCards(data.scores);
 
                 // 9. Update the main anxiety score gauge.
                 updateAnxietyGauge(data.average_anxiety_score);
@@ -50,3 +45,42 @@ function chartClickHandler() {
             .catch(error => console.error('Error fetching filtered metrics:', error));
     }
 }
+
+// --- NEW: normalize incoming label to backend-friendly value ---
+function normalizeFilterValue(filterBy, value) {
+    if (filterBy !== 'employment_status') return value;
+    const v = String(value || '').trim();
+    const aliases = {
+        'Civil Servant/BUMN or Local Government': 'Civil Servant/BUMN',
+        'Civil Servant / BUMN': 'Civil Servant/BUMN',
+        'ASN/BUMN': 'Civil Servant/BUMN'
+    };
+    return aliases[v] || v;
+}
+
+// --- NEW: centralized updater + event hook used by both click and sort paths ---
+function updateAllScoreCards(scores) {
+    if (!scores) return;
+    animateCounter('scoreLiterasiFin', scores['Literasi Finansial']);
+    animateCounter('scoreLiterasiDigital', scores['Literasi Keuangan Digital']);
+    animateCounter('scorePengelolaan', scores['Pengelolaan Keuangan']);
+    animateCounter('scorePerilaku', scores['Sikap Finansial']);
+    animateCounter('scoreDisiplin', scores['Disiplin Finansial']);
+    // Ensure Financial Wellbeing is always updated, too
+    animateCounter('scoreKesejahteraan', scores['Kesejahteraan Finansial']);
+    animateCounter('scoreInvestasi', scores['Investasi Aset']);
+}
+
+// Expose the updater so the sorting routine can call it directly if it already has the scores
+window.updateAllScoreCards = updateAllScoreCards;
+
+// Optional: if your sort logic emits an event with the freshly computed scores,
+// this listener will update every card (including Wellbeing) automatically.
+document.addEventListener('filterMetricsUpdated', (e) => {
+    // Expected payload: { detail: { scores, average_anxiety_score } }
+    const { scores, average_anxiety_score } = e.detail || {};
+    updateAllScoreCards(scores);
+    if (typeof average_anxiety_score === 'number') {
+        updateAnxietyGauge(average_anxiety_score);
+    }
+});

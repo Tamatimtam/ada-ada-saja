@@ -30,9 +30,10 @@
     color: var(--text-secondary);
     width: 100%;
     line-height: 1.6;
-    margin-bottom: 12px;
-    padding: 0 8px;
-    /* Add slight horizontal padding */
+    margin-bottom: 8px;
+    /* slight spacing above chart */
+    padding: 0;
+    /* remove side padding to align edges */
 }
 
 .hero-description {
@@ -43,7 +44,7 @@
 .hero-chart-container {
     background-color: var(--white);
     border-radius: var(--border-radius);
-    padding: 20px;
+    padding: 15px;
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.05);
     display: flex;
     flex-direction: column;
@@ -52,6 +53,16 @@
     text-align: center;
     width: 90%;
     min-height: 95px;
+}
+
+/* NEW: Make the chart container align with description (left) and take full width */
+.hero-chart-container--chart {
+    align-items: flex-start;
+    /* stop centering children */
+    text-align: left;
+    /* left-align inner text */
+    width: 100%;
+    /* match parent width */
 }
 
 /* MODIFIED: Make the anxiety component's wrapper transparent and compact */
@@ -234,4 +245,6 @@
 .hero-chart {
     width: 100%;
     height: 100%;
+    align-self: stretch;
+    /* stretch to container width */
 }

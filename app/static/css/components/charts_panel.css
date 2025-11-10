@@ -109,3 +109,16 @@
     color: #6c757d;
     padding: 20px;
 }
+
+/* Side-by-side layout for Loan Overview and Loan Purpose charts */
+.loan-charts-grid {
+    display: grid;
+    grid-template-columns: 4fr 6fr;
+    gap: 12px;
+}
+
+/* Slightly tighter containers for these two charts */
+.loan-charts-grid .chart-container {
+    min-height: 320px;
+    padding: 16px;
+}

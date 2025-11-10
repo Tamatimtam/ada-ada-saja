@@ -61,14 +61,13 @@ function renderLoanChart(data) {
 
     const layout = {
         title: { text: `<b>💳 Outstanding Loan Distribution${filterText}</b>`, x: 0.5, xanchor: 'center', font: { size: 16, color: '#2c3e50', family: 'Outfit, sans-serif' } },
-        annotations: [{ text: centerText, x: 0.5, y: 0.5, font: { size: 16, family: 'Outfit, sans-serif' }, showarrow: false }],
+        annotations: [{ text: centerText, x: 0.5, y: 0.5, font: { size: 12, family: 'Outfit, sans-serif' }, showarrow: false }],
         showlegend: true,
-        legend: { orientation: 'v', yanchor: 'middle', y: 0.5, xanchor: 'left', x: 1.05, font: { size: 10, family: 'Outfit, sans-serif' } },
-        margin: { l: 40, r: 140, t: 60, b: 40 },
+        legend: { orientation: 'h', x: 0.5, xanchor: 'center', y: -0.08, yanchor: 'top', font: { size: 7, family: 'Outfit, sans-serif' } },
+        margin: { l: 25, r: 70, t: 35, b: 35 },
         paper_bgcolor: 'white',
-        height: 340,
-        template: 'plotly_white',
-        font: { family: 'Outfit, sans-serif' }
+        height: 240,
+        template: 'plotly_white'
     };
 
     Plotly.newPlot(chartDiv, chartData, layout, { displayModeBar: false, responsive: true });
@@ -84,7 +83,9 @@ function renderLoanPurposeChart(data, category) {
         return;
     }
 
-    const purposesWithIcons = data.map(d => `${d.icon} ${d.purpose}`);
+    // Clean, consistent labels
+    const labels = data.map(d => d.purpose);                 // For pie (no emoji to avoid clutter)
+    const purposesWithIcons = data.map(d => `${d.icon} ${d.purpose}`); // For bar
     const counts = data.map(d => d.count);
     const percentages = data.map(d => d.percentage);
     const colors = data.map(d => d.color);
@@ -92,26 +93,34 @@ function renderLoanPurposeChart(data, category) {
     const titleText = category && category !== 'All' ? `Loan Usage (${totalCount} borrowers in ${category})` : `Loan Usage Purpose (${totalCount} borrowers)`;
 
     const pieTrace = {
-        values: percentages, labels: purposesWithIcons, type: 'pie', domain: { x: [0, 0.45], y: [0, 1] },
-        marker: { colors: colors, line: { color: '#ffffff', width: 2 } },
-        textposition: 'auto', textinfo: 'label+percent', textfont: { size: 11, family: 'Outfit, sans-serif' },
+        values: percentages,
+        labels: labels,
+        type: 'pie',
+        // Reduce pie size - smaller domain
+        domain: { x: [0, 0.35], y: [0.15, 0.95] },
+        marker: { colors: colors, line: { color: '#ffffff', width: 1.5 } },
+        textposition: 'outside',
+        textinfo: 'label+percent',
+        textfont: { size: 9, color: '#2c3e50' },
+        automargin: true,
+        insidetextorientation: 'auto',
         hovertemplate: '<b>%{label}</b><br>%{value:.1f}%<br>(%{customdata} borrowers)<extra></extra>',
-        customdata: counts, showlegend: false
+        customdata: counts,
+        showlegend: false
     };
 
     const barTrace = {
         y: purposesWithIcons, x: counts, type: 'bar', orientation: 'h', xaxis: 'x2', yaxis: 'y2',
         marker: { color: colors, line: { color: '#ffffff', width: 1 } },
-        text: counts.map(c => `${c}`), textposition: 'outside', textfont: { size: 11, family: 'Outfit, sans-serif' },
+        text: counts.map(c => `${c}`), textposition: 'outside', textfont: { size: 11 },
         hovertemplate: '<b>%{y}</b><br>Count: %{x}<extra></extra>', width: 0.6
     };
 
     const layout = {
-        title: { text: `<b>🎯 ${titleText}</b>`, x: 0.5, xanchor: 'center', font: { size: 16, family: 'Outfit, sans-serif' } },
+        title: { text: `<b>🎯 ${titleText}</b>`, x: 0.5, xanchor: 'center', font: { size: 16 } },
         height: 340, template: 'plotly_white', margin: { l: 80, r: 20, t: 50, b: 40 }, showlegend: false,
         xaxis2: { domain: [0.50, 1], anchor: 'y2', showgrid: true, range: [0, Math.max(...counts) * 1.15] },
-        yaxis2: { domain: [0, 1], anchor: 'x2', autorange: 'reversed', showgrid: false, tickfont: { size: 12, family: 'Outfit, sans-serif' } },
-        font: { family: 'Outfit, sans-serif' }
+        yaxis2: { domain: [0, 1], anchor: 'x2', autorange: 'reversed', showgrid: false, tickfont: { size: 12 } }
     };
 
     Plotly.newPlot(chartDiv, [pieTrace, barTrace], layout, { displayModeBar: false, responsive: true });

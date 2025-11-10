@@ -2,13 +2,20 @@
 Chart Generator Module
 Creates visualizations using Plotly
 """
-import plotly.graph_objects as go
-import json
+
+from app.utils.charts.diverging_chart import (
+    create_diverging_bar_chart as _create_diverging,
+)
+from app.utils.charts.profession_chart import (
+    create_profession_chart as _create_profession,
+)
+from app.utils.charts.education_chart import create_education_chart as _create_education
+from app.utils.charts.grouped_chart import create_grouped_bar_chart as _create_grouped
 
 
 class ChartGenerator:
-    """Generates interactive Plotly charts"""
-    
+    """Thin wrapper delegating to chart-specific modules"""
+
     @staticmethod
     def create_diverging_bar_chart(chart_data):
         """
@@ -523,67 +530,4 @@ class ChartGenerator:
     
     @staticmethod
     def create_grouped_bar_chart(chart_data):
-        """
-        Create a Grouped Bar Chart for Income vs Expense comparison
-        (Alternative visualization - for future extension)
-        
-        Args:
-            chart_data (dict): Dictionary containing chart data
-        
-        Returns:
-            str: HTML div containing the Plotly chart
-        """
-        categories = chart_data['categories']
-        income_pct = chart_data['income_percentages']
-        expense_pct = chart_data['expense_percentages']
-        income_counts = chart_data['income_counts']
-        expense_counts = chart_data['expense_counts']
-        
-        fig = go.Figure()
-        
-        # Add Income bars
-        fig.add_trace(go.Bar(
-            name='Income Distribution',
-            x=categories,
-            y=income_pct,
-            text=[f'{pct:.1f}%' for pct in income_pct],
-            textposition='outside',
-            marker_color='#3498db',
-            hovertemplate='<b>Income: %{x}</b><br>Percentage: %{y:.1f}%<br>Count: %{customdata}<extra></extra>',
-            customdata=income_counts
-        ))
-        
-        # Add Expense bars
-        fig.add_trace(go.Bar(
-            name='Expense Distribution',
-            x=categories,
-            y=expense_pct,
-            text=[f'{pct:.1f}%' for pct in expense_pct],
-            textposition='outside',
-            marker_color='#e74c3c',
-            hovertemplate='<b>Expense: %{x}</b><br>Percentage: %{y:.1f}%<br>Count: %{customdata}<extra></extra>',
-            customdata=expense_counts
-        ))
-        
-        fig.update_layout(
-            title={
-                'text': '💰 GenZ Income vs Expense Distribution by Category',
-                'x': 0.5,
-                'xanchor': 'center',
-                'font': {'size': 24}
-            },
-            xaxis={'title': 'Category (IDR per month)'},
-            yaxis={'title': 'Percentage of Population (%)'},
-            barmode='group',
-            template='plotly_white',
-            height=600,
-            legend=dict(orientation='h', y=1.05, x=0.5, xanchor='center')
-        )
-        
-        chart_html = fig.to_html(
-            include_plotlyjs=False,
-            div_id='grouped-bar-chart',
-            config={'displayModeBar': True, 'displaylogo': False}
-        )
-        
-        return chart_html
+        return _create_grouped(chart_data)
