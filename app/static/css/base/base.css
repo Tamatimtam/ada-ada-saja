@@ -41,7 +41,6 @@ body {
     margin: 0;
     padding: 12px 16px;
     box-sizing: border-box;
-    overflow-x: hidden;
     /* prevent horizontal overflow */
     overflow-y: visible;
     /* allow vertical flow / page scroll */

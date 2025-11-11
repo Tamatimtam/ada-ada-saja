@@ -6,35 +6,31 @@
 {% endblock %}
 
 {% block content %}
-<div class="dashboard-window">
-    
-    <!-- This is the new two-column container -->
-    <div class="dashboard-container">
-        <!-- Left Sidebar Panel -->
-        <aside class="left-panel">
-            {% include 'components/hero-section.html' %}
-            {% include 'components/knowledge-card.html' %}
-            {% include 'components/behavior-card.html' %}
-            {% include 'components/wellbeing-card.html' %}
-        </aside>
+<!-- The left panel is now a direct child of the content block, outside of the transformed window -->
+<aside class="left-panel">
+    {% include 'components/hero-section.html' %}
+    {% include 'components/knowledge-card.html' %}
+    {% include 'components/behavior-card.html' %}
+    {% include 'components/wellbeing-card.html' %}
+</aside>
 
-        <!-- Right Main Content Panel -->
-        <main class="right-panel">
-            <div class="main-content-grid">
-                <div class="grid-item">
-                    {% include 'components/visual_analytics.html' %}
-                </div>
-                <div class="grid-item">
-                    {% include 'components/loan_overview.html' %}
-                </div>
-                <div class="full-width-row">
-                    {% include 'components/digital_time_spent.html' %}
-                </div>
-                <div class="full-width-row">
-                    {% include 'components/map_panel.html' %}
-                </div>
+<div class="dashboard-window">
+    <!-- The right panel is now the main content of the dashboard window -->
+    <main class="right-panel">
+        <div class="main-content-grid">
+            <div class="grid-item">
+                {% include 'components/visual_analytics.html' %}
             </div>
-        </main>
-    </div>
+            <div class="grid-item">
+                {% include 'components/loan_overview.html' %}
+            </div>
+            <div class="full-width-row">
+                {% include 'components/digital_time_spent.html' %}
+            </div>
+            <div class="full-width-row">
+                {% include 'components/map_panel.html' %}
+            </div>
+        </div>
+    </main>
 </div>
 {% endblock %}

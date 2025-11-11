@@ -1,26 +1,16 @@
 /* static/css/layout/layout.css */
 
-/* Use a responsive two-column flex layout (do not force full viewport height) */
-.dashboard-container {
-    display: flex;
-    align-items: flex-start;
-    gap: var(--padding);
-    width: 100%;
-    box-sizing: border-box;
-    padding: 0;
-}
-
-/* Make the left sidebar sticky so it stays visible while the right panel scrolls */
+/* Make the left sidebar fixed so it stays visible while the right panel scrolls */
 .left-panel {
-    flex: 0 0 360px;
+    width: 360px;
     max-width: 360px;
     min-width: 220px;
+    margin-left: 20px;
     display: flex;
     flex-direction: column;
     gap: var(--padding);
     box-sizing: border-box;
-    align-self: flex-start;
-    position: sticky;
+    position: fixed;
     top: 16px;
     max-height: calc(100vh - 32px);
     overflow: auto;
@@ -30,10 +20,10 @@
 
 /* Allow the main area to take remaining space and have comfortable padding */
 .right-panel {
-    flex: 1 1 auto;
     min-width: 0;
     box-sizing: border-box;
-    padding-left: 12px;
+    padding-left: 0px;
+    margin-left: 392px;
 }
 
 /* Prevent hero chart from forcing extra width/height */

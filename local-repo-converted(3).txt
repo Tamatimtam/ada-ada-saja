@@ -20,6 +20,7 @@ Selected Files Directory Structure:
         │   │   │   │   ├── illustrations.css
         │   │   │   │   ├── knowledge-card.css
         │   │   │   │   ├── main-cards.css
+        │   │   │   │   ├── map_controls.css
         │   │   │   │   ├── small-cards.css
         │   │   │   │   ├── visual_analytics.css
         │   │   │   │   └── wellbeing-card.css
@@ -40,6 +41,14 @@ Selected Files Directory Structure:
         │   │       │   │   │   └── observers.js
         │   │       │   │   ├── anxiety-bar-chart.js
         │   │       │   │   └── anxiety-face-animation.js
+        │   │       │   ├── map
+        │   │       │   │   ├── api.js
+        │   │       │   │   ├── app.js
+        │   │       │   │   ├── choroplethRenderer.js
+        │   │       │   │   ├── config.js
+        │   │       │   │   ├── mapRenderer.js
+        │   │       │   │   ├── navigation.js
+        │   │       │   │   └── patternRenderer.js
         │   │       │   ├── digital_time_chart.js
         │   │       │   ├── dropdown-animation.js
         │   │       │   ├── header-title-animation.js
@@ -64,6 +73,7 @@ Selected Files Directory Structure:
         │   │   │   ├── hero-section.html
         │   │   │   ├── knowledge-card.html
         │   │   │   ├── loan_overview.html
+        │   │   │   ├── map_panel.html
         │   │   │   ├── visual_analytics.html
         │   │   │   └── wellbeing-card.html
         │   │   ├── index.html
@@ -265,6 +275,575 @@ function initHeroTextAnimation() {
         });
     }
 }
+
+--- Dashboard_temp/app/static/js/components/map/api.js ---
+
+export async function fetchApiData(endpoint) {
+    const res = await fetch(endpoint);
+    if (!res.ok) throw new Error(`Gagal mengambil data dari ${endpoint}`);
+    return res.json();
+}
+
+export async function fetchGeoJSON(url) {
+    const res = await fetch(url);
+    if (!res.ok) throw new Error('Gagal memuat file peta.');
+    return res.json();
+}
+
+
+--- Dashboard_temp/app/static/js/components/map/mapRenderer.js ---
+
+// Deprecated: split into navigation.js, choroplethRenderer.js, patternRenderer.js
+export { attachNavigationEnhancements } from './navigation.js';
+export { renderChoroplethMap } from './choroplethRenderer.js';
+export { renderPatternMap } from './patternRenderer.js';
+
+
+--- Dashboard_temp/app/static/js/components/map/navigation.js ---
+
+export function attachNavigationEnhancements(chart) {
+    const mv = chart.mapView;
+    if (!mv) return;
+    const initialCenter = mv.center && mv.center.slice ? mv.center.slice() : null;
+    const initialZoom = mv.zoom;
+
+    const resetButton = document.getElementById('reset-zoom-btn');
+    if (resetButton) {
+        resetButton.addEventListener('click', () => {
+            if (initialCenter != null && typeof initialZoom === 'number') {
+                mv.setView(initialCenter, initialZoom, { duration: 600, easing: 'easeOutCubic' });
+            }
+        });
+    }
+
+    chart.container?.addEventListener('dblclick', () => {
+        if (initialCenter != null && typeof initialZoom === 'number') {
+            mv.setView(initialCenter, initialZoom, { duration: 600, easing: 'easeOutCubic' });
+        }
+    });
+}
+
+
+--- Dashboard_temp/app/static/js/components/map/patternRenderer.js ---
+
+import { appColors } from './config.js';
+import { attachNavigationEnhancements } from './navigation.js';
+
+export function renderPatternMap({
+    mapData,
+    currentApiData,
+    config,
+    metricDetails,
+    reverseNameMapping,
+    selectedMetric,
+    datasetKey,
+    containerId = 'container'
+}) {
+    if (!currentApiData || !mapData) return;
+
+    // Build mapping appName -> numeric category index for dataClasses legend
+    const appIndexMap = {};
+    let nextIndex = 0;
+
+    const chartData = currentApiData.map(item => {
+        const appName = item[selectedMetric];
+        const provinceName = item[config.keyColumn];
+        const geoName = reverseNameMapping[provinceName] || provinceName;
+        const isAcehFinancial = datasetKey === 'financial' && (provinceName === 'Aceh' || geoName === 'Aceh');
+
+        if (appName && !isAcehFinancial) {
+            if (!(appName in appIndexMap)) appIndexMap[appName] = nextIndex++;
+            return {
+                name: geoName,
+                appName,
+                value: appIndexMap[appName],
+                logoUrl: `/static/logos/${appName}.png`
+            };
+        }
+        // Aceh (financial) gets sentinel -1 to appear in legend; other missing remain null
+        return { name: geoName, appName: null, value: isAcehFinancial ? -1 : null };
+    });
+
+    // Generate dataClasses for legend (one per fintech app)
+    const dataClasses = Object.entries(appIndexMap).map(([appName, idx]) => ({
+        from: idx,
+        to: idx,
+        color: appColors[appName] || '#757575',
+        name: appName
+    }));
+
+    if (datasetKey === 'financial') {
+        // Legend item for Aceh only
+        dataClasses.push({
+            from: -1,
+            to: -1,
+            color: '#E0E0E0',
+            name: 'Data Tidak Tersedia'
+        });
+    }
+
+    Highcharts.mapChart(containerId, {
+        chart: {
+            map: mapData,
+            backgroundColor: '#ffffff',
+            style: { fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif' },
+            events: { load: function () { attachNavigationEnhancements(this); } }
+        },
+        credits: { enabled: false }, // Disable Highcharts.com credit
+        exporting: {
+            buttons: { contextButton: { align: 'right', verticalAlign: 'bottom', y: -10 } }
+        },
+        title: {
+            text: `${config.titlePrefix}: ${metricDetails.label}`,
+            align: 'right',
+            style: { fontSize: '1.5rem', fontWeight: '700', color: '#2d3748' }
+        },
+        subtitle: {
+            text: 'Sumber data: Gelarrasa (Simulasi)',
+            align: 'right',
+            style: { fontSize: '0.95rem', color: '#718096' }
+        },
+        legend: {
+            // Hapus title untuk tampilan lebih bersih
+            layout: 'horizontal',
+            align: 'center',
+            verticalAlign: 'bottom',
+            floating: false,
+            itemStyle: { fontSize: '0.75rem' },
+            symbolRadius: 6,
+            padding: 8,
+            backgroundColor: 'rgba(255,255,255,0.85)',
+            borderRadius: 8
+        },
+        mapNavigation: {
+            enabled: true,
+            buttonOptions: {
+                verticalAlign: 'bottom',
+                theme: {
+                    fill: 'rgba(255,255,255,0.9)',
+                    stroke: '#e2e8f0',
+                    'stroke-width': 2,
+                    r: 8,
+                    style: { color: '#2d3748', fontWeight: '600' },
+                    states: {
+                        hover: { fill: '#667eea', style: { color: '#ffffff' } },
+                        select: { fill: '#667eea', style: { color: '#ffffff' } }
+                    }
+                }
+            }
+        },
+        plotOptions: {
+            series: {
+                cursor: 'pointer',
+                point: {
+                    events: {
+                        click: function () {
+                            const mv = this.series.chart.mapView;
+                            if (!mv) return;
+                            if (typeof this.zoomTo === 'function') { this.zoomTo(60, { duration: 800, easing: 'easeOutCubic' }); return; }
+                            if (this.bounds) mv.fitToBounds(this.bounds, { padding: 60, animation: { duration: 800, easing: 'easeOutCubic' } });
+                        }
+                    }
+                }
+            }
+        },
+        colorAxis: {
+            // Use dataClasses for categorical legend
+            dataClasses,
+            nullColor: '#E0E0E0'
+        },
+        tooltip: {
+            useHTML: true,
+            backgroundColor: 'rgba(255,255,255,0.98)',
+            borderColor: '#e2e8f0',
+            borderRadius: 12,
+            borderWidth: 1,
+            style: { fontSize: '0.95rem' },
+            formatter: function () {
+                const geoProvinceName = this.point.name;
+                const csvProvinceName = reverseNameMapping[geoProvinceName] || geoProvinceName;
+                const provinceData = currentApiData.find(d => d[config.keyColumn] === csvProvinceName);
+                if (!provinceData) return `<b>${geoProvinceName}</b><br/><em style="color:#999;">Data tidak tersedia</em>`;
+                const appName = provinceData[selectedMetric];
+                if (!appName) {
+                    return `<div style="padding:12px;min-width:220px;font-family:Inter,sans-serif;">
+						<div style="font-weight:700;margin-bottom:10px;font-size:1.05rem;color:#2d3748;">${provinceData[config.keyColumn]}</div>
+						<div style="color:#a0aec0;font-size:0.875rem;">Data tidak tersedia</div>
+					</div>`;
+                }
+                const percentage = provinceData.fintech_percentage || 0;
+                const logoUrl = `/static/logos/${appName}.png`;
+                return `<div style="padding:12px;min-width:220px;font-family:Inter,sans-serif;">
+					<div style="font-weight:700;margin-bottom:10px;font-size:1.05rem;color:#2d3748;">${provinceData[config.keyColumn]}</div>
+					<div style="display:flex;align-items:center;gap:12px;">
+						<img src="${logoUrl}" style="width:48px;height:48px;object-fit:contain;background:#fff;border:2px solid #e2e8f0;border-radius:10px;padding:6px;" onerror="this.style.display='none'" />
+						<div>
+							<div style="font-weight:600;color:#2d3748;font-size:1rem;">${appName}</div>
+							<div style="color:#718096;font-size:0.875rem;margin-top:2px;">Pengguna: <b style="color:#667eea;">${percentage}%</b></div>
+						</div>
+					</div>
+				</div>`;
+            }
+        },
+        series: [{
+            data: chartData,
+            joinBy: ['PROVINSI', 'name'],
+            name: metricDetails.label,
+            nullColor: '#E0E0E0',
+            dataLabels: { enabled: false },
+            states: { hover: { brightness: 0.15, borderColor: '#667eea', borderWidth: 2.5 } },
+            borderColor: '#FFFFFF',
+            borderWidth: 1.5
+        }]
+    });
+}
+
+
+--- Dashboard_temp/app/static/js/components/map/config.js ---
+
+export const GEOJSON_URL = '/static/indonesia-38-provinsi.geojson';
+
+export const provinceNameMapping = {
+    "Nanggroe Aceh Darusalam": "Aceh",
+    "DI Yogyakarta": "Daerah Istimewa Yogyakarta",
+    "DKI Jakarta": "DKI Jakarta"
+};
+
+export const reverseNameMapping = Object.fromEntries(
+    Object.entries(provinceNameMapping).map(([csv, geo]) => [geo, csv])
+);
+
+// Colors for fintech app logos (pattern map)
+export const appColors = {
+    Dana: '#118EEA',
+    OVO: '#4C3494',
+    GoPay: '#00AA13',
+    ShopeePay: '#FF6A3D',
+    LinkAja: '#C92A2A',
+    Kredivo: '#B33A1C',
+    Akulaku: '#FF866B'
+};
+
+export const datasetsConfig = {
+    regional: {
+        endpoint: '/api/data',
+        titlePrefix: 'Indikator Ekonomi Regional',
+        keyColumn: 'provinsi',
+        metrics: {
+            outstanding_pinjaman_miliar: { label: 'Outstanding Pinjaman (Rp miliar)', vizType: 'choropleth', type: 'logarithmic', minColor: '#FFF5E6', maxColor: '#FF6B35' },
+            dana_diberikan_miliar: { label: 'Jumlah Dana Diberikan (Rp miliar)', vizType: 'choropleth', type: 'logarithmic', minColor: '#E8F5E9', maxColor: '#2E7D32' },
+            rekening_penerima_aktif: { label: 'Rekening Penerima Pinjaman Aktif', vizType: 'choropleth', type: 'logarithmic', minColor: '#F0F9FF', maxColor: '#0C4A6E' },
+            twp_90: { label: 'TWP 90 (%)', vizType: 'choropleth', type: 'linear', minColor: '#FCE4EC', maxColor: '#C62828' },
+            pdrb_ribu_rp: { label: 'PDRB (Ribu Rp)', vizType: 'choropleth', type: 'logarithmic', minColor: '#5DE2E7', maxColor: '#6A0DAD' },
+            urbanisasi_persen: { label: 'Tingkat Urbanisasi (%)', vizType: 'choropleth', type: 'linear', minColor: '#FFF3E0', maxColor: '#EF6C00' },
+            jumlah_penduduk_ribu: { label: 'Jumlah Penduduk (Ribu Jiwa)', vizType: 'choropleth', type: 'logarithmic', minColor: '#E0F2F1', maxColor: '#00695C' }
+        }
+    },
+    financial: {
+        endpoint: '/api/financial-profile',
+        titlePrefix: 'Profil Finansial Gen Z',
+        keyColumn: 'provinsi',
+        metrics: {
+            financial_balance: {
+                label: 'Status Keuangan (Surplus/Defisit)',
+                vizType: 'choropleth',
+                dataClasses: [
+                    { to: -0.01, color: '#C62828', name: 'Defisit' },
+                    { from: 0, color: '#1565C0', name: 'Surplus' }
+                ],
+                nullColor: '#E0E0E0'
+            },
+            avg_anxiety_score: { label: 'Rata-rata Skor Kecemasan Finansial', vizType: 'choropleth', type: 'linear', minColor: '#FCE4EC', maxColor: '#C62828' },
+            avg_digital_time: { label: 'Rata-rata Waktu Digital Harian (Jam)', vizType: 'choropleth', type: 'linear', minColor: '#E3F2FD', maxColor: '#1565C0' },
+            mode_fintech_app: { label: 'Fintech Populer (Logo)', vizType: 'pattern' }
+        }
+    }
+};
+
+
+--- Dashboard_temp/app/static/js/components/map/choroplethRenderer.js ---
+
+import { attachNavigationEnhancements } from './navigation.js';
+
+export function renderChoroplethMap({
+    mapData,
+    currentApiData,
+    config,
+    metricDetails,
+    reverseNameMapping,
+    selectedMetric,
+    datasetKey,
+    containerId = 'container'
+}) {
+    if (!currentApiData || !mapData) return;
+    const allProvinces = mapData.features.map(f => f.properties.PROVINSI);
+    const chartData = allProvinces.map(geoName => {
+        const csvProvinceName = reverseNameMapping[geoName] || geoName;
+        const item = currentApiData.find(d => d[config.keyColumn] === csvProvinceName);
+        let value = null;
+        if (item) value = item[selectedMetric] != null ? parseFloat(item[selectedMetric]) : null;
+
+        const isAcehFinancial = datasetKey === 'financial' && (geoName === 'Aceh' || csvProvinceName === 'Aceh');
+        const isFinancialBalance = datasetKey === 'financial' && selectedMetric === 'financial_balance';
+
+        // Aceh only gets sentinel -1 for Status Keuangan to appear in legend
+        const finalValue = (isAcehFinancial && isFinancialBalance) ? -1 : (isAcehFinancial ? null : value);
+
+        return {
+            name: geoName,
+            value: finalValue,
+            color: (finalValue === null || finalValue === -1) ? '#E0E0E0' : undefined
+        };
+    });
+    const colorAxisOptions = metricDetails.dataClasses
+        ? (() => {
+            const isFinancialBalance = datasetKey === 'financial' && selectedMetric === 'financial_balance';
+            const dc = [...metricDetails.dataClasses];
+            if (isFinancialBalance) {
+                dc.push({ from: -1, to: -1, color: '#E0E0E0', name: 'Data Tidak Tersedia' });
+            }
+            return { dataClasses: dc };
+        })()
+        : {
+            type: metricDetails.type,
+            // Override khusus per metrik
+            ...(selectedMetric === 'pdrb_ribu_rp'
+                ? { min: 10000, max: 1000000 }
+                : selectedMetric === 'rekening_penerima_aktif'
+                    ? { min: 1000, max: 10000000 }
+                    : selectedMetric === 'jumlah_penduduk_ribu'
+                        ? { min: 100, max: 100000 }
+                        : { min: metricDetails.type === 'logarithmic' ? 1 : null }),
+            minColor: metricDetails.minColor,
+            maxColor: metricDetails.maxColor,
+            labels: {
+                formatter: function () { return this.value ? this.value.toLocaleString('id-ID') : 'N/A'; },
+                style: { fontSize: '0.875rem', color: '#4a5568' }
+            }
+        };
+
+    Highcharts.mapChart(containerId, {
+        chart: {
+            map: mapData,
+            backgroundColor: '#ffffff',
+            style: { fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif' },
+            events: { load: function () { attachNavigationEnhancements(this); } }
+        },
+        credits: { enabled: false }, // Disable Highcharts.com credit
+        exporting: { buttons: { contextButton: { align: 'right', verticalAlign: 'bottom', y: -10 } } },
+        title: {
+            text: `${config.titlePrefix}: ${metricDetails.label}`,
+            align: 'right',
+            style: { fontSize: '1.5rem', fontWeight: '700', color: '#2d3748' }
+        },
+        mapNavigation: {
+            enabled: true,
+            buttonOptions: {
+                verticalAlign: 'bottom',
+                theme: {
+                    fill: 'rgba(255,255,255,0.9)',
+                    stroke: '#e2e8f0',
+                    'stroke-width': 2,
+                    r: 8,
+                    style: { color: '#2d3748', fontWeight: '600' },
+                    states: {
+                        hover: { fill: '#667eea', style: { color: '#ffffff' } },
+                        select: { fill: '#667eea', style: { color: '#ffffff' } }
+                    }
+                }
+            }
+        },
+        plotOptions: {
+            series: {
+                cursor: 'pointer',
+                point: {
+                    events: {
+                        click: function () {
+                            const mv = this.series.chart.mapView;
+                            if (!mv) return;
+                            if (typeof this.zoomTo === 'function') { this.zoomTo(60, { duration: 1000, easing: 'easeOutCubic' }); return; }
+                            if (this.bounds) mv.fitToBounds(this.bounds, { padding: 60, animation: { duration: 1000, easing: 'easeOutCubic' } });
+                        }
+                    }
+                }
+            }
+        },
+        colorAxis: colorAxisOptions,
+        series: [{
+            data: chartData,
+            joinBy: ['PROVINSI', 'name'],
+            name: metricDetails.label,
+            nullColor: metricDetails.nullColor || '#E0E0E0',
+            borderColor: '#ffffff',
+            borderWidth: 1.5,
+            states: { hover: { color: '#667eea', borderColor: '#ffffff', brightness: 0.1 } },
+            tooltip: {
+                headerFormat: '<span></span>',
+                backgroundColor: 'rgba(255,255,255,0.98)',
+                borderColor: '#e2e8f0',
+                borderRadius: 12,
+                borderWidth: 1,
+                style: { fontSize: '0.95rem', fontWeight: '500' },
+                pointFormatter: function () {
+                    const geoProvinceName = this.name;
+                    const csvProvinceName = reverseNameMapping[geoProvinceName] || geoProvinceName;
+                    const provinceData = currentApiData.find(d => d[config.keyColumn] === csvProvinceName);
+                    if (!provinceData || provinceData[selectedMetric] == null) return `<b>${geoProvinceName}</b><br/><em style="color:#999;">Data tidak tersedia</em>`;
+                    let out = `<b>${provinceData[config.keyColumn]}</b><br/>`;
+                    if (selectedMetric === 'financial_balance') {
+                        const balance = provinceData.financial_balance;
+                        const income = provinceData.avg_income;
+                        const expense = provinceData.avg_expense;
+                        const status = balance >= 0 ? '<span style="color:#1565C0;font-weight:bold;">Surplus</span>' : '<span style="color:#C62828;font-weight:bold;">Defisit</span>';
+                        out += `Status Keuangan: ${status}<br/>--------------------<br/>Pendapatan: <b>Rp ${income?.toLocaleString('id-ID') || 'N/A'}</b><br/>Pengeluaran: <b>Rp ${expense?.toLocaleString('id-ID') || 'N/A'}</b>`;
+                    } else {
+                        const v = provinceData[selectedMetric];
+                        const formatted = v != null ? parseFloat(v).toLocaleString('id-ID') : 'N/A';
+                        let display = `<b>${formatted}</b>`;
+                        if (['avg_income', 'avg_expense'].includes(selectedMetric)) display = `<b>Rp ${formatted}</b>`;
+                        else if (selectedMetric === 'avg_digital_time') display = `<b>${formatted} jam</b>`;
+                        out += `${metricDetails.label}: ${display}`;
+                    }
+                    return out;
+                }
+            }
+        }]
+    });
+}
+
+
+--- Dashboard_temp/app/static/js/components/map/app.js ---
+
+import { datasetsConfig, GEOJSON_URL, reverseNameMapping } from './config.js';
+import { fetchApiData, fetchGeoJSON } from './api.js';
+import { renderChoroplethMap } from './choroplethRenderer.js';
+import { renderPatternMap } from './patternRenderer.js';
+
+document.addEventListener('DOMContentLoaded', async function () {
+    const datasetDropdown = document.getElementById('map-dataset-dropdown');
+    const metricDropdown = document.getElementById('map-metric-dropdown');
+    const container = document.getElementById('container');
+
+    const state = {
+        currentApiData: [],
+        mapData: null,
+        selectedDataset: 'regional',
+        selectedMetric: null
+    };
+
+    function initDropdown(dropdownEl, onSelect) {
+        const selected = dropdownEl.querySelector('.dropdown-selected');
+        const options = dropdownEl.querySelector('.dropdown-options');
+
+        selected.addEventListener('click', () => {
+            dropdownEl.classList.toggle('open');
+        });
+
+        options.addEventListener('click', (e) => {
+            if (e.target.tagName === 'LI') {
+                const value = e.target.dataset.value;
+                const text = e.target.textContent;
+                selected.textContent = text + ' ▼';
+                dropdownEl.classList.remove('open');
+                onSelect(value);
+            }
+        });
+
+        document.addEventListener('click', (e) => {
+            if (!dropdownEl.contains(e.target)) {
+                dropdownEl.classList.remove('open');
+            }
+        });
+    }
+
+    function updateMetricSelector(datasetKey) {
+        const config = datasetsConfig[datasetKey];
+        const metricOptions = metricDropdown.querySelector('.dropdown-options');
+        const metricSelected = metricDropdown.querySelector('.dropdown-selected');
+        
+        metricOptions.innerHTML = '';
+        
+        let firstMetric = null;
+
+        for (const [value, details] of Object.entries(config.metrics)) {
+            if (!firstMetric) {
+                firstMetric = { value, label: details.label };
+            }
+            const li = document.createElement('li');
+            li.dataset.value = value;
+            li.textContent = details.label;
+            metricOptions.appendChild(li);
+        }
+
+        // Select the first metric by default
+        if (firstMetric) {
+            state.selectedMetric = firstMetric.value;
+            metricSelected.textContent = firstMetric.label + ' ▼';
+        }
+    }
+
+    async function loadDataset(datasetKey) {
+        try {
+            state.currentApiData = await fetchApiData(datasetsConfig[datasetKey].endpoint);
+        } catch (err) {
+            console.error('Gagal memuat data API:', err);
+            container.innerHTML = `<p style="color:red; text-align:center;">Gagal memuat data.</p>`;
+        }
+    }
+
+    function renderMap() {
+        if (!state.currentApiData || !state.mapData) return;
+        
+        const config = datasetsConfig[state.selectedDataset];
+        const metricDetails = config.metrics[state.selectedMetric];
+
+        const common = {
+            mapData: state.mapData,
+            currentApiData: state.currentApiData,
+            config,
+            metricDetails,
+            reverseNameMapping,
+            selectedMetric: state.selectedMetric,
+            datasetKey: state.selectedDataset,
+            containerId: 'container'
+        };
+
+        if (metricDetails.vizType === 'pattern') {
+            renderPatternMap(common);
+        } else {
+            renderChoroplethMap(common);
+        }
+    }
+
+    async function initializeApp() {
+        try {
+            state.mapData = await fetchGeoJSON(GEOJSON_URL);
+
+            initDropdown(datasetDropdown, async (selectedValue) => {
+                state.selectedDataset = selectedValue;
+                updateMetricSelector(selectedValue);
+                await loadDataset(selectedValue);
+                renderMap();
+            });
+
+            initDropdown(metricDropdown, (selectedValue) => {
+                state.selectedMetric = selectedValue;
+                renderMap();
+            });
+
+            // Initial setup
+            updateMetricSelector(state.selectedDataset);
+            await loadDataset(state.selectedDataset);
+            renderMap();
+
+        } catch (error) {
+            console.error('Inisialisasi aplikasi gagal:', error);
+            container.innerHTML = `<p style="color:red; text-align:center;">Gagal memuat peta atau data awal.</p>`;
+        }
+    }
+
+    initializeApp();
+});
 
 --- Dashboard_temp/app/static/js/components/lightbulb-animation.js ---
 
@@ -2161,6 +2740,102 @@ document.addEventListener("DOMContentLoaded", () => {
     left: 22%;
 }
 
+--- Dashboard_temp/app/static/css/components/map_controls.css ---
+
+/* static/css/components/map_controls.css */
+
+.map-controls {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1rem;
+    padding: 0.5rem;
+    background-color: var(--ui-subtle-bg);
+    border-radius: var(--border-radius);
+}
+
+.map-controls .custom-dropdown {
+    position: relative;
+    display: inline-block;
+    cursor: pointer;
+}
+
+.map-controls .dropdown-selected {
+    background-color: var(--white);
+    padding: 0.5rem 1rem;
+    border-radius: var(--border-radius);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    font-weight: 600;
+    color: var(--text-primary);
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.75rem; /* Smaller font size */
+}
+
+.map-controls .dropdown-selected:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
+}
+
+.map-controls .dropdown-options {
+    position: absolute;
+    top: calc(100% + 8px);
+    left: 0;
+    list-style: none;
+    padding: 0.5rem;
+    margin: 0;
+    background-color: var(--white);
+    border-radius: var(--border-radius);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+    overflow: hidden;
+    z-index: 10;
+    opacity: 0;
+    transform: translateY(10px);
+    pointer-events: none;
+    transition: all 0.3s ease;
+    min-width: 100%;
+    white-space: nowrap;
+}
+
+.map-controls .custom-dropdown.open .dropdown-options {
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: auto;
+}
+
+.map-controls .dropdown-options li {
+    padding: 0.75rem 1.25rem;
+    transition: background-color 0.2s ease;
+    border-radius: 6px;
+    font-size: 0.75rem; /* Smaller font size */
+}
+
+.map-controls .dropdown-options li:hover {
+    background-color: var(--ui-subtle-bg);
+}
+
+.map-control-button {
+    background-color: var(--card2-bg);
+    color: var(--white);
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: var(--border-radius);
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-size: 0.525rem; /* 40% smaller than 0.875rem */
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.map-control-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
+}
+
+
 --- Dashboard_temp/app/static/css/components/background-shapes.css ---
 
 .bg-shapes {
@@ -3907,7 +4582,7 @@ from app import app
 from app.services import (
     get_main_metrics, get_anxiety_by_category, get_filtered_metrics,
     get_visual_analytics_data, get_filtered_loan_data, get_loan_purpose_data,
-    get_digital_time_data
+    get_digital_time_data, get_regional_data_from_file, get_financial_data_from_file
 )
 
 @app.route('/')
@@ -3968,11 +4643,29 @@ def api_digital_time(category):
     data = get_digital_time_data(category)
     return jsonify(data)
 
+@app.route("/api/data")
+def get_regional_data():
+    """Endpoint untuk data indikator ekonomi regional."""
+    data = get_regional_data_from_file()
+    if "error" in data:
+        return jsonify(data), 404
+    return jsonify(data)
+
+
+@app.route("/api/financial-profile")
+def get_financial_data():
+    """Endpoint untuk data profil finansial Gen Z yang sudah diagregasi."""
+    data = get_financial_data_from_file()
+    if "error" in data:
+        return jsonify(data), 404
+    return jsonify(data)
+
 
 
 --- Dashboard_temp/app/services.py ---
 
 import pandas as pd
+import numpy as np
 from app.utils.loan_processor import LoanProcessor
 from app.utils.engagement_processor import EngagementProcessor
 from app.utils.chart_generator import ChartGenerator
@@ -4422,6 +5115,146 @@ def get_digital_time_data(category):
     return loader.get_filtered_engagement_data(category)
 
 
+# --- Functions for Map Panel ---
+
+def clean_regional_data(df):
+    df = df.rename(
+        columns={
+            "Provinsi": "provinsi",
+            "Jumlah Rekening Penerima Pinjaman Aktif (entitas)": "rekening_penerima_aktif",
+            "Jumlah Dana yang Diberikan (Rp miliar)": "dana_diberikan_miliar",
+            "Jumlah Rekening Pemberi Pinjaman (akun)": "rekening_pemberi",
+            "TWP 90%": "twp_90",
+            "Jumlah Penerima Pinjaman (akun)": "jumlah_penerima",
+            "Outstanding Pinjaman (Rp miliar)": "outstanding_pinjaman_miliar",
+            "Jumlah Penduduk (Ribu)": "jumlah_penduduk_ribu",
+            "PDRB (Ribu Rp)": "pdrb_ribu_rp",
+            "Urbanisasi (%)": "urbanisasi_persen",
+        }
+    )
+
+    numeric_cols = [
+        "rekening_penerima_aktif",
+        "dana_diberikan_miliar",
+        "rekening_pemberi",
+        "twp_90",
+        "jumlah_penerima",
+        "outstanding_pinjaman_miliar",
+        "jumlah_penduduk_ribu",
+        "pdrb_ribu_rp",
+        "urbanisasi_persen",
+    ]
+
+    for col in numeric_cols:
+        df[col] = df[col].replace("-", pd.NA)
+        if df[col].dtype == "object":
+            df[col] = df[col].str.replace(".", "", regex=False)
+            df[col] = df[col].str.replace("%", "", regex=False)
+            df[col] = df[col].str.replace(",", ".", regex=False)
+        df[col] = pd.to_numeric(df[col], errors="coerce")
+
+    return df
+
+
+def clean_and_aggregate_financial_data(df):
+    """Membersihkan dan mengagregasi data profil finansial per provinsi."""
+    numeric_cols = [
+        "avg_monthly_income (INT)",
+        "avg_monthly_expense (INT)",
+        "financial_anxiety_score",
+        "digital_time_spent_per_day",
+    ]
+    for col in numeric_cols:
+        df[col] = pd.to_numeric(df[col], errors="coerce")
+
+    # Agregasi: mean untuk numerik, mode untuk kategorikal
+    agg_functions = {
+        "avg_monthly_income (INT)": "mean",
+        "avg_monthly_expense (INT)": "mean",
+        "financial_anxiety_score": "mean",
+        "digital_time_spent_per_day": "mean",
+        "main_fintech_app": lambda x: x.mode().iloc[0] if not x.mode().empty else None,
+        "investment_type": lambda x: x.mode().iloc[0] if not x.mode().empty else None,
+    }
+
+    agg_df = df.groupby("province").agg(agg_functions).reset_index()
+
+    # Hitung persentase pengguna untuk fintech app yang paling populer
+    fintech_percentage = []
+    for province in agg_df["province"]:
+        province_data = df[df["province"] == province]
+        if len(province_data) > 0:
+            most_popular_app = (
+                province_data["main_fintech_app"].mode().iloc[0]
+                if not province_data["main_fintech_app"].mode().empty
+                else None
+            )
+            if most_popular_app:
+                percentage = (
+                    (province_data["main_fintech_app"] == most_popular_app).sum()
+                    / len(province_data)
+                    * 100
+                )
+                fintech_percentage.append(round(percentage, 1))
+            else:
+                fintech_percentage.append(0)
+        else:
+            fintech_percentage.append(0)
+
+    agg_df["fintech_percentage"] = fintech_percentage
+
+    # Ganti nama kolom agar lebih mudah digunakan di frontend
+    agg_df = agg_df.rename(
+        columns={
+            "province": "provinsi",
+            "avg_monthly_income (INT)": "avg_income",
+            "avg_monthly_expense (INT)": "avg_expense",
+            "financial_anxiety_score": "avg_anxiety_score",
+            "digital_time_spent_per_day": "avg_digital_time",
+            "main_fintech_app": "mode_fintech_app",
+            "investment_type": "mode_investment_type",
+        }
+    )
+
+    agg_df["financial_balance"] = agg_df["avg_income"] - agg_df["avg_expense"]
+
+    for col in [
+        "avg_income",
+        "avg_expense",
+        "avg_anxiety_score",
+        "avg_digital_time",
+        "financial_balance",
+    ]:
+        agg_df[col] = agg_df[col].round(2)
+
+    return agg_df
+
+def get_regional_data_from_file():
+    """Endpoint untuk data indikator ekonomi regional."""
+    try:
+        df = pd.read_csv(os.path.join(os.path.dirname(__file__), "..", "dataset", "Dataset Gelarrasa - Regional_Economic_Indicators.csv"))
+        df_cleaned = clean_regional_data(df)
+        df_final = df_cleaned.replace({np.nan: None})
+        return df_final.to_dict(orient="records")
+    except FileNotFoundError:
+        return {"error": "File Regional_Economic_Indicators.csv tidak ditemukan"}, 404
+    except Exception as e:
+        return {"error": str(e)}, 500
+
+
+def get_financial_data_from_file():
+    """Endpoint untuk data profil finansial Gen Z yang sudah diagregasi."""
+    try:
+        df = pd.read_csv(os.path.join(os.path.dirname(__file__), "..", "dataset", "Dataset Gelarrasa - GenZ_Financial_Profile_map.csv"))
+        df_agg = clean_and_aggregate_financial_data(df)
+        df_final = df_agg.replace({np.nan: None})
+        return df_final.to_dict(orient="records")
+    except FileNotFoundError:
+        return {"error": "File dataset_gelarrasa_genzfinancialprofile.csv tidak ditemukan"}, 404
+    except Exception as e:
+        return {"error": str(e)}, 500
+
+
 --- Dashboard_temp/app/templates/components/knowledge-card.html ---
 
 <!-- Knowledge Card -->
@@ -4532,6 +5365,31 @@ def get_digital_time_data(category):
     </div>
 </div>
 
+
+--- Dashboard_temp/app/templates/components/map_panel.html ---
+
+<!-- templates/components/map_panel.html -->
+<div class="charts-section-panel">
+    <div class="map-card">
+        <div class="map-controls">
+            <span class="custom-dropdown" id="map-dataset-dropdown">
+                <span class="dropdown-selected">Indikator Ekonomi Regional ▼</span>
+                <ul class="dropdown-options">
+                    <li data-value="regional">Indikator Ekonomi Regional</li>
+                    <li data-value="financial">Profil Finansial Gen Z</li>
+                </ul>
+            </span>
+            <span class="custom-dropdown" id="map-metric-dropdown">
+                <span class="dropdown-selected">Pilih Metrik ▼</span>
+                <ul class="dropdown-options">
+                    <!-- Options will be populated by JS -->
+                </ul>
+            </span>
+            <button id="reset-zoom-btn" class="map-control-button">🔄 Reset Zoom</button>
+        </div>
+        <div id="container" style="width: 100%; height: 300px;"></div>
+    </div>
+</div>
 
 --- Dashboard_temp/app/templates/components/behavior-card.html ---
 
@@ -4789,6 +5647,9 @@ def get_digital_time_data(category):
                 <div class="full-width-row">
                     {% include 'components/digital_time_spent.html' %}
                 </div>
+                <div class="full-width-row">
+                    {% include 'components/map_panel.html' %}
+                </div>
             </div>
         </main>
     </div>
@@ -4813,12 +5674,15 @@ def get_digital_time_data(category):
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/layout/main-content.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/components/map_controls.css') }}">
     
     <!-- Define a block for any extra head content -->
     {% block head %}{% endblock %}
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.4/gsap.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.4/ScrollTrigger.min.js"></script>
     <script>gsap.registerPlugin(ScrollTrigger);</script>
+    <script src="https://code.highcharts.com/maps/highmaps.js"></script>
+    <script src="https://code.highcharts.com/maps/modules/exporting.js"></script>
     <script src="https://code.highcharts.com/highcharts.js"></script>
     <script src="https://code.highcharts.com/highcharts-more.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/plotly.js-dist-min@latest/plotly.min.js"></script>
@@ -4852,9 +5716,8 @@ def get_digital_time_data(category):
     <script src="{{ url_for('static', filename='js/new_charts_animations.js') }}"></script>
     <script src="{{ url_for('static', filename='js/main.js') }}"></script>
     <script src="{{ url_for('static', filename='js/chart-styler.js') }}"></script>
+    <script type="module" src="{{ url_for('static', filename='js/components/map/app.js') }}"></script>
     
-</body>
-</html>
 </body>
 </html>
 
