@@ -47,7 +47,7 @@ def create_education_chart(education_data):
 
     # Return container + inline Highcharts script (layout.html already loads Highcharts)
     return f"""
-<div id="education-chart" style="height: 480px; width: 100%;"></div>
+<div id="education-chart" style="height: 480px; width: 100%; box-sizing: border-box;"></div>
 <script>
 (function() {{
   const origCategories = {orig_js};
@@ -61,14 +61,14 @@ def create_education_chart(education_data):
       type: 'column',
       backgroundColor: 'transparent',
       height: 480,
-      spacing: [6, 8, 8, 8]  // unified with employment chart
+      spacing: [6,8,8,8]
     }},
     title: {{
-      text: '<b>🎓 Education vs<br>Financial Standing</b>',  // add line break to match layout
+      text: '<b>🎓 Education vs<br>Financial Standing</b>',
       useHTML: true,
       align: 'center',
-      style: {{ fontSize: '14px', color: '#2c3e50', fontFamily: 'Inter, sans-serif', fontWeight: '700' }},  // add fontWeight
-      margin: 6
+      style: {{ fontSize:'14px', color:'#2c3e50', fontFamily:'Inter, sans-serif', fontWeight:'700' }},
+      margin:6
     }},
     xAxis: {{
       categories: categories,

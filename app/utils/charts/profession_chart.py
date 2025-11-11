@@ -2,56 +2,67 @@ import json
 
 
 def create_profession_chart(profession_data):
-    categories = profession_data["categories"]
+    # Preserve original categories for tooltip and data lookup
+    original_categories = profession_data["categories"]
     colors = profession_data["colors"]
     data_map = profession_data["data"]
     total_counts = profession_data.get("total_counts", {})
 
-    # Build Highcharts-ready payloads
-    categories_js = json.dumps(categories)
-    colors_js = json.dumps(
-        colors
-    )  # {"Surplus":"#..","Break-even":"#..","Deficit":"#.."}
+    # Abbreviate long category labels for display
+    abbreviated_cats = []
+    for cat in original_categories:
+        clean_cat = str(cat).strip() if str(cat).strip() else "Unknown"
+        if len(clean_cat) > 15:
+            # Truncate with an ellipsis for clarity
+            abbreviated_cats.append(clean_cat[:14] + "…")
+        else:
+            abbreviated_cats.append(clean_cat)
+
+    # Prepare Highcharts payloads
+    orig_js = json.dumps(original_categories)
+    abbrev_js = json.dumps(abbreviated_cats)
+    colors_js = json.dumps(colors)
     total_counts_js = json.dumps(total_counts)
-
-    surplus = data_map.get("Surplus", [0] * len(categories))
-    breakeven = data_map.get("Break-even", [0] * len(categories))
-    deficit = data_map.get("Deficit", [0] * len(categories))
-
     series_js = json.dumps(
         [
-            {"name": "Surplus", "data": surplus},
-            {"name": "Break-even", "data": breakeven},
-            {"name": "Deficit", "data": deficit},
+            {
+                "name": "Surplus",
+                "data": data_map.get("Surplus", [0] * len(original_categories)),
+            },
+            {
+                "name": "Break-even",
+                "data": data_map.get("Break-even", [0] * len(original_categories)),
+            },
+            {
+                "name": "Deficit",
+                "data": data_map.get("Deficit", [0] * len(original_categories)),
+            },
         ]
     )
 
     # Return container + inline Highcharts script (layout.html already loads Highcharts)
     return f"""
-<div id="profession-chart" style="height: 480px; width: 100%;"></div>
+<div id="profession-chart" style="height: 480px; width: 100%; box-sizing: border-box;"></div>
 <script>
 (function() {{
-  const categories = {categories_js};
+  const origCategories = {orig_js};
+  const categories = {abbrev_js};
   const colors = {colors_js};
   const totalCounts = {total_counts_js};
-  const series = {series_js}.map(s => {{
-    return Object.assign({{}}, s, {{
-      color: colors[s.name] || '#95a5a6'
-    }});
-  }});
+  const series = {series_js}.map(s => Object.assign({{}}, s, {{ color: colors[s.name] || '#95a5a6' }}));
 
   Highcharts.chart('profession-chart', {{
     chart: {{
       type: 'column',
       backgroundColor: 'transparent',
       height: 480,
-      spacing: [6, 8, 8, 8]  // top, right, bottom, left
+      spacing: [6,8,8,8]
     }},
     title: {{
-      text: '<b>Employment vs<br>Financial Standing</b>',
+      text: '<b>💼 Employment vs<br>Financial Standing</b>',
       useHTML: true,
       align: 'center',
-      style: {{ fontSize: '14px', color: '#2c3e50', fontFamily: 'Inter, sans-serif', fontWeight: '700' }},
+      style: {{ fontSize: '14px', color: '#2c3e50', fontFamily: 'Inter, sans-serif', fontWeight:'700' }},
       margin: 6
     }},
     xAxis: {{
@@ -64,18 +75,16 @@ def create_profession_chart(profession_data):
       min: 0,
       max: 100,
       title: {{ text: '<b>%</b>', style: {{ fontSize: '10px', color: '#34495e' }} }},
-      gridLineColor: 'rgba(189, 195, 199, 0.2)'
+      gridLineColor: 'rgba(189, 195, 199,0.2)'
     }},
     legend: {{
       layout: 'horizontal',
       align: 'center',
       verticalAlign: 'bottom',
-      y: 0,
-      itemDistance: 16,
-      symbolHeight: 10,
-      symbolWidth: 10,
-      symbolPadding: 6,
-      itemStyle: {{ fontSize: '9px' }}
+      itemStyle: {{ fontSize: '9px' }},
+      backgroundColor: 'rgba(255,255,255,0.9)',
+      borderColor: '#e0e0e0',
+      borderWidth: 1
     }},
     plotOptions: {{
       series: {{
@@ -90,18 +99,18 @@ def create_profession_chart(profession_data):
           enabled: true,
           inside: true,
           style: {{ color: 'white', fontSize: '9px', textOutline: 'none' }},
-          formatter: function() {{
-            return this.y > 8 ? Math.round(this.y) + '%' : '';
-          }}
+          formatter: function() {{ return this.y > 8 ? Math.round(this.y)+'%' : ''; }}
         }}
       }}
     }},
     tooltip: {{
       useHTML: true,
-      formatter: function () {{
-        const count = totalCounts[this.x] || 0;
-        const actual = Math.round((this.y / 100) * count);
-        return `<b>${{this.x}}</b><br>${{this.series.name}}: ${{this.y.toFixed(1)}}% (${{actual}} people)`;
+      formatter: function() {{
+        const i = this.point.index;
+        const fullCat = origCategories[i] || this.x;
+        const count = totalCounts[fullCat] || 0;
+        const actual = Math.round((this.y/100)*count);
+        return `<b>${{fullCat}}</b><br>${{this.series.name}}: ${{this.y.toFixed(1)}}% (${{actual}} people)`;
       }}
     }},
     series: series,

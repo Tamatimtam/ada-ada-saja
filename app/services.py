@@ -115,42 +115,81 @@ def get_main_metrics():
     return {"scores": scores, "average_anxiety_score": average_anxiety_score}
 
 
+def normalize_employment(value: str) -> str:
+    if pd.isna(value):
+        return "Unknown"
+    v = str(value).strip().lower()
+    mapping = {
+        "entrepreneur": "Entrepreneur",
+        "enterpreneur": "Entrepreneur",
+        "enterpreneur ": "Entrepreneur",
+        "private employee": "Private Employee",
+        "civil servant/bumn": "Civil Servant/BUMN",
+        "civil servant / bumn": "Civil Servant/BUMN",
+        "asn/bumn": "Civil Servant/BUMN",
+        "student": "Student",
+        "not working": "Not Working",
+        "unemployed": "Not Working",
+        "none": "Unknown",
+        "": "Unknown",
+    }
+    return mapping.get(v, value if value else "Unknown")
+
+
+def normalize_education(value: str) -> str:
+    if pd.isna(value):
+        return "Unknown"
+    v = str(value).strip()
+    edu_map = {
+        "Elementary School (SD)": "Elementary School",
+        "Junior High School (SMP)": "Junior High School",
+        "Senior High School (SMA)": "Senior High School",
+        "Diploma I/II/III": "Diploma I/II/III",
+        "Bachelor (S1)/Diploma IV": "Bachelor (S1)/Diploma IV",
+        "Postgraduate": "Postgraduate",
+    }
+    return edu_map.get(v, v or "Unknown")
+
+
+def _apply_normalization_df1(df: pd.DataFrame):
+    if "employment_status" in df.columns:
+        df["employment_status"] = df["employment_status"].map(normalize_employment)
+    if "education_level" in df.columns:
+        df["education_level"] = df["education_level"].map(normalize_education)
+    return df
+
+
+def _apply_normalization_df2(df: pd.DataFrame):
+    # Sheet2 column names differ
+    if "Job" in df.columns:
+        df["Job"] = df["Job"].map(normalize_employment)
+    if "Last Education" in df.columns:
+        df["Last Education"] = df["Last Education"].map(normalize_education)
+    return df
+
+
 def get_anxiety_by_category(filter_by="employment_status"):
     df = pd.read_csv(
         os.path.join(os.path.dirname(__file__), "..", "dataset", "Sheet1.csv")
     )
+    df = _apply_normalization_df1(df)
 
-    # Normalize employment_status values to handle variations
-    if filter_by == "employment_status":
-        df["employment_status"] = df["employment_status"].replace(
-            {
-                "Entrepreneur": "Entrepreneur",
-                "entrepreneur": "Entrepreneur",
-                "Enterpreneur": "Entrepreneur",  # Handle common typo
-                "enterpreneur": "Entrepreneur",
-                "Not Working": "Not Working",
-                "Student": "Student",
-                "Private Employee": "Private Employee",
-                "Civil Servant/BUMN": "Civil Servant/BUMN",
-            }
-        )
-
-    # MODIFIED: Logic to handle age calculation
     category_column = filter_by
     if filter_by == "birth_year":
         current_year = 2025  # As per the context of our session
         df["age"] = current_year - df["birth_year"]
         category_column = "age"
 
+    # Ensure string categories for consistency
+    if df[category_column].dtype != "object":
+        df[category_column] = df[category_column].astype(str)
+
     anxiety_by_category = (
         df.groupby(category_column)["financial_anxiety_score"]
         .mean()
         .round(1)
         .reset_index()
-    )
-    anxiety_by_category = anxiety_by_category.sort_values(
-        "financial_anxiety_score", ascending=False
-    )
+    ).sort_values("financial_anxiety_score", ascending=False)
 
     return {
         "categories": anxiety_by_category[category_column].tolist(),
@@ -166,50 +205,18 @@ def get_filtered_metrics(filter_by, filter_value):
         os.path.join(os.path.dirname(__file__), "..", "dataset", "Sheet2.csv")
     )
 
-    # Normalize employment_status values in both datasets
-    if filter_by == "employment_status":
-        df1["employment_status"] = df1["employment_status"].replace(
-            {
-                "Entrepreneur": "Entrepreneur",
-                "entrepreneur": "Entrepreneur",
-                "Enterpreneur": "Entrepreneur",
-                "enterpreneur": "Entrepreneur",
-                "Not Working": "Not Working",
-                "Student": "Student",
-                "Private Employee": "Private Employee",
-                "Civil Servant/BUMN": "Civil Servant/BUMN",
-            }
-        )
-        # Normalize filter_value as well
-        filter_value = str(filter_value).replace("Enterpreneur", "Entrepreneur")
+    df1 = _apply_normalization_df1(df1)
+    df2 = _apply_normalization_df2(df2)
 
-    # MODIFIED: This block now handles converting age back to birth year for filtering
+    # Handle age filter (birth_year input from UI is age)
     sheet1_filter_value = filter_value
     if filter_by == "birth_year":
         try:
-            # The filter_value is an age, e.g., "25"
-            age = int(filter_value)
+            age = int(str(filter_value).strip())
             current_year = 2025  # As per context
-            # Convert age back to birth year to filter the original data
             sheet1_filter_value = current_year - age
         except ValueError:
             return {"scores": {}, "average_anxiety_score": 0}
-
-    # Normalize Sheet2 Job values to collapse variants into a single canonical form
-    if "Job" in df2.columns:
-        df2["Job"] = df2["Job"].astype(str).str.strip()
-        # Normalize Civil Servant/BUMN variations (with or without extra descriptors)
-        df2["Job"] = df2["Job"].replace(
-            {r"^Civil\s*Servant\s*/\s*BUMN(?:.*)?$": "Civil Servant/BUMN"}, regex=True
-        )
-        # Normalize common variations for other jobs as well
-        df2["Job"] = df2["Job"].replace(
-            {
-                "entrepreneur": "Entrepreneur",
-                "Enterpreneur": "Entrepreneur",
-                "enterpreneur": "Entrepreneur",
-            }
-        )
 
     column_mapping = {
         "employment_status": "Job",
@@ -218,30 +225,21 @@ def get_filtered_metrics(filter_by, filter_value):
         "birth_year": "Year of Birth",  # This mapping remains correct
     }
 
-    value_mapping = {
-        "Elementary School": "Elementary School (SD)",
-        "Junior High School": "Junior High School (SMP)",
-        "Senior High School": "Senior High School (SMA)",
-        "Entrepreneur": "Entrepreneur",  # Add explicit mapping
-        "Not Working": "Not Working",
-        "Student": "Student",
-        "Private Employee": "Private Employee",
-        # After normalization, Sheet2 uses 'Civil Servant/BUMN'
-        "Civil Servant/BUMN": "Civil Servant/BUMN",
-    }
-
     sheet2_column = column_mapping.get(filter_by, filter_by)
-    # The filter value for sheet2 also needs to be the calculated birth year
-    sheet2_filter_value = value_mapping.get(
-        str(sheet1_filter_value), sheet1_filter_value
-    )
+
+    # Normalize filter value for both datasets
+    if filter_by == "employment_status":
+        sheet1_filter_value = normalize_employment(sheet1_filter_value)
+    if filter_by == "education_level":
+        sheet1_filter_value = normalize_education(sheet1_filter_value)
 
     filtered_df1 = df1[df1[filter_by] == sheet1_filter_value]
     average_anxiety_score = filtered_df1["financial_anxiety_score"].mean()
 
-    df_filtered = df2[df2[sheet2_column] == sheet2_filter_value]
-    scores = _calculate_scores(df_filtered)
+    sheet2_filter_value = sheet1_filter_value
+    filtered_df2 = df2[df2[sheet2_column] == sheet2_filter_value]
 
+    scores = _calculate_scores(filtered_df2)
     return {"scores": scores, "average_anxiety_score": average_anxiety_score}
 
 
@@ -276,17 +274,12 @@ class DataLoader:
 
         # Normalize employment_status column to handle variations
         if "employment_status" in self.df.columns:
-            self.df["employment_status"] = self.df["employment_status"].replace(
-                {
-                    "Entrepreneur": "Entrepreneur",
-                    "entrepreneur": "Entrepreneur",
-                    "Enterpreneur": "Entrepreneur",
-                    "enterpreneur": "Entrepreneur",
-                    "Not Working": "Not Working",
-                    "Student": "Student",
-                    "Private Employee": "Private Employee",
-                    "Civil Servant/BUMN": "Civil Servant/BUMN",
-                }
+            self.df["employment_status"] = self.df["employment_status"].map(
+                normalize_employment
+            )
+        if "education_level" in self.df.columns:
+            self.df["education_level"] = self.df["education_level"].map(
+                normalize_education
             )
 
         return self.df
@@ -331,14 +324,20 @@ class DataLoader:
         )
         employment_counts = self.df["employment_status"].value_counts()
         profession_standing = profession_standing.reindex(employment_counts.index)
-        categories = profession_standing.index.tolist()
+        categories = [
+            str(c).strip() if str(c).strip() else "Unknown"
+            for c in profession_standing.index.tolist()
+        ]
         colors = {"Surplus": "#2ecc71", "Break-even": "#f39c12", "Deficit": "#e74c3c"}
         chart_data = {
             "categories": categories,
             "financial_standings": list(profession_standing.columns),
             "data": {},
             "colors": colors,
-            "total_counts": employment_counts.to_dict(),
+            "total_counts": {
+                str(k).strip() if str(k).strip() else "Unknown": int(v)
+                for k, v in employment_counts.to_dict().items()
+            },
         }
         for standing in profession_standing.columns:
             chart_data["data"][standing] = (
