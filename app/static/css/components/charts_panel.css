@@ -122,3 +122,197 @@
     min-height: 320px;
     padding: 16px;
 }
+
+/* Analysis Charts Grid - Three Column Layout */
+.analysis-charts-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    margin-bottom: 1rem;
+}
+
+.analysis-chart-compartment {
+    background-color: #ffffff;
+    border-radius: 12px;
+    border: 1px solid var(--border-color);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    transition: box-shadow 0.3s ease;
+    min-height: 500px;
+}
+
+.analysis-chart-compartment:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.compartment-header {
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border-color);
+    background-color: rgba(248, 249, 250, 0.5);
+    flex-shrink: 0;
+}
+
+.compartment-header h5 {
+    margin: 0;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.analysis-chart-compartment .viz-content {
+    flex: 1;
+    padding: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 0;
+    overflow: hidden;
+}
+
+.analysis-chart-compartment .viz-content>div {
+    width: 100% !important;
+    height: 100% !important;
+}
+
+.compartment-footer {
+    padding: 8px 12px;
+    border-top: 1px solid var(--border-color);
+    background-color: rgba(248, 249, 250, 0.5);
+    text-align: center;
+    font-size: 0.75rem;
+    flex-shrink: 0;
+}
+
+/* Row Container for Side-by-Side Charts */
+.charts-row {
+    display: grid;
+    grid-template-columns: 1.5fr 1fr;
+    gap: 16px;
+    margin-bottom: 1.5rem;
+}
+
+.charts-column {
+    display: flex;
+    flex-direction: column;
+}
+
+.charts-column--main {
+    flex: 1.5;
+}
+
+.charts-column--side {
+    flex: 1;
+}
+
+/* Loan Overview Container */
+.loan-overview-container {
+    background-color: #ffffff;
+    padding: 1.5rem;
+    border-radius: var(--border-radius);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.05);
+    border: 1px solid var(--border-color);
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.loan-overview-container h4 {
+    font-weight: 600;
+    color: var(--text-primary);
+    font-size: 1.1rem;
+    margin-bottom: 1rem !important;
+}
+
+/* Compact KPI Cards */
+.loan-kpi-cards-compact {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+    flex-shrink: 0;
+}
+
+.loan-kpi-cards-compact .loan-kpi-card {
+    padding: 1rem;
+    border-radius: 10px;
+}
+
+.loan-kpi-cards-compact .loan-kpi-label {
+    font-size: 0.65rem;
+    margin-bottom: 6px;
+}
+
+.loan-kpi-cards-compact .loan-kpi-value {
+    font-size: 1.4rem;
+    margin-bottom: 2px;
+}
+
+.loan-kpi-cards-compact .loan-kpi-subtext {
+    font-size: 0.65rem;
+    margin-top: 2px;
+}
+
+/* Compact Chart Grid */
+.loan-charts-grid-compact {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 10px;
+    flex: 1;
+    min-height: 0;
+}
+
+.chart-container-compact {
+    background-color: white;
+    border-radius: 8px;
+    padding: 12px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    min-height: 180px;
+}
+
+.chart-container-compact .js-plotly-plot,
+.chart-container-compact .plotly,
+.chart-container-compact .plotly-graph-div {
+    width: 100% !important;
+    height: 100% !important;
+}
+
+/* Responsive Design */
+@media (max-width: 1400px) {
+    .charts-row {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .analysis-charts-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 1024px) {
+    .charts-row {
+        grid-template-columns: 1fr;
+    }
+
+    .analysis-charts-grid {
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    }
+}
+
+@media (max-width: 768px) {
+    .charts-row {
+        grid-template-columns: 1fr;
+    }
+
+    .analysis-charts-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .loan-kpi-cards-compact {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
