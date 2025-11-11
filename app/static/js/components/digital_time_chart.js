@@ -13,6 +13,9 @@ function renderDigitalTimeChart(responseData, category) {
     const chartDiv = document.getElementById('digital-time-chart');
     if (!chartDiv) return;
 
+    // Clear placeholder
+    chartDiv.innerHTML = '';
+
     const { filtered_data, baseline_kde } = responseData;
     const { stats, histogram, kde } = filtered_data;
 
@@ -70,7 +73,7 @@ function renderDigitalTimeChart(responseData, category) {
         }],
         barmode: 'overlay', showlegend: true,
         legend: { orientation: 'h', y: -0.2, x: 0.5, xanchor: 'center' },
-        height: 380, margin: { l: 60, r: 30, t: 70, b: 50 },
+        height: 180, margin: { l: 60, r: 30, t: 30, b: 50 },
         template: 'plotly_white',
         font: { family: 'Outfit, sans-serif' }
     };

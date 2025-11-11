@@ -12,9 +12,9 @@
     font-weight: 400;
     color: var(--text-primary);
     text-align: center;
-    margin-bottom: 1rem !important;
-    margin-top: 10px;
-    font-size: 1.4rem;
+    margin-bottom: 10px !important;
+    margin-top: 0px;
+    font-size: 1.1rem;
 }
 
 .loan-kpi-cards {
@@ -82,16 +82,14 @@
 #loan-purpose-chart,
 #digital-time-chart {
     transition: opacity 0.3s ease;
-    min-height: 340px;
 }
 
 .chart-container {
     background-color: white;
     border-radius: 8px;
-    padding: 20px;
+    padding: 5px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
     height: 100%;
-    min-height: 380px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -106,9 +104,7 @@
 }
 
 .placeholder-content {
-    text-align: center;
-    color: #6c757d;
-    padding: 20px;
+    display: none;
 }
 
 /* Side-by-side layout for Loan Overview and Loan Purpose charts */
@@ -120,6 +116,5 @@
 
 /* Slightly tighter containers for these two charts */
 .loan-charts-grid .chart-container {
-    min-height: 320px;
-    padding: 16px;
+    padding: 5px;
 }

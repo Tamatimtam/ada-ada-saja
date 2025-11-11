@@ -43,7 +43,7 @@ function renderLoanChart(data) {
 
     const totalWithLoans = distribution.filter(d => d.category !== 'No Loan').reduce((sum, d) => sum + d.count, 0);
     const filterText = data.filter_applied && data.filter_applied !== 'All' ? ` (${totalWithLoans} borrowers in ${data.filter_applied})` : ` (${totalWithLoans} borrowers)`;
-    const centerText = data.filter_applied && data.filter_applied !== 'All' ? `<b style="font-size:22px">${data.with_loan}</b><br><span style='font-size:12px;color:#7f8c8d'>with loans</span><br><span style='font-size:10px;color:#95a5a6'>in ${data.filter_applied}</span>` : `<b style="font-size:22px">${data.with_loan}</b><br><span style='font-size:12px;color:#7f8c8d'>with loans</span>`;
+    const centerText = data.filter_applied && data.filter_applied !== 'All' ? `<b style="font-size:12px">${data.with_loan}</b><br><span style='font-size:8px;color:#7f8c8d'>with loans</span><br><span style='font-size:8px;color:#95a5a6'>in ${data.filter_applied}</span>` : `<b style="font-size:12px">${data.with_loan}</b><br><span style='font-size:8px;color:#7f8c8d'>with loans</span>`;
 
     const chartData = [{
         labels: categories,
@@ -60,13 +60,13 @@ function renderLoanChart(data) {
     }];
 
     const layout = {
-        title: { text: `<b>💳 Outstanding Loan<br>Distribution${filterText}</b>`, x: 0.5, xanchor: 'center', font: { size: 14, color: '#2c3e50', family: 'Outfit, sans-serif' } },
-        annotations: [{ text: centerText, x: 0.5, y: 0.5, font: { size: 12, family: 'Outfit, sans-serif' }, showarrow: false }],
-        showlegend: true,
+        title: { text: `<b>💳 Outstanding Loan<br>Distribution${filterText}</b>`, x: 0.5, xanchor: 'center', font: { size: 8, color: '#2c3e50', family: 'Outfit, sans-serif' } },
+        annotations: [{ text: centerText, x: 0.5, y: 0.5, font: { size: 7, family: 'Outfit, sans-serif' }, showarrow: false }],
+        showlegend: false,
         legend: { orientation: 'h', x: 0.5, xanchor: 'center', y: -0.08, yanchor: 'top', font: { size: 7, family: 'Outfit, sans-serif' } },
-        margin: { l: 25, r: 70, t: 55, b: 0 },
+        margin: { l: 15, r: 42, t: 33, b: 0 },
         paper_bgcolor: 'white',
-        height: 300, width: 300,
+        height: 120, width: 120,
         template: 'plotly_white'
     };
 
@@ -112,15 +112,15 @@ function renderLoanPurposeChart(data, category) {
     const barTrace = {
         y: purposesWithIcons, x: counts, type: 'bar', orientation: 'h', xaxis: 'x2', yaxis: 'y2',
         marker: { color: colors, line: { color: '#ffffff', width: 1 } },
-        text: counts.map(c => `${c}`), textposition: 'outside', textfont: { size: 11 },
+        text: counts.map(c => `${c}`), textposition: 'outside', textfont: { size: 7 },
         hovertemplate: '<b>%{y}</b><br>Count: %{x}<extra></extra>', width: 0.6
     };
 
     const layout = {
-        title: { text: `<b>🎯 ${titleText}</b>`, x: 0.5, xanchor: 'center', font: { size: 16 } },
-        height: 340, width: 340, template: 'plotly_white', margin: { l: 80, r: 20, t: 50, b: 40 }, showlegend: false,
-        xaxis2: { domain: [0.50, 1], anchor: 'y2', showgrid: true, range: [0, Math.max(...counts) * 1.15] },
-        yaxis2: { domain: [0, 1], anchor: 'x2', autorange: 'reversed', showgrid: false, tickfont: { size: 12 } }
+        title: { text: `<b>🎯 ${titleText}</b>`, x: 0.5, xanchor: 'center', font: { size: 8 } },
+        height: 140, width: 240, template: 'plotly_white', margin: { l: 48, r: 12, t: 30, b: 0 }, showlegend: false,
+        xaxis2: { domain: [0.50, 1], anchor: 'y2', showgrid: true, range: [0, Math.max(...counts) * 1.15], tickfont: { size: 7 } },
+        yaxis2: { domain: [0, 1], anchor: 'x2', autorange: 'reversed', showgrid: false, tickfont: { size: 7 } }
     };
 
     Plotly.newPlot(chartDiv, [pieTrace, barTrace], layout, { displayModeBar: false, responsive: true });

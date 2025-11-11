@@ -89,7 +89,7 @@ def create_diverging_bar_chart(chart_data):
         ),
         plot_bgcolor="rgba(250, 250, 250, 1)",
         paper_bgcolor="white",
-        margin=dict(l=34, r=14, t=10, b=2),
+        margin=dict(l=34, r=14, t=30, b=2),
         hoverlabel=dict(bgcolor="white", font_size=5, font_family="Arial, sans-serif"),
     )
 

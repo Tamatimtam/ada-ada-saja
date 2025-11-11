@@ -16,7 +16,7 @@
     /* Bold Orange */
     --card3-bg: #ff8114;
     /* Bold Blue */
-    --card4-bg: #fac800af;
+    --card4-bg: #ff8b53;
     /* Bold Purple */
 
     /* Card 1 (Knowledge) - Pink Theme */
@@ -51,9 +51,9 @@
     --card3-text: #FFFFFF;
     --card3-text-secondary: rgba(255, 255, 255, 0.85);
     --card3-sparkle: rgba(255, 255, 255, 0.8);
-    --card3-coin-bg: rgba(254, 239, 16, 0.4);
-    --card3-coin-border: rgba(254, 239, 16, 0.4);
-    --card3-coin-text: rgba(254, 239, 16, 1);
+    --card3-coin-bg: rgba(253, 138, 44, 0.4);
+    --card3-coin-border: rgba(254, 176, 73, 0.4);
+    --card3-coin-text: rgb(254, 171, 16);
 
     /* Card 4 (Small Cards) */
     --card4-text: #FFFFFF;
@@ -77,13 +77,13 @@
     /* Diverging Bar Chart (Income vs Expense) */
     --chart-income: #1ba991;
     --chart-income-border: #119d85;
-    --chart-expense: #ff8b53;
-    --chart-expense-border: #f24f09;
+    --chart-expense: #e74c3c;
+    --chart-expense-border: #d83c2b;
 
     /* Stacked Bar Charts (Financial Standing) */
     --chart-surplus: #1ba991;
-    --chart-break-even: #fac800af;
-    --chart-deficit: #ff8b53;
+    --chart-break-even: #ff8b53;
+    --chart-deficit: #e74c3c;
 
     /* Loan Pie Chart */
     --chart-loan-no-loan: #1ba991;
