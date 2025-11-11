@@ -14,12 +14,15 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/layout/main-content.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/components/map_controls.css') }}">
     
     <!-- Define a block for any extra head content -->
     {% block head %}{% endblock %}
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.4/gsap.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.4/ScrollTrigger.min.js"></script>
     <script>gsap.registerPlugin(ScrollTrigger);</script>
+    <script src="https://code.highcharts.com/maps/highmaps.js"></script>
+    <script src="https://code.highcharts.com/maps/modules/exporting.js"></script>
     <script src="https://code.highcharts.com/highcharts.js"></script>
     <script src="https://code.highcharts.com/highcharts-more.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/plotly.js-dist-min@latest/plotly.min.js"></script>
@@ -53,8 +56,7 @@
     <script src="{{ url_for('static', filename='js/new_charts_animations.js') }}"></script>
     <script src="{{ url_for('static', filename='js/main.js') }}"></script>
     <script src="{{ url_for('static', filename='js/chart-styler.js') }}"></script>
+    <script type="module" src="{{ url_for('static', filename='js/components/map/app.js') }}"></script>
     
-</body>
-</html>
 </body>
 </html>

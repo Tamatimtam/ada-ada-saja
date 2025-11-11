@@ -1,4 +1,5 @@
 import pandas as pd
+import numpy as np
 from app.utils.loan_processor import LoanProcessor
 from app.utils.engagement_processor import EngagementProcessor
 from app.utils.chart_generator import ChartGenerator
@@ -446,3 +447,143 @@ def get_loan_purpose_data(category):
 def get_digital_time_data(category):
     loader = DataLoader(NEW_DATASET_PATH)
     return loader.get_filtered_engagement_data(category)
+
+
+# --- Functions for Map Panel ---
+
+def clean_regional_data(df):
+    df = df.rename(
+        columns={
+            "Provinsi": "provinsi",
+            "Jumlah Rekening Penerima Pinjaman Aktif (entitas)": "rekening_penerima_aktif",
+            "Jumlah Dana yang Diberikan (Rp miliar)": "dana_diberikan_miliar",
+            "Jumlah Rekening Pemberi Pinjaman (akun)": "rekening_pemberi",
+            "TWP 90%": "twp_90",
+            "Jumlah Penerima Pinjaman (akun)": "jumlah_penerima",
+            "Outstanding Pinjaman (Rp miliar)": "outstanding_pinjaman_miliar",
+            "Jumlah Penduduk (Ribu)": "jumlah_penduduk_ribu",
+            "PDRB (Ribu Rp)": "pdrb_ribu_rp",
+            "Urbanisasi (%)": "urbanisasi_persen",
+        }
+    )
+
+    numeric_cols = [
+        "rekening_penerima_aktif",
+        "dana_diberikan_miliar",
+        "rekening_pemberi",
+        "twp_90",
+        "jumlah_penerima",
+        "outstanding_pinjaman_miliar",
+        "jumlah_penduduk_ribu",
+        "pdrb_ribu_rp",
+        "urbanisasi_persen",
+    ]
+
+    for col in numeric_cols:
+        df[col] = df[col].replace("-", pd.NA)
+        if df[col].dtype == "object":
+            df[col] = df[col].str.replace(".", "", regex=False)
+            df[col] = df[col].str.replace("%", "", regex=False)
+            df[col] = df[col].str.replace(",", ".", regex=False)
+        df[col] = pd.to_numeric(df[col], errors="coerce")
+
+    return df
+
+
+def clean_and_aggregate_financial_data(df):
+    """Membersihkan dan mengagregasi data profil finansial per provinsi."""
+    numeric_cols = [
+        "avg_monthly_income (INT)",
+        "avg_monthly_expense (INT)",
+        "financial_anxiety_score",
+        "digital_time_spent_per_day",
+    ]
+    for col in numeric_cols:
+        df[col] = pd.to_numeric(df[col], errors="coerce")
+
+    # Agregasi: mean untuk numerik, mode untuk kategorikal
+    agg_functions = {
+        "avg_monthly_income (INT)": "mean",
+        "avg_monthly_expense (INT)": "mean",
+        "financial_anxiety_score": "mean",
+        "digital_time_spent_per_day": "mean",
+        "main_fintech_app": lambda x: x.mode().iloc[0] if not x.mode().empty else None,
+        "investment_type": lambda x: x.mode().iloc[0] if not x.mode().empty else None,
+    }
+
+    agg_df = df.groupby("province").agg(agg_functions).reset_index()
+
+    # Hitung persentase pengguna untuk fintech app yang paling populer
+    fintech_percentage = []
+    for province in agg_df["province"]:
+        province_data = df[df["province"] == province]
+        if len(province_data) > 0:
+            most_popular_app = (
+                province_data["main_fintech_app"].mode().iloc[0]
+                if not province_data["main_fintech_app"].mode().empty
+                else None
+            )
+            if most_popular_app:
+                percentage = (
+                    (province_data["main_fintech_app"] == most_popular_app).sum()
+                    / len(province_data)
+                    * 100
+                )
+                fintech_percentage.append(round(percentage, 1))
+            else:
+                fintech_percentage.append(0)
+        else:
+            fintech_percentage.append(0)
+
+    agg_df["fintech_percentage"] = fintech_percentage
+
+    # Ganti nama kolom agar lebih mudah digunakan di frontend
+    agg_df = agg_df.rename(
+        columns={
+            "province": "provinsi",
+            "avg_monthly_income (INT)": "avg_income",
+            "avg_monthly_expense (INT)": "avg_expense",
+            "financial_anxiety_score": "avg_anxiety_score",
+            "digital_time_spent_per_day": "avg_digital_time",
+            "main_fintech_app": "mode_fintech_app",
+            "investment_type": "mode_investment_type",
+        }
+    )
+
+    agg_df["financial_balance"] = agg_df["avg_income"] - agg_df["avg_expense"]
+
+    for col in [
+        "avg_income",
+        "avg_expense",
+        "avg_anxiety_score",
+        "avg_digital_time",
+        "financial_balance",
+    ]:
+        agg_df[col] = agg_df[col].round(2)
+
+    return agg_df
+
+def get_regional_data_from_file():
+    """Endpoint untuk data indikator ekonomi regional."""
+    try:
+        df = pd.read_csv(os.path.join(os.path.dirname(__file__), "..", "dataset", "Dataset Gelarrasa - Regional_Economic_Indicators.csv"))
+        df_cleaned = clean_regional_data(df)
+        df_final = df_cleaned.replace({np.nan: None})
+        return df_final.to_dict(orient="records")
+    except FileNotFoundError:
+        return {"error": "File Regional_Economic_Indicators.csv tidak ditemukan"}, 404
+    except Exception as e:
+        return {"error": str(e)}, 500
+
+
+def get_financial_data_from_file():
+    """Endpoint untuk data profil finansial Gen Z yang sudah diagregasi."""
+    try:
+        df = pd.read_csv(os.path.join(os.path.dirname(__file__), "..", "dataset", "Dataset Gelarrasa - GenZ_Financial_Profile_map.csv"))
+        df_agg = clean_and_aggregate_financial_data(df)
+        df_final = df_agg.replace({np.nan: None})
+        return df_final.to_dict(orient="records")
+    except FileNotFoundError:
+        return {"error": "File dataset_gelarrasa_genzfinancialprofile.csv tidak ditemukan"}, 404
+    except Exception as e:
+        return {"error": str(e)}, 500

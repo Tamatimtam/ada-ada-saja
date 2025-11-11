@@ -3,7 +3,7 @@ from app import app
 from app.services import (
     get_main_metrics, get_anxiety_by_category, get_filtered_metrics,
     get_visual_analytics_data, get_filtered_loan_data, get_loan_purpose_data,
-    get_digital_time_data
+    get_digital_time_data, get_regional_data_from_file, get_financial_data_from_file
 )
 
 @app.route('/')
@@ -62,5 +62,22 @@ def api_loan_purpose(category):
 @app.route('/api/digital-time/<category>')
 def api_digital_time(category):
     data = get_digital_time_data(category)
+    return jsonify(data)
+
+@app.route("/api/data")
+def get_regional_data():
+    """Endpoint untuk data indikator ekonomi regional."""
+    data = get_regional_data_from_file()
+    if "error" in data:
+        return jsonify(data), 404
+    return jsonify(data)
+
+
+@app.route("/api/financial-profile")
+def get_financial_data():
+    """Endpoint untuk data profil finansial Gen Z yang sudah diagregasi."""
+    data = get_financial_data_from_file()
+    if "error" in data:
+        return jsonify(data), 404
     return jsonify(data)
 

@@ -1,0 +1,22 @@
+<!-- templates/components/map_panel.html -->
+<div class="charts-section-panel">
+    <div class="map-card">
+        <div class="map-controls">
+            <span class="custom-dropdown" id="map-dataset-dropdown">
+                <span class="dropdown-selected">Indikator Ekonomi Regional ▼</span>
+                <ul class="dropdown-options">
+                    <li data-value="regional">Indikator Ekonomi Regional</li>
+                    <li data-value="financial">Profil Finansial Gen Z</li>
+                </ul>
+            </span>
+            <span class="custom-dropdown" id="map-metric-dropdown">
+                <span class="dropdown-selected">Pilih Metrik ▼</span>
+                <ul class="dropdown-options">
+                    <!-- Options will be populated by JS -->
+                </ul>
+            </span>
+            <button id="reset-zoom-btn" class="map-control-button">🔄 Reset Zoom</button>
+        </div>
+        <div id="container" style="width: 100%; height: 300px;"></div>
+    </div>
+</div>

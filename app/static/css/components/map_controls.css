@@ -1,0 +1,92 @@
+/* static/css/components/map_controls.css */
+
+.map-controls {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1rem;
+    padding: 0.5rem;
+    background-color: var(--ui-subtle-bg);
+    border-radius: var(--border-radius);
+}
+
+.map-controls .custom-dropdown {
+    position: relative;
+    display: inline-block;
+    cursor: pointer;
+}
+
+.map-controls .dropdown-selected {
+    background-color: var(--white);
+    padding: 0.5rem 1rem;
+    border-radius: var(--border-radius);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    font-weight: 600;
+    color: var(--text-primary);
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.75rem; /* Smaller font size */
+}
+
+.map-controls .dropdown-selected:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
+}
+
+.map-controls .dropdown-options {
+    position: absolute;
+    top: calc(100% + 8px);
+    left: 0;
+    list-style: none;
+    padding: 0.5rem;
+    margin: 0;
+    background-color: var(--white);
+    border-radius: var(--border-radius);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+    overflow: hidden;
+    z-index: 10;
+    opacity: 0;
+    transform: translateY(10px);
+    pointer-events: none;
+    transition: all 0.3s ease;
+    min-width: 100%;
+    white-space: nowrap;
+}
+
+.map-controls .custom-dropdown.open .dropdown-options {
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: auto;
+}
+
+.map-controls .dropdown-options li {
+    padding: 0.75rem 1.25rem;
+    transition: background-color 0.2s ease;
+    border-radius: 6px;
+    font-size: 0.75rem; /* Smaller font size */
+}
+
+.map-controls .dropdown-options li:hover {
+    background-color: var(--ui-subtle-bg);
+}
+
+.map-control-button {
+    background-color: var(--card2-bg);
+    color: var(--white);
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: var(--border-radius);
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-size: 0.525rem; /* 40% smaller than 0.875rem */
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.map-control-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
+}
