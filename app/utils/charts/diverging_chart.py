@@ -1,4 +1,4 @@
-import plotly.graph_objects as go
+import json
 
 
 def create_diverging_bar_chart(chart_data):
@@ -8,201 +8,177 @@ def create_diverging_bar_chart(chart_data):
     income_counts = chart_data["income_counts"]
     expense_counts = chart_data["expense_counts"]
 
-    fig = go.Figure()
+    # Prepare Highcharts payloads
+    categories_js = json.dumps(categories)
+    income_pct_js = json.dumps([round(pct, 1) for pct in income_pct])
+    expense_pct_js = json.dumps([round(pct, 1) for pct in expense_pct])
+    income_counts_js = json.dumps(income_counts)
+    expense_counts_js = json.dumps(expense_counts)
 
-    fig.add_trace(
-        go.Bar(
-            name="Expense",
-            y=categories,
-            x=[-pct for pct in expense_pct],
-            orientation="h",
-            marker=dict(
-                color="#e74c3c", line=dict(color="#c0392b", width=1.5), opacity=0.9
-            ),
-            text=[f"{pct:.1f}%" for pct in expense_pct],
-            textposition="inside",
-            textfont=dict(size=11, color="white", family="Arial, sans-serif"),
-            hovertemplate="<b>%{y}</b><br>Expense: %{text}<br>Count: %{customdata}<br><extra></extra>",
-            customdata=expense_counts,
-            meta=[f"expense_{cat}" for cat in categories],
-        )
-    )
+    return f"""
+<div id="diverging-bar-chart" style="height: 500px; width: 100%; box-sizing: border-box;"></div>
+<script>
+(function() {{
+  const categories = {categories_js};
+  const incomePct = {income_pct_js};
+  const expensePct = {expense_pct_js};
+  const incomeCounts = {income_counts_js};
+  const expenseCounts = {expense_counts_js};
 
-    fig.add_trace(
-        go.Bar(
-            name="Income",
-            y=categories,
-            x=income_pct,
-            orientation="h",
-            marker=dict(
-                color="#3498db", line=dict(color="#2980b9", width=1.5), opacity=0.9
-            ),
-            text=[f"{pct:.1f}%" for pct in income_pct],
-            textposition="inside",
-            textfont=dict(size=11, color="white", family="Arial, sans-serif"),
-            hovertemplate="<b>%{y}</b><br>Income: %{text}<br>Count: %{customdata}<br><extra></extra>",
-            customdata=income_counts,
-            meta=[f"income_{cat}" for cat in categories],
-        )
-    )
-
-    fig.update_layout(
-        title={
-            "text": '<b>⚖️ Income vs Expense Distribution</b><br><sub style="font-size:11px; color:#7f8c8d; font-weight:normal;">Click any bar to highlight category • Click again to deselect</sub>',
-            "x": 0.5,
-            "xanchor": "center",
-            "font": {"size": 17, "family": "Arial, sans-serif", "color": "#2c3e50"},
-        },
-        barmode="overlay",
-        xaxis={
-            "title": "<b>Percentage of Population</b>",
-            "tickvals": [-40, -30, -20, -10, 0, 10, 20, 30, 40],
-            "ticktext": ["40%", "30%", "20%", "10%", "0%", "10%", "20%", "30%", "40%"],
-            "title_font": {"size": 13, "color": "#34495e"},
-            "tickfont": {"size": 11, "color": "#34495e"},
-            "gridcolor": "rgba(189, 195, 199, 0.3)",
-            "zeroline": True,
-            "zerolinewidth": 2,
-            "zerolinecolor": "#95a5a6",
-        },
-        yaxis={
-            "title": "<b>Financial Category (IDR/month)</b>",
-            "title_font": {"size": 13, "color": "#34495e"},
-            "tickfont": {"size": 11, "color": "#34495e"},
-            "gridcolor": "rgba(189, 195, 199, 0.2)",
-            "side": "left",
-        },
-        template="plotly_white",
-        height=480,
-        autosize=True,
-        showlegend=True,
-        legend=dict(
-            orientation="h",
-            yanchor="top",
-            y=-0.18,
-            xanchor="center",
-            x=0.5,
-            font={"size": 12, "color": "#2c3e50"},
-            bgcolor="rgba(255, 255, 255, 0.9)",
-            bordercolor="#bdc3c7",
-            borderwidth=1,
-        ),
-        plot_bgcolor="rgba(250, 250, 250, 1)",
-        paper_bgcolor="white",
-        margin=dict(l=150, r=30, t=90, b=110),
-        hoverlabel=dict(bgcolor="white", font_size=12, font_family="Arial, sans-serif"),
-    )
-
-    chart_html = fig.to_html(
-        include_plotlyjs=False,
-        div_id="diverging-bar-chart",
-        config={
-            "displayModeBar": True,
-            "displaylogo": False,
-            "responsive": True,
-            "modeBarButtonsToRemove": ["pan2d", "lasso2d", "select2d"],
-            "toImageButtonOptions": {
-                "format": "png",
-                "filename": "income_vs_expense_chart",
-                "height": 600,
-                "width": 1200,
-                "scale": 2,
-            },
-        },
-    )
-
-    interactive_script = """
-    <script>
-    (function() {
-        function initializeChartInteractivity() {
-            const chartDiv = document.getElementById('diverging-bar-chart');
-            if (!chartDiv || typeof Plotly === 'undefined' || !chartDiv.data) {
-                setTimeout(initializeChartInteractivity, 100);
-                return;
-            }
+  Highcharts.chart('diverging-bar-chart', {{
+    chart: {{
+      type: 'bar',
+      backgroundColor: 'rgba(255,255,255,0.01)',
+      height: 500,
+      spacing: [15, 20, 40, 20],
+      borderRadius: 8,
+      shadow: {{ offsetX: 0, offsetY: 2, opacity: 0.05, width: 3 }}
+    }},
+    title: {{
+      text: '<b>⚖️ Income vs Expense Distribution</b>',
+      useHTML: true,
+      align: 'center',
+      style: {{ fontSize: '18px', color: '#1a202c', fontFamily: 'Inter, -apple-system, sans-serif', fontWeight: '700', letterSpacing: '-0.5px' }},
+      margin: 24
+    }},
+    subtitle: {{
+      text: '<span style="font-size:12px; color:#718096; font-weight:500;">Click any bar to highlight category • Click again to deselect</span>',
+      useHTML: true,
+      align: 'center',
+      style: {{ fontFamily: 'Inter, -apple-system, sans-serif' }}
+    }},
+    xAxis: {{
+      categories: categories,
+      title: {{ text: '<b>Financial Category (IDR/month)</b>', style: {{ fontSize: '12px', color: '#2d3748', fontWeight: '600', fontFamily: 'Inter, -apple-system, sans-serif' }} }},
+      labels: {{ style: {{ fontSize: '11px', color: '#4a5568', fontFamily: 'Inter, -apple-system, sans-serif', fontWeight: '500' }} }},
+      lineWidth: 0,
+      tickWidth: 0,
+      plotLines: []
+    }},
+    yAxis: {{
+      title: {{ text: '<b>Percentage of Population (%)</b>', style: {{ fontSize: '12px', color: '#2d3748', fontWeight: '600', fontFamily: 'Inter, -apple-system, sans-serif' }} }},
+      labels: {{ format: '{{value}}%', style: {{ fontSize: '11px', color: '#4a5568', fontFamily: 'Inter, -apple-system, sans-serif' }} }},
+      plotLines: [{{ value: 0, width: 2.5, color: '#cbd5e0', zIndex: 1 }}],
+      gridLineColor: 'rgba(203, 213, 224, 0.25)',
+      gridLineDashStyle: 'solid'
+    }},
+    legend: {{
+      layout: 'horizontal',
+      align: 'center',
+      verticalAlign: 'bottom',
+      y: 5,
+      itemStyle: {{ fontSize: '12px', color: '#2d3748', fontFamily: 'Inter, -apple-system, sans-serif', fontWeight: '500' }},
+      backgroundColor: 'rgba(255,255,255,0.95)',
+      borderColor: '#e2e8f0',
+      borderWidth: 1,
+      borderRadius: 6,
+      padding: 8,
+      symbolPadding: 12,
+      itemDistance: 30
+    }},
+    plotOptions: {{
+      series: {{
+        animation: {{ duration: 800, easing: 'easeOutQuad' }},
+        cursor: 'pointer',
+        pointPadding: 0.02,
+        groupPadding: 0.15,
+        dataLabels: {{
+          enabled: true,
+          format: '{{y:.1f}}%',
+          style: {{ fontSize: '10px', color: 'white', fontWeight: '600', textOutline: 'none', fontFamily: 'Inter, -apple-system, sans-serif' }},
+          inside: true,
+          align: 'center'
+        }},
+        events: {{
+          click: function(event) {{
+            const category = event.point.category;
+            const chartInstance = Highcharts.charts.find(c => c && c.renderTo && c.renderTo.id === 'diverging-bar-chart');
             
-            let selectedCategory = null;
-            const originalTickFont = { size: 11, color: '#34495e', family: 'Arial, sans-serif' };
+            if (!window.selectedCategory) window.selectedCategory = null;
             
-            chartDiv.on('plotly_click', function(data) {
-                const point = data.points[0];
-                const category = point.y;
-                
-                if (selectedCategory === category) {
-                    resetFilter();
-                } else {
-                    applyFilter(category);
-                }
-            });
+            if (window.selectedCategory === category) {{
+              window.selectedCategory = null;
+              chartInstance.series.forEach(s => {{
+                s.data.forEach((point, idx) => {{
+                  point.update({{ opacity: 0.85 }}, false);
+                }});
+              }});
+              document.dispatchEvent(new CustomEvent('categoryFilterReset', {{ bubbles: true }}));
+            }} else {{
+              window.selectedCategory = category;
+              chartInstance.series.forEach(s => {{
+                s.data.forEach((point, idx) => {{
+                  const opacity = point.category === category ? 1.0 : 0.3;
+                  point.update({{ opacity: opacity }}, false);
+                }});
+              }});
+              document.dispatchEvent(new CustomEvent('categoryFiltered', {{ detail: {{ category: category }}, bubbles: true }}));
+            }}
             
-            function applyFilter(category) {
-                selectedCategory = category;
-                chartDiv.setAttribute('data-selected-category', category);
-                setTimeout(() => {
-                    const event = new CustomEvent('categoryFiltered', { detail: { category: category }, bubbles: true });
-                    document.dispatchEvent(event);
-                }, 10);
-                
-                const categoryIndex = chartDiv.data[0].y.indexOf(category);
-                const barUpdate = { 'marker.opacity': [], 'marker.line.width': [] };
-                
-                chartDiv.data.forEach((trace) => {
-                    const opacities = [];
-                    const lineWidths = [];
-                    trace.y.forEach((cat) => {
-                        if (cat === category) { opacities.push(1.0); lineWidths.push(3); } else { opacities.push(0.25); lineWidths.push(1); }
-                    });
-                    barUpdate['marker.opacity'].push(opacities);
-                    barUpdate['marker.line.width'].push(lineWidths);
-                });
-                
-                Plotly.restyle(chartDiv, barUpdate);
-                
-                const tickColors = chartDiv.data[0].y.map(cat => cat === category ? '#e67e22' : 'rgba(52, 73, 94, 0.4)');
-                const tickSizes = chartDiv.data[0].y.map(cat => cat === category ? 13 : 11);
-                const labelUpdate = { 'yaxis.tickfont.color': tickColors, 'yaxis.tickfont.size': tickSizes };
-                Plotly.relayout(chartDiv, labelUpdate);
-                
-                setTimeout(() => {
-                    const yaxisLabels = chartDiv.querySelectorAll('.ytick text');
-                    yaxisLabels.forEach((label, idx) => {
-                        if (idx === categoryIndex) { label.style.fontWeight = 'bold'; label.style.fill = '#e67e22'; label.style.fontSize = '13px'; label.style.transition = 'all 0.3s ease'; }
-                        else { label.style.fontWeight = 'normal'; label.style.fill = 'rgba(52, 73, 94, 0.4)'; label.style.fontSize = '11px'; }
-                    });
-                }, 50);
-            }
-            
-            function resetFilter() {
-                selectedCategory = null;
-                chartDiv.removeAttribute('data-selected-category');
-                setTimeout(() => {
-                    const event = new CustomEvent('categoryFilterReset', { bubbles: true });
-                    document.dispatchEvent(event);
-                }, 10);
-                
-                const numCategories = chartDiv.data[0].y.length;
-                const fullOpacity = Array(numCategories).fill(0.9);
-                const standardWidth = Array(numCategories).fill(1.5);
-                const barUpdate = { 'marker.opacity': [fullOpacity, fullOpacity], 'marker.line.width': [standardWidth, standardWidth] };
-                Plotly.restyle(chartDiv, barUpdate);
-                
-                const originalTickFont = { size: 11, color: '#34495e', family: 'Arial, sans-serif' };
-                const labelUpdate = { 'yaxis.tickfont': originalTickFont };
-                Plotly.relayout(chartDiv, labelUpdate);
-                
-                setTimeout(() => {
-                    const yaxisLabels = chartDiv.querySelectorAll('.ytick text');
-                    yaxisLabels.forEach(label => { label.style.fontWeight = 'normal'; label.style.fill = '#34495e'; label.style.fontSize = '11px'; });
-                }, 50);
-            }
-            
-            window.chartResetFilter = resetFilter;
-            document.addEventListener('categoryFilterReset', function() { if (selectedCategory !== null) resetFilter(); });
-        }
-        
-        if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', initializeChartInteractivity); } else { initializeChartInteractivity(); }
-    })();
-    </script>
-    """
-
-    return chart_html + interactive_script
+            chartInstance.redraw();
+          }}
+        }}
+      }},
+      bar: {{
+        borderRadius: 5,
+        borderWidth: 0,
+        stacking: 'normal'
+      }}
+    }},
+    series: [
+      {{
+        name: 'Expense',
+        color: '#e74c3c',
+        data: expensePct.map((pct, idx) => ({{
+          y: -pct,
+          count: expenseCounts[idx],
+          category: categories[idx]
+        }})),
+        tooltip: {{
+          pointFormatter: function() {{
+            return '<b style="color:#e74c3c">●</b> ' + this.category + '<br/>Expense: <b>' + Math.abs(this.y).toFixed(1) + '%</b><br/>Count: <b>' + this.count + ' people</b>';
+          }}
+        }}
+      }},
+      {{
+        name: 'Income',
+        color: '#4299e1',
+        data: incomePct.map((pct, idx) => ({{
+          y: pct,
+          count: incomeCounts[idx],
+          category: categories[idx]
+        }})),
+        tooltip: {{
+          pointFormatter: function() {{
+            return '<b style="color:#4299e1">●</b> ' + this.category + '<br/>Income: <b>' + this.y.toFixed(1) + '%</b><br/>Count: <b>' + this.count + ' people</b>';
+          }}
+        }}
+      }}
+    ],
+    credits: {{ enabled: false }},
+    tooltip: {{
+      backgroundColor: 'rgba(26, 32, 44, 0.95)',
+      borderColor: '#2d3748',
+      borderRadius: 6,
+      borderWidth: 0,
+      padding: 12,
+      headerFormat: '',
+      footerFormat: '',
+      shared: false,
+      style: {{ color: 'white', fontFamily: 'Inter, -apple-system, sans-serif', fontSize: '12px' }}
+    }},
+    responsive: {{
+      rules: [{{
+        condition: {{ maxWidth: 480 }},
+        chartOptions: {{
+          xAxis: {{ labels: {{ rotation: -45, style: {{ fontSize: '9px' }} }} }},
+          chart: {{ spacing: [15, 20, 40, 15] }},
+          legend: {{ y: 0, itemDistance: 15 }},
+          title: {{ style: {{ fontSize: '14px' }} }}
+        }}
+      }}]
+    }}
+  }});
+}})();
+</script>
+"""
