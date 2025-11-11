@@ -1,11 +1,11 @@
-import plotly.graph_objects as go
+import json
 
 
 def create_education_chart(education_data):
-    fig = go.Figure()
     categories = education_data["categories"]
     colors = education_data["colors"]
 
+    # Abbreviate long category labels (preserve original for tooltip/count lookup)
     abbreviated_cats = []
     for cat in categories:
         if len(cat) > 15:
@@ -26,80 +26,113 @@ def create_education_chart(education_data):
         else:
             abbreviated_cats.append(cat)
 
-    for standing in ["Surplus", "Break-even", "Deficit"]:
-        if standing in education_data["data"]:
-            values = education_data["data"][standing]
-            hover_text = []
-            for i, cat in enumerate(categories):
-                count = education_data["total_counts"].get(cat, 0)
-                pct = values[i]
-                actual_count = int((pct / 100) * count)
-                hover_text.append(
-                    f"{cat}<br>{standing}: {pct:.1f}% ({actual_count} people)"
-                )
+    data_map = education_data["data"]
+    total_counts = education_data.get("total_counts", {})
 
-            fig.add_trace(
-                go.Bar(
-                    name=standing,
-                    x=abbreviated_cats,
-                    y=values,
-                    marker=dict(
-                        color=colors.get(standing, "#95a5a6"),
-                        line=dict(color="rgba(255,255,255,0.5)", width=1),
-                    ),
-                    hovertext=hover_text,
-                    hoverinfo="text",
-                    text=[f"{v:.0f}%" if v > 8 else "" for v in values],
-                    textposition="inside",
-                    textfont=dict(size=9, color="white"),
-                )
-            )
-
-    fig.update_layout(
-        title={
-            "text": "<b>🎓 Education vs Financial Standing</b>",
-            "x": 0.5,
-            "xanchor": "center",
-            "y": 0.98,
-            "yanchor": "top",
-            "pad": {"t": 6},  # tighten title spacing
-            "font": {"size": 14, "color": "#2c3e50"},
-        },
-        xaxis={
-            "tickfont": {"size": 8, "color": "#34495e"},
-            "showgrid": False,
-            "tickangle": -45,
-        },
-        yaxis={
-            "title": "<b>%</b>",
-            "title_font": {"size": 10, "color": "#34495e"},
-            "tickfont": {"size": 8, "color": "#34495e"},
-            "gridcolor": "rgba(189, 195, 199, 0.2)",
-            "range": [0, 100],
-        },
-        barmode="stack",
-        template="plotly_white",
-        height=480,
-        autosize=True,
-        showlegend=True,
-        legend={
-            "orientation": "h",
-            "x": 0.0,
-            "xanchor": "left",
-            "y": -0.22,  # below plot, above caption
-            "yanchor": "top",
-            "itemwidth": 90,  # wrap horizontally instead of stacking
-            "font": {"size": 9},
-            "bgcolor": "rgba(255,255,255,0.9)",
-            "bordercolor": "#e0e0e0",
-            "borderwidth": 1,
-        },
-        margin=dict(l=35, r=15, t=90, b=140),
-        hoverlabel=dict(bgcolor="white", font_size=10),
+    # Prepare Highcharts payloads
+    orig_js = json.dumps(categories)
+    abbrev_js = json.dumps(abbreviated_cats)
+    colors_js = json.dumps(colors)
+    total_counts_js = json.dumps(total_counts)
+    series_js = json.dumps(
+        [
+            {"name": "Surplus", "data": data_map.get("Surplus", [0] * len(categories))},
+            {
+                "name": "Break-even",
+                "data": data_map.get("Break-even", [0] * len(categories)),
+            },
+            {"name": "Deficit", "data": data_map.get("Deficit", [0] * len(categories))},
+        ]
     )
 
-    return fig.to_html(
-        include_plotlyjs=False,
-        div_id="education-chart",
-        config={"displayModeBar": False, "responsive": True},
-    )
+    # Return container + inline Highcharts script (layout.html already loads Highcharts)
+    return f"""
+<div id="education-chart" style="height: 480px; width: 100%;"></div>
+<script>
+(function() {{
+  const origCategories = {orig_js};
+  const categories = {abbrev_js};
+  const colors = {colors_js};
+  const totalCounts = {total_counts_js};
+  const series = {series_js}.map(s => Object.assign({{}}, s, {{ color: colors[s.name] || '#95a5a6' }}));
+
+  Highcharts.chart('education-chart', {{
+    chart: {{
+      type: 'column',
+      backgroundColor: 'transparent',
+      height: 480,
+      spacing: [6, 8, 8, 8]  // unified with employment chart
+    }},
+    title: {{
+      text: '<b>🎓 Education vs<br>Financial Standing</b>',  // add line break to match layout
+      useHTML: true,
+      align: 'center',
+      style: {{ fontSize: '14px', color: '#2c3e50', fontFamily: 'Inter, sans-serif', fontWeight: '700' }},  // add fontWeight
+      margin: 6
+    }},
+    xAxis: {{
+      categories: categories,
+      labels: {{ style: {{ fontSize: '8px', color: '#34495e' }}, rotation: -45 }},
+      lineWidth: 0,
+      tickWidth: 0
+    }},
+    yAxis: {{
+      min: 0,
+      max: 100,
+      title: {{ text: '<b>%</b>', style: {{ fontSize: '10px', color: '#34495e' }} }},
+      gridLineColor: 'rgba(189, 195, 199, 0.2)'
+    }},
+    legend: {{
+      layout: 'horizontal',
+      align: 'center',
+      verticalAlign: 'bottom',
+      itemStyle: {{ fontSize: '9px' }},
+      backgroundColor: 'rgba(255,255,255,0.9)',
+      borderColor: '#e0e0e0',
+      borderWidth: 1
+    }},
+    plotOptions: {{
+      series: {{
+        animation: false,
+        pointPadding: 0,
+        groupPadding: 0.06
+      }},
+      column: {{
+        stacking: 'normal',
+        borderWidth: 0,
+        dataLabels: {{
+          enabled: true,
+          inside: true,
+          style: {{ color: 'white', fontSize: '9px', textOutline: 'none' }},
+          formatter: function() {{
+            return this.y > 8 ? Math.round(this.y) + '%' : '';
+          }}
+        }}
+      }}
+    }},
+    tooltip: {{
+      useHTML: true,
+      formatter: function () {{
+        const i = this.point.index;
+        const fullCat = origCategories[i] || this.x;
+        const count = totalCounts[fullCat] || 0;
+        const actual = Math.round((this.y / 100) * count);
+        return `<b>${{fullCat}}</b><br>${{this.series.name}}: ${{this.y.toFixed(1)}}% (${{actual}} people)`;
+      }}
+    }},
+    series: series,
+    credits: {{ enabled: false }},
+    responsive: {{
+      rules: [{{
+        condition: {{ maxWidth: 420 }},
+        chartOptions: {{
+          legend: {{ itemDistance: 8 }},
+          xAxis: {{ labels: {{ rotation: -35 }} }},
+          plotOptions: {{ column: {{ dataLabels: {{ style: {{ fontSize: '8px' }} }} }} }}
+        }}
+      }}]
+    }}
+  }});
+}})();
+</script>
+"""

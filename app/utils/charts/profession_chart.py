@@ -51,7 +51,7 @@ def create_profession_chart(profession_data):
       text: '<b>Employment vs<br>Financial Standing</b>',
       useHTML: true,
       align: 'center',
-      style: {{ fontSize: '13px', color: '#2c3e50' }},
+      style: {{ fontSize: '14px', color: '#2c3e50', fontFamily: 'Inter, sans-serif', fontWeight: '700' }},
       margin: 6
     }},
     xAxis: {{
