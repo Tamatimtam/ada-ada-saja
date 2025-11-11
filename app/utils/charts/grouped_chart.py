@@ -39,13 +39,13 @@ def create_grouped_bar_chart(chart_data):
             "text": "💰 GenZ Income vs Expense Distribution by Category",
             "x": 0.5,
             "xanchor": "center",
-            "font": {"size": 24},
+            "font": {"size": 11},
         },
         xaxis={"title": "Category (IDR per month)"},
         yaxis={"title": "Percentage of Population (%)"},
         barmode="group",
         template="plotly_white",
-        height=600,
+        height=288,
         legend=dict(orientation="h", y=1.05, x=0.5, xanchor="center"),
     )
 

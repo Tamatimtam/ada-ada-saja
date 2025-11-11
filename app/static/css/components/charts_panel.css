@@ -2,17 +2,18 @@
 
 .charts-section-panel {
     background-color: #ffffff;
-    padding: 2rem;
+    padding: 1rem;
     border-radius: var(--border-radius);
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.05);
     border: 1px solid var(--border-color);
 }
 
 .charts-section-panel h4 {
-    font-weight: 600;
+    font-weight: 400;
     color: var(--text-primary);
     text-align: center;
-    margin-bottom: 1.5rem !important;
+    margin-bottom: 1rem !important;
+    margin-top: 10px;
     font-size: 1.4rem;
 }
 

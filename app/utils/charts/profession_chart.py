@@ -31,7 +31,7 @@ def create_profession_chart(profession_data):
                     hoverinfo="text",
                     text=[f"{v:.0f}%" if v > 8 else "" for v in values],
                     textposition="inside",
-                    textfont=dict(size=9, color="white"),
+                    textfont=dict(size=4, color="white"),
                 )
             )
 
@@ -42,23 +42,23 @@ def create_profession_chart(profession_data):
             "xanchor": "center",
             "y": 0.98,
             "yanchor": "top",
-            "pad": {"t": 8},  # increased padding top
-            "font": {"size": 7, "color": "#2c3e50"},
+            "pad": {"t": 5},  # increased padding top
+            "font": {"size": 5, "color": "#2c3e50"},
         },
         xaxis={
-            "tickfont": {"size": 8, "color": "#34495e"},
+            "tickfont": {"size": 4, "color": "#34495e"},
             "showgrid": False,
             "tickangle": -45,
         },
         yaxis={
-            "tickfont": {"size": 8, "color": "#34495e"},
+            "tickfont": {"size": 4, "color": "#34495e"},
             "gridcolor": "rgba(189, 195, 199, 0.2)",
             "range": [0, 100],
         },
         barmode="stack",
         template="plotly_white",
-        height=390,
-        width=150,
+        height=187,
+        width=72,
         showlegend=True,
         legend={
             "orientation": "h",
@@ -66,11 +66,11 @@ def create_profession_chart(profession_data):
             "xanchor": "center",
             "y": -0.3,
             "yanchor": "top",
-            "font": {"size": 9},
+            "font": {"size": 4},
             "bgcolor": "rgba(0,0,0,0)",
         },
-        margin=dict(l=0, r=30, t=50, b=10),
-        hoverlabel=dict(bgcolor="white", font_size=10),
+        margin=dict(l=0, r=14, t=24, b=5),
+        hoverlabel=dict(bgcolor="white", font_size=5),
     )
 
     return fig.to_html(

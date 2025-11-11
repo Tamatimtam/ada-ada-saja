@@ -60,13 +60,13 @@ function renderLoanChart(data) {
     }];
 
     const layout = {
-        title: { text: `<b>💳 Outstanding Loan Distribution${filterText}</b>`, x: 0.5, xanchor: 'center', font: { size: 16, color: '#2c3e50', family: 'Outfit, sans-serif' } },
+        title: { text: `<b>💳 Outstanding Loan<br>Distribution${filterText}</b>`, x: 0.5, xanchor: 'center', font: { size: 14, color: '#2c3e50', family: 'Outfit, sans-serif' } },
         annotations: [{ text: centerText, x: 0.5, y: 0.5, font: { size: 12, family: 'Outfit, sans-serif' }, showarrow: false }],
         showlegend: true,
         legend: { orientation: 'h', x: 0.5, xanchor: 'center', y: -0.08, yanchor: 'top', font: { size: 7, family: 'Outfit, sans-serif' } },
-        margin: { l: 25, r: 70, t: 35, b: 35 },
+        margin: { l: 25, r: 70, t: 55, b: 0 },
         paper_bgcolor: 'white',
-        height: 240,
+        height: 300, width: 300,
         template: 'plotly_white'
     };
 
@@ -118,7 +118,7 @@ function renderLoanPurposeChart(data, category) {
 
     const layout = {
         title: { text: `<b>🎯 ${titleText}</b>`, x: 0.5, xanchor: 'center', font: { size: 16 } },
-        height: 340, template: 'plotly_white', margin: { l: 80, r: 20, t: 50, b: 40 }, showlegend: false,
+        height: 340, width: 340, template: 'plotly_white', margin: { l: 80, r: 20, t: 50, b: 40 }, showlegend: false,
         xaxis2: { domain: [0.50, 1], anchor: 'y2', showgrid: true, range: [0, Math.max(...counts) * 1.15] },
         yaxis2: { domain: [0, 1], anchor: 'x2', autorange: 'reversed', showgrid: false, tickfont: { size: 12 } }
     };
