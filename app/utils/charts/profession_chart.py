@@ -43,7 +43,7 @@ def create_profession_chart(profession_data):
             "y": 0.98,
             "yanchor": "top",
             "pad": {"t": 8},  # increased padding top
-            "font": {"size": 13, "color": "#2c3e50"},
+            "font": {"size": 7, "color": "#2c3e50"},
         },
         xaxis={
             "tickfont": {"size": 8, "color": "#34495e"},
@@ -51,30 +51,25 @@ def create_profession_chart(profession_data):
             "tickangle": -45,
         },
         yaxis={
-            "title": "<b>%</b>",
-            "title_font": {"size": 10, "color": "#34495e"},
             "tickfont": {"size": 8, "color": "#34495e"},
             "gridcolor": "rgba(189, 195, 199, 0.2)",
             "range": [0, 100],
         },
         barmode="stack",
         template="plotly_white",
-        height=480,
-        autosize=True,
+        height=390,
+        width=150,
         showlegend=True,
         legend={
             "orientation": "h",
-            "x": 0.0,  # start from left edge
-            "xanchor": "left",
-            "y": -0.22,  # below plot, above caption
+            "x": 0.5,
+            "xanchor": "center",
+            "y": -0.3,
             "yanchor": "top",
-            "itemwidth": 70,  # width per legend item (enables horizontal wrap)
             "font": {"size": 9},
-            "bgcolor": "rgba(255,255,255,0.9)",
-            "bordercolor": "#e0e0e0",
-            "borderwidth": 1,
+            "bgcolor": "rgba(0,0,0,0)",
         },
-        margin=dict(l=35, r=15, t=90, b=140),  # room for bottom legend
+        margin=dict(l=0, r=30, t=50, b=10),
         hoverlabel=dict(bgcolor="white", font_size=10),
     )
 

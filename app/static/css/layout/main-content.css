@@ -1,0 +1,11 @@
+/* app/static/css/layout/main-content.css */
+.main-content-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    width: 100%;
+}
+
+.full-width-row {
+    grid-column: 1 / -1;
+}

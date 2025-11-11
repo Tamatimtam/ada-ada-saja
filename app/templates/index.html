@@ -20,8 +20,17 @@
 
         <!-- Right Main Content Panel -->
         <main class="right-panel">
-            {% include 'components/visual_analytics.html' %}
-            {% include 'components/loan_overview.html' %}
+            <div class="main-content-grid">
+                <div class="grid-item">
+                    {% include 'components/visual_analytics.html' %}
+                </div>
+                <div class="grid-item">
+                    {% include 'components/loan_overview.html' %}
+                </div>
+                <div class="full-width-row">
+                    {% include 'components/digital_time_spent.html' %}
+                </div>
+            </div>
         </main>
     </div>
 </div>

@@ -17,7 +17,7 @@ def create_diverging_bar_chart(chart_data):
             x=[-pct for pct in expense_pct],
             orientation="h",
             marker=dict(
-                color="#e74c3c", line=dict(color="#c0392b", width=1.5), opacity=0.9
+                color="#e74c3c", line=dict(color="#c0392b", width=0.5), opacity=0.9
             ),
             text=[f"{pct:.1f}%" for pct in expense_pct],
             textposition="inside",
@@ -35,7 +35,7 @@ def create_diverging_bar_chart(chart_data):
             x=income_pct,
             orientation="h",
             marker=dict(
-                color="#3498db", line=dict(color="#2980b9", width=1.5), opacity=0.9
+                color="#3498db", line=dict(color="#2980b9", width=0.5), opacity=0.9
             ),
             text=[f"{pct:.1f}%" for pct in income_pct],
             textposition="inside",
@@ -51,15 +51,15 @@ def create_diverging_bar_chart(chart_data):
             "text": '<b>⚖️ Income vs Expense Distribution</b><br><sub style="font-size:11px; color:#7f8c8d; font-weight:normal;">Click any bar to highlight category • Click again to deselect</sub>',
             "x": 0.5,
             "xanchor": "center",
-            "font": {"size": 17, "family": "Arial, sans-serif", "color": "#2c3e50"},
+            "font": {"size": 13, "family": "Arial, sans-serif", "color": "#2c3e50"},
         },
         barmode="overlay",
         xaxis={
             "title": "<b>Percentage of Population</b>",
             "tickvals": [-40, -30, -20, -10, 0, 10, 20, 30, 40],
             "ticktext": ["40%", "30%", "20%", "10%", "0%", "10%", "20%", "30%", "40%"],
-            "title_font": {"size": 13, "color": "#34495e"},
-            "tickfont": {"size": 11, "color": "#34495e"},
+            "title_font": {"size": 9, "color": "#34495e"},
+            "tickfont": {"size": 9, "color": "#34495e"},
             "gridcolor": "rgba(189, 195, 199, 0.3)",
             "zeroline": True,
             "zerolinewidth": 2,
@@ -67,14 +67,14 @@ def create_diverging_bar_chart(chart_data):
         },
         yaxis={
             "title": "<b>Financial Category (IDR/month)</b>",
-            "title_font": {"size": 13, "color": "#34495e"},
-            "tickfont": {"size": 11, "color": "#34495e"},
+            "title_font": {"size": 9, "color": "#34495e"},
+            "tickfont": {"size": 9, "color": "#34495e"},
             "gridcolor": "rgba(189, 195, 199, 0.2)",
             "side": "left",
         },
         template="plotly_white",
-        height=480,
-        autosize=True,
+        height=400,
+        width=300,
         showlegend=True,
         legend=dict(
             orientation="h",
@@ -82,15 +82,15 @@ def create_diverging_bar_chart(chart_data):
             y=-0.18,
             xanchor="center",
             x=0.5,
-            font={"size": 12, "color": "#2c3e50"},
+            font={"size": 8, "color": "#2c3e50"},
             bgcolor="rgba(255, 255, 255, 0.9)",
             bordercolor="#bdc3c7",
             borderwidth=1,
         ),
         plot_bgcolor="rgba(250, 250, 250, 1)",
         paper_bgcolor="white",
-        margin=dict(l=150, r=30, t=90, b=110),
-        hoverlabel=dict(bgcolor="white", font_size=12, font_family="Arial, sans-serif"),
+        margin=dict(l=70, r=30, t=90, b=5),
+        hoverlabel=dict(bgcolor="white", font_size=10, font_family="Arial, sans-serif"),
     )
 
     chart_html = fig.to_html(
