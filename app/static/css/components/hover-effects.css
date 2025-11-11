@@ -1,0 +1,16 @@
+/* Smooth transition for hover effects on left panel cards */
+.card-knowledge,
+.card-behavior,
+.card-wellbeing,
+.hero-section {
+    transition: transform 0.3s ease-out, box-shadow 0.3s ease-out;
+}
+
+/* On hover, lift and add a shadow */
+.card-knowledge:hover,
+.card-behavior:hover,
+.card-wellbeing:hover,
+.hero-section:hover {
+    transform: translateY(-4px) scale(1.02);
+    box-shadow: 0px 15px 25px rgba(0, 0, 0, 0.12);
+}
