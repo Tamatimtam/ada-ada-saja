@@ -1,85 +1,122 @@
-import plotly.graph_objects as go
+import json
 
 
 def create_profession_chart(profession_data):
-    fig = go.Figure()
     categories = profession_data["categories"]
     colors = profession_data["colors"]
+    data_map = profession_data["data"]
+    total_counts = profession_data.get("total_counts", {})
 
-    for standing in ["Surplus", "Break-even", "Deficit"]:
-        if standing in profession_data["data"]:
-            values = profession_data["data"][standing]
-            hover_text = []
-            for i, cat in enumerate(categories):
-                count = profession_data["total_counts"].get(cat, 0)
-                pct = values[i]
-                actual_count = int((pct / 100) * count)
-                hover_text.append(
-                    f"{cat}<br>{standing}: {pct:.1f}% ({actual_count} people)"
-                )
+    # Build Highcharts-ready payloads
+    categories_js = json.dumps(categories)
+    colors_js = json.dumps(
+        colors
+    )  # {"Surplus":"#..","Break-even":"#..","Deficit":"#.."}
+    total_counts_js = json.dumps(total_counts)
 
-            fig.add_trace(
-                go.Bar(
-                    name=standing,
-                    x=categories,
-                    y=values,
-                    marker=dict(
-                        color=colors.get(standing, "#95a5a6"),
-                        line=dict(color="rgba(255,255,255,0.5)", width=1),
-                    ),
-                    hovertext=hover_text,
-                    hoverinfo="text",
-                    text=[f"{v:.0f}%" if v > 8 else "" for v in values],
-                    textposition="inside",
-                    textfont=dict(size=9, color="white"),
-                )
-            )
+    surplus = data_map.get("Surplus", [0] * len(categories))
+    breakeven = data_map.get("Break-even", [0] * len(categories))
+    deficit = data_map.get("Deficit", [0] * len(categories))
 
-    fig.update_layout(
-        title={
-            "text": "<b>Employment vs<br>Financial Standing</b>",  # force line break to avoid clipping
-            "x": 0.5,
-            "xanchor": "center",
-            "y": 0.98,
-            "yanchor": "top",
-            "pad": {"t": 8},  # increased padding top
-            "font": {"size": 13, "color": "#2c3e50"},
-        },
-        xaxis={
-            "tickfont": {"size": 8, "color": "#34495e"},
-            "showgrid": False,
-            "tickangle": -45,
-        },
-        yaxis={
-            "title": "<b>%</b>",
-            "title_font": {"size": 10, "color": "#34495e"},
-            "tickfont": {"size": 8, "color": "#34495e"},
-            "gridcolor": "rgba(189, 195, 199, 0.2)",
-            "range": [0, 100],
-        },
-        barmode="stack",
-        template="plotly_white",
-        height=480,
-        autosize=True,
-        showlegend=True,
-        legend={
-            "orientation": "h",
-            "x": 0.0,  # start from left edge
-            "xanchor": "left",
-            "y": -0.22,  # below plot, above caption
-            "yanchor": "top",
-            "itemwidth": 70,  # width per legend item (enables horizontal wrap)
-            "font": {"size": 9},
-            "bgcolor": "rgba(255,255,255,0.9)",
-            "bordercolor": "#e0e0e0",
-            "borderwidth": 1,
-        },
-        margin=dict(l=35, r=15, t=90, b=140),  # room for bottom legend
-        hoverlabel=dict(bgcolor="white", font_size=10),
+    series_js = json.dumps(
+        [
+            {"name": "Surplus", "data": surplus},
+            {"name": "Break-even", "data": breakeven},
+            {"name": "Deficit", "data": deficit},
+        ]
     )
 
-    return fig.to_html(
-        include_plotlyjs=False,
-        div_id="profession-chart",
-        config={"displayModeBar": False, "responsive": True},
-    )
+    # Return container + inline Highcharts script (layout.html already loads Highcharts)
+    return f"""
+<div id="profession-chart" style="height: 480px; width: 100%;"></div>
+<script>
+(function() {{
+  const categories = {categories_js};
+  const colors = {colors_js};
+  const totalCounts = {total_counts_js};
+  const series = {series_js}.map(s => {{
+    return Object.assign({{}}, s, {{
+      color: colors[s.name] || '#95a5a6'
+    }});
+  }});
+
+  Highcharts.chart('profession-chart', {{
+    chart: {{
+      type: 'column',
+      backgroundColor: 'transparent',
+      height: 480,
+      spacing: [6, 8, 8, 8]  // top, right, bottom, left
+    }},
+    title: {{
+      text: '<b>Employment vs<br>Financial Standing</b>',
+      useHTML: true,
+      align: 'center',
+      style: {{ fontSize: '13px', color: '#2c3e50' }},
+      margin: 6
+    }},
+    xAxis: {{
+      categories: categories,
+      labels: {{ style: {{ fontSize: '8px', color: '#34495e' }}, rotation: -45 }},
+      lineWidth: 0,
+      tickWidth: 0
+    }},
+    yAxis: {{
+      min: 0,
+      max: 100,
+      title: {{ text: '<b>%</b>', style: {{ fontSize: '10px', color: '#34495e' }} }},
+      gridLineColor: 'rgba(189, 195, 199, 0.2)'
+    }},
+    legend: {{
+      layout: 'horizontal',
+      align: 'center',
+      verticalAlign: 'bottom',
+      y: 0,
+      itemDistance: 16,
+      symbolHeight: 10,
+      symbolWidth: 10,
+      symbolPadding: 6,
+      itemStyle: {{ fontSize: '9px' }}
+    }},
+    plotOptions: {{
+      series: {{
+        animation: false,
+        pointPadding: 0,
+        groupPadding: 0.06
+      }},
+      column: {{
+        stacking: 'normal',
+        borderWidth: 0,
+        dataLabels: {{
+          enabled: true,
+          inside: true,
+          style: {{ color: 'white', fontSize: '9px', textOutline: 'none' }},
+          formatter: function() {{
+            return this.y > 8 ? Math.round(this.y) + '%' : '';
+          }}
+        }}
+      }}
+    }},
+    tooltip: {{
+      useHTML: true,
+      formatter: function () {{
+        const count = totalCounts[this.x] || 0;
+        const actual = Math.round((this.y / 100) * count);
+        return `<b>${{this.x}}</b><br>${{this.series.name}}: ${{this.y.toFixed(1)}}% (${{actual}} people)`;
+      }}
+    }},
+    series: series,
+    credits: {{ enabled: false }},
+    responsive: {{
+      rules: [{{
+        condition: {{ maxWidth: 420 }},
+        chartOptions: {{
+          legend: {{ itemDistance: 8 }},
+          xAxis: {{ labels: {{ rotation: -35 }} }},
+          plotOptions: {{ column: {{ dataLabels: {{ style: {{ fontSize: '8px' }} }} }} }}
+        }}
+      }}]
+    }}
+  }});
+}})();
+</script>
+"""
