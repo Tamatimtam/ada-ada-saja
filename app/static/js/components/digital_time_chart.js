@@ -64,7 +64,7 @@ function renderDigitalTimeChart(responseData, category) {
     const chartTitle = `<b>📱 Digital Time Spent Distribution</b><br><span style="font-size:12px; color:#7f8c8d;">${stats.count} Respondents ${titleCategory}</span>`;
 
     const layout = {
-        title: { text: chartTitle, x: 0.5, xanchor: 'center', font: { size: 16, family: 'Outfit, sans-serif' } },
+        title: { text: chartTitle, x: 0.5, xanchor: 'center', font: { size: 14, family: 'Outfit, sans-serif' } },
         xaxis: { title: 'Digital Time Spent per Day (hours)' },
         yaxis: { title: 'Number of Respondents' },
         annotations: [{
@@ -73,9 +73,9 @@ function renderDigitalTimeChart(responseData, category) {
         }],
         barmode: 'overlay', showlegend: true,
         legend: { orientation: 'h', y: -0.2, x: 0.5, xanchor: 'center' },
-        height: 180, margin: { l: 60, r: 30, t: 30, b: 50 },
+        height: 160, margin: { l: 60, r: 30, t: 30, b: 50 },
         template: 'plotly_white',
-        font: { family: 'Outfit, sans-serif' }
+        font: { family: 'Outfit, sans-serif', size: 10 }
     };
 
     Plotly.newPlot(chartDiv, [histogramTrace, kdeTrace, baselineKdeTrace], layout, { displayModeBar: false, responsive: true });
