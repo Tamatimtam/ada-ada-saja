@@ -62,7 +62,7 @@ function renderLoanChart(data) {
     const layout = {
         title: { text: `<b>💳 Outstanding Loan<br>Distribution${filterText}</b>`, x: 0.5, xanchor: 'center', font: { size: 8, color: '#2c3e50', family: 'Outfit, sans-serif' } },
         annotations: [{ text: centerText, x: 0.5, y: 0.5, font: { size: 7, family: 'Outfit, sans-serif' }, showarrow: false }],
-        showlegend: true,
+        showlegend: false,
         // legend: { orientation: 'h', legend_title_text: "", x: 0.5, xanchor: 'center', y: -0.08, yanchor: 'top', font: { size: 7, family: 'Outfit, sans-serif' } },
         legend: {
             orientation: 'h',
@@ -78,7 +78,7 @@ function renderLoanChart(data) {
             valign: 'top',
             traceorder: 'normal'
         },
-        margin: { l: 15, r: 15, t: 15, b: 30 }, // Increased bottom margin
+        margin: { l: 15, r: 15, t: 35, b: 5 }, // Increased bottom margin
         paper_bgcolor: 'white',
         height: 140, width: 140,
         template: 'plotly_white'
