@@ -11,7 +11,7 @@ function initCardHoverAnimations() {
         tl.to(card, {
             scale: 1.02,
             y: -4,
-            boxShadow: '0px 15px 25px rgba(0,0,0,0.12)',
+            /* boxShadow: '0px 15px 25px rgba(0,0,0,0.12)', */
             duration: 0.3,
             ease: 'power2.out'
         });

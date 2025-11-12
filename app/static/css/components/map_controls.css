@@ -68,7 +68,7 @@
 }
 
 .map-controls .dropdown-options li:hover {
-    background-color: var(--ui-subtle-bg);
+    /* background-color: var(--ui-subtle-bg); */
 }
 
 .map-control-button {

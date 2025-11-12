@@ -101,7 +101,7 @@
 }
 
 .dropdown-selected:hover {
-    background-color: rgba(93, 173, 226, 0.1);
+    /* background-color: rgba(93, 173, 226, 0.1); */
     /* Subtle hover effect */
     transform: translateY(-1px);
     /* Slight lift on hover */
