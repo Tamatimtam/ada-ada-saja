@@ -37,7 +37,7 @@ function chartClickHandler() {
             .then(response => response.json())
             .then(data => {
                 // Update all cards through a single, consistent function
-                updateAllScoreCards(data.scores);
+                updateAllScoreCards(data.scores, false);
 
                 // 9. Update the main anxiety score gauge.
                 updateAnxietyGauge(data.average_anxiety_score);
@@ -59,16 +59,16 @@ function normalizeFilterValue(filterBy, value) {
 }
 
 // --- NEW: centralized updater + event hook used by both click and sort paths ---
-function updateAllScoreCards(scores) {
+function updateAllScoreCards(scores, useScrollTrigger = true) {
     if (!scores) return;
-    animateCounter('scoreLiterasiFin', scores['Literasi Finansial']);
-    animateCounter('scoreLiterasiDigital', scores['Literasi Keuangan Digital']);
-    animateCounter('scorePengelolaan', scores['Pengelolaan Keuangan']);
-    animateCounter('scorePerilaku', scores['Sikap Finansial']);
-    animateCounter('scoreDisiplin', scores['Disiplin Finansial']);
+    animateCounter('scoreLiterasiFin', scores['Literasi Finansial'], 2, useScrollTrigger);
+    animateCounter('scoreLiterasiDigital', scores['Literasi Keuangan Digital'], 2, useScrollTrigger);
+    animateCounter('scorePengelolaan', scores['Pengelolaan Keuangan'], 2, useScrollTrigger);
+    animateCounter('scorePerilaku', scores['Sikap Finansial'], 2, useScrollTrigger);
+    animateCounter('scoreDisiplin', scores['Disiplin Finansial'], 2, useScrollTrigger);
     // Ensure Financial Wellbeing is always updated, too
-    animateCounter('scoreKesejahteraan', scores['Kesejahteraan Finansial']);
-    animateCounter('scoreInvestasi', scores['Investasi Aset']);
+    animateCounter('scoreKesejahteraan', scores['Kesejahteraan Finansial'], 2, useScrollTrigger);
+    animateCounter('scoreInvestasi', scores['Investasi Aset'], 2, useScrollTrigger);
 }
 
 // Expose the updater so the sorting routine can call it directly if it already has the scores
@@ -79,7 +79,7 @@ window.updateAllScoreCards = updateAllScoreCards;
 document.addEventListener('filterMetricsUpdated', (e) => {
     // Expected payload: { detail: { scores, average_anxiety_score } }
     const { scores, average_anxiety_score } = e.detail || {};
-    updateAllScoreCards(scores);
+    updateAllScoreCards(scores, false);
     if (typeof average_anxiety_score === 'number') {
         updateAnxietyGauge(average_anxiety_score);
     }
