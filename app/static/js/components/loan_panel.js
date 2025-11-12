@@ -51,8 +51,8 @@ function renderLoanChart(data) {
         hole: 0.60,
         type: 'pie',
         marker: { colors: colors, line: { color: '#ffffff', width: 2 } },
-        textposition: 'outside',
-        textfont: { size: 11, color: '#2c3e50', family: 'Outfit, sans-serif' },
+        textposition: 'inside',
+        textfont: { size: 8, color: '#2c3e50', family: 'Outfit, sans-serif' },
         hovertemplate: '<b>%{label}</b><br>%{value:.1f}% (%{customdata} people)<extra></extra>',
         customdata: counts,
         direction: 'clockwise',
@@ -63,10 +63,10 @@ function renderLoanChart(data) {
         title: { text: `<b>💳 Outstanding Loan<br>Distribution${filterText}</b>`, x: 0.5, xanchor: 'center', font: { size: 8, color: '#2c3e50', family: 'Outfit, sans-serif' } },
         annotations: [{ text: centerText, x: 0.5, y: 0.5, font: { size: 7, family: 'Outfit, sans-serif' }, showarrow: false }],
         showlegend: false,
-        legend: { orientation: 'h', x: 0.5, xanchor: 'center', y: -0.08, yanchor: 'top', font: { size: 7, family: 'Outfit, sans-serif' } },
-        margin: { l: 15, r: 42, t: 33, b: 0 },
+        legend: { orientation: 'h', legend_title_text: "", x: 0.5, xanchor: 'center', y: -0.08, yanchor: 'top', font: { size: 7, family: 'Outfit, sans-serif' } },
+        margin: { l: 15, r: 15, t: 15, b: 0 },
         paper_bgcolor: 'white',
-        height: 120, width: 120,
+        height: 140, width: 140,
         template: 'plotly_white'
     };
 
@@ -85,7 +85,7 @@ function renderLoanPurposeChart(data, category) {
 
     // Clean, consistent labels
     const labels = data.map(d => d.purpose);                 // For pie (no emoji to avoid clutter)
-    const purposesWithIcons = data.map(d => `${d.icon} ${d.purpose}`); // For bar
+    const emojis = data.map(d => d.icon); // For bar labels
     const counts = data.map(d => d.count);
     const percentages = data.map(d => d.percentage);
     const colors = data.map(d => d.color);
@@ -94,13 +94,12 @@ function renderLoanPurposeChart(data, category) {
 
     const pieTrace = {
         values: percentages,
-        labels: labels,
         type: 'pie',
         // Reduce pie size - smaller domain
         domain: { x: [0, 0.35], y: [0.15, 0.95] },
         marker: { colors: colors, line: { color: '#ffffff', width: 1.5 } },
-        textposition: 'outside',
-        textinfo: 'label+percent',
+        textposition: 'inside',
+        textinfo: 'percent',
         textfont: { size: 9, color: '#2c3e50' },
         automargin: true,
         insidetextorientation: 'auto',
@@ -110,9 +109,9 @@ function renderLoanPurposeChart(data, category) {
     };
 
     const barTrace = {
-        y: purposesWithIcons, x: counts, type: 'bar', orientation: 'h', xaxis: 'x2', yaxis: 'y2',
+        y: emojis, x: counts, type: 'bar', orientation: 'h', xaxis: 'x2', yaxis: 'y2',
         marker: { color: colors, line: { color: '#ffffff', width: 1 } },
-        text: counts.map(c => `${c}`), textposition: 'outside', textfont: { size: 7 },
+        textposition: 'outside', textfont: { size: 7 },
         hovertemplate: '<b>%{y}</b><br>Count: %{x}<extra></extra>', width: 0.6
     };
 
