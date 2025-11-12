@@ -86,6 +86,9 @@ function getChartConfig() {
         },
         legend: { enabled: false },
         credits: { enabled: false },
+        exporting: {
+            enabled: false
+        },
         // 9. The data series for the chart.
         series: [{
             name: 'Anxiety Score',
