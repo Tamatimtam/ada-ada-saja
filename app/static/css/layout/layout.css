@@ -16,6 +16,7 @@
     overflow: auto;
     /* allow internal scroll if sidebar content is long */
     padding-right: 8px;
+    z-index: 1;
 }
 
 /* Allow the main area to take remaining space and have comfortable padding */
