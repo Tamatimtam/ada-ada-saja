@@ -43,7 +43,7 @@ def create_profession_chart(profession_data):
             "y": 0.98,
             "yanchor": "top",
             "pad": {"t": 5},  # increased padding top
-            "font": {"size": 14, "color": "#2c3e50"},
+            "font": {"size": 14, "color": "#2c3e50", "family": "Stack Sans Notch, sans-serif"},
         },
         xaxis={
             "tickfont": {"size": 8, "color": "#34495e"},

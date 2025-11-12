@@ -51,7 +51,7 @@ def create_diverging_bar_chart(chart_data):
             "text": '<b>⚖️ Income vs Expense Distribution</b><br><sub style="font-size:10px; color:#7f8c8d; font-weight:normal;">Click any bar to highlight category • Click again to deselect</sub>',
             "x": 0.5,
             "xanchor": "center",
-            "font": {"size": 12, "family": "Arial, sans-serif", "color": "#2c3e50"},
+            "font": {"size": 14, "family": "Stack Sans Notch, sans-serif", "color": "#2c3e50"},
         },
         barmode="overlay",
         xaxis={
@@ -89,7 +89,7 @@ def create_diverging_bar_chart(chart_data):
         ),
         plot_bgcolor="rgba(250, 250, 250, 1)",
         paper_bgcolor="white",
-        margin=dict(l=68, r=28, t=60, b=4),
+        margin=dict(l=8, r=2, t=60, b=4),
         hoverlabel=dict(bgcolor="white", font_size=10, font_family="Arial, sans-serif"),
     )
 
