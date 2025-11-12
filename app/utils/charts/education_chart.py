@@ -79,7 +79,7 @@ def create_education_chart(education_data):
         template="plotly_white",
         height=294,
         width=188, 
-        showlegend=True,
+        showlegend=False,
         legend={
             "orientation": "h",
             "x": 0.5,

@@ -37,7 +37,7 @@ def create_profession_chart(profession_data):
 
     fig.update_layout(
         title={
-            "text": "<b>Employment vs<br>Financial Standing</b>",  # force line break to avoid clipping
+            "text": "💼<b>Employment vs<br>Financial Standing(%)</b>",  # force line break to avoid clipping
             "x": 0.5,
             "xanchor": "center",
             "y": 0.98,
@@ -59,7 +59,7 @@ def create_profession_chart(profession_data):
         template="plotly_white",
         height=294,
         width=188,
-        showlegend=True,
+        showlegend=False,
         legend={
             "orientation": "h",
             "x": 0.5,
