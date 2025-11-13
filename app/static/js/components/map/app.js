@@ -90,7 +90,7 @@ document.addEventListener('DOMContentLoaded', async function () {
         // Create the title string dynamically based on the current filter state
         const baseTitle = `${config.titlePrefix}: ${metricDetails.label}`;
         const finalTitle = state.selectedDataset === 'financial' && state.externalFilterCategory !== 'All'
-            ? `${baseTitle} (${state.externalFilterCategory})`
+            ? `${baseTitle} (Filter: ${state.externalFilterCategory})`
             : baseTitle;
 
         const common = {
@@ -119,6 +119,8 @@ document.addEventListener('DOMContentLoaded', async function () {
             initDropdown(datasetDropdown, async (selectedValue) => {
                 state.selectedDataset = selectedValue;
                 updateMetricSelector(selectedValue);
+                // When user manually selects a dataset, clear any external filter
+                state.externalFilterCategory = 'All';
                 await loadDataset(selectedValue);
                 renderMap();
             });
@@ -128,25 +130,39 @@ document.addEventListener('DOMContentLoaded', async function () {
                 renderMap();
             });
 
+            // --- START OF MODIFICATION ---
             // Listen for filter events from the main diverging bar chart
             document.addEventListener('categoryFiltered', async (e) => {
                 state.externalFilterCategory = e.detail.category;
-                // Only reload and re-render if the financial map is currently active
-                if (state.selectedDataset === 'financial') {
-                    await loadDataset(state.selectedDataset);
-                    renderMap();
+
+                // If the map isn't already showing the financial dataset, switch to it automatically
+                if (state.selectedDataset !== 'financial') {
+                    state.selectedDataset = 'financial';
+
+                    // Update the UI of the dataset dropdown to reflect the change
+                    const datasetSelectedText = datasetDropdown.querySelector('.dropdown-selected');
+                    datasetSelectedText.textContent = 'Profil Finansial Gen Z ▼';
+
+                    // Update the metric dropdown to show financial metrics
+                    updateMetricSelector('financial');
                 }
+
+                // Now, load the (now guaranteed to be financial) data and render the map
+                await loadDataset(state.selectedDataset);
+                renderMap();
             });
 
             document.addEventListener('categoryFilterReset', async () => {
+                const wasFiltered = state.externalFilterCategory !== 'All';
                 state.externalFilterCategory = 'All';
-                // Only reload and re-render if the financial map is currently active
-                if (state.selectedDataset === 'financial') {
+
+                // Only reload and re-render if a filter was active AND the financial map is currently displayed
+                if (wasFiltered && state.selectedDataset === 'financial') {
                     await loadDataset(state.selectedDataset);
                     renderMap();
                 }
             });
-
+            // --- END OF MODIFICATION ---
 
             // Initial setup
             updateMetricSelector(state.selectedDataset);
