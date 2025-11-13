@@ -57,7 +57,7 @@ def create_profession_chart(profession_data):
         },
         barmode="stack",
         template="plotly_white",
-        height=294,
+        height=264,
         width=188,
         showlegend=False,
         legend={

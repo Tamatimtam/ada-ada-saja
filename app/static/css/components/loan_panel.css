@@ -1,0 +1,32 @@
+/* static/css/components/loan_panel.css */
+
+.loan-charts-grid .custom-legend {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    gap: 8px 12px;
+    width: 100%;
+    padding-top: 8px;
+    margin-bottom: 10px;
+}
+
+.loan-charts-grid .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.loan-charts-grid .legend-color-box {
+    width: 10px;
+    height: 10px;
+    border-radius: 3px;
+    display: inline-block;
+}
+
+.loan-charts-grid .legend-label {
+    font-size: 0.6rem;
+    font-weight: 500;
+    color: #555;
+    font-family: 'Outfit', sans-serif;
+}

@@ -80,6 +80,8 @@ function renderLoanChart(data) {
     } else {
         Plotly.newPlot(chartDiv, chartData, layout, { displayModeBar: false, responsive: true });
     }
+
+    renderLegend('loan-overview-legend', categories, colorMapping);
 }
 
 function renderLoanPurposeChart(data, category) {
@@ -139,6 +141,13 @@ function renderLoanPurposeChart(data, category) {
     } else {
         Plotly.newPlot(chartDiv, chartTraces, layout, { displayModeBar: false, responsive: true });
     }
+
+    const purposeColorMapping = data.reduce((acc, item) => {
+        acc[item.purpose] = item.color;
+        return acc;
+    }, {});
+
+    renderLegend('loan-purpose-legend', labels, purposeColorMapping);
 }
 
 function updateLoanPanel(category) {
@@ -167,4 +176,21 @@ function updateLoanPurposeChart(category) {
 function initializeLoanCharts() {
     updateLoanPanel(null);
     updateLoanPurposeChart(null);
+}
+
+function renderLegend(legendId, categories, colorMapping) {
+    const legendContainer = document.getElementById(legendId);
+    if (!legendContainer) return;
+
+    const legendItems = categories.map(category => {
+        const color = colorMapping[category] || '#95a5a6';
+        return `
+            <div class="legend-item">
+                <span class="legend-color-box" style="background-color: ${color};"></span>
+                <span class="legend-label">${category}</span>
+            </div>
+        `;
+    }).join('');
+
+    legendContainer.innerHTML = legendItems;
 }

@@ -17,6 +17,21 @@
     <div class="viz-panel viz-side" id="profession-panel">
         <div class="viz-content">
             {{ profession_chart|safe }}
+            <!-- MODIFICATION: Custom Legend Added -->
+            <div class="custom-legend">
+                <div class="legend-item">
+                    <span class="legend-color-box" style="background-color: var(--chart-surplus);"></span>
+                    <span class="legend-label">Surplus</span>
+                </div>
+                <div class="legend-item">
+                    <span class="legend-color-box" style="background-color: var(--chart-break-even);"></span>
+                    <span class="legend-label">Break-Even</span>
+                </div>
+                <div class="legend-item">
+                    <span class="legend-color-box" style="background-color: var(--chart-deficit);"></span>
+                    <span class="legend-label">Deficit</span>
+                </div>
+            </div>
         </div>
         <div class="viz-footer">
             <small class="text-muted">
@@ -29,6 +44,21 @@
     <div class="viz-panel viz-side" id="education-panel">
         <div class="viz-content">
             {{ education_chart|safe }}
+            <!-- MODIFICATION: Custom Legend Added -->
+            <div class="custom-legend">
+                <div class="legend-item">
+                    <span class="legend-color-box" style="background-color: var(--chart-surplus);"></span>
+                    <span class="legend-label">Surplus</span>
+                </div>
+                <div class="legend-item">
+                    <span class="legend-color-box" style="background-color: var(--chart-break-even);"></span>
+                    <span class="legend-label">Break-Even</span>
+                </div>
+                <div class="legend-item">
+                    <span class="legend-color-box" style="background-color: var(--chart-deficit);"></span>
+                    <span class="legend-label">Deficit</span>
+                </div>
+            </div>
         </div>
         <div class="viz-footer">
             <small class="text-muted">

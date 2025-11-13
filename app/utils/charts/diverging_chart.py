@@ -73,7 +73,7 @@ def create_diverging_bar_chart(chart_data):
             "side": "left",
         },
         template="plotly_white",
-        height=304,
+        height=274,
         width=328,
         showlegend=True,
         legend=dict(

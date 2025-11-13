@@ -49,6 +49,7 @@
 .viz-content {
     flex: 1;
     display: flex;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
     width: 100%;
@@ -62,15 +63,57 @@
 }
 
 .viz-footer {
-    padding: 5px 7px;
+    padding: 8px 7px;
     text-align: center;
     border-top: 1px solid #e9ecef;
     background: rgba(248, 249, 250, 0.7);
     flex-shrink: 0;
-    font-size: 0.6rem;
-    font-weight: 500;
+
+    /* MODIFICATION: Use Flexbox for better alignment */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    /* Space between legend and text */
 }
 
 .viz-footer strong {
     color: #e67e22;
+}
+
+
+/* NEW: Custom Legend Styles */
+.custom-legend {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 12px;
+    /* Space between legend items */
+    width: 100%;
+    padding-top: 4px;
+    /* Add a little space above */
+    margin-bottom: 10px;
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    /* Space between color box and label */
+}
+
+.legend-color-box {
+    width: 10px;
+    height: 10px;
+    border-radius: 3px;
+    display: inline-block;
+}
+
+.legend-label {
+    font-size: 0.6rem;
+    /* Match footer text size */
+    font-weight: 500;
+    color: #555;
+    font-family: 'Outfit', sans-serif;
 }
