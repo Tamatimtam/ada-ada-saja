@@ -68,7 +68,7 @@ export function renderPatternMap({
         title: {
             text: `${config.titlePrefix}: ${metricDetails.label}`,
             align: 'right',
-            style: { fontSize: '1.5rem', fontWeight: '700', color: '#2d3748' }
+            style: { fontSize: '1.5rem', fontWeight: '700', color: '#2d3748', fontFamily: "'Stack Sans Notch', sans-serif" }
         },
         subtitle: {
             text: 'Sumber data: Gelarrasa (Simulasi)',

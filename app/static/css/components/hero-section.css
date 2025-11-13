@@ -90,6 +90,7 @@
 
 /* MODIFIED: Restoring and enhancing the dropdown's visual style */
 .dropdown-selected {
+    display: inline-block; /* Add this to allow transform */
     font-weight: 700;
     color: var(--card2-bg);
     /* Use a distinct color */
@@ -97,14 +98,13 @@
     /* Add the underline */
     padding: 0 4px 2px 4px;
     /* Add some padding for a better click area */
-    transition: background-color 0.2s ease, transform 0.2s ease;
+    transition: all 0.15s ease-out;
 }
 
-.dropdown-selected:hover {
+.custom-dropdown .dropdown-selected:hover {
     /* background-color: rgba(93, 173, 226, 0.1); */
     /* Subtle hover effect */
-    transform: translateY(-1px);
-    /* Slight lift on hover */
+    transform: scale(1.05); /* Slight lift on hover */
 }
 
 .dropdown-options {

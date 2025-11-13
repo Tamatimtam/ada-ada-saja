@@ -36,7 +36,10 @@ function getChartConfig() {
         tooltip: {
             valueSuffix: ' ',
             formatter: function () {
-                return `<b>${this.x}</b><br/>Anxiety Score: ${this.y.toFixed(1)}<br/><i>Click to filter</i>`;
+                return `<b>${this.category}</b><br/>Anxiety Score: ${this.y.toFixed(1)}<br/><i>Click to filter</i>`;
+            },
+            style: {
+                fontSize: '10px'
             }
         },
         // 6. Plot options for the series.

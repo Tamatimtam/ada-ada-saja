@@ -31,6 +31,11 @@ function renderProfessionChart(chartData, category) {
         return;
     }
 
+    // If the placeholder was visible, clear it before drawing the chart
+    if (chartDiv.querySelector('.placeholder-content')) {
+        chartDiv.innerHTML = '';
+    }
+
     const traces = [];
     const standings = ["Surplus", "Break-even", "Deficit"];
 
@@ -57,17 +62,16 @@ function renderProfessionChart(chartData, category) {
         title: { text: "💼<b>Employment vs<br>Financial Standing(%)</b>", x: 0.5, xanchor: "center", y: 0.98, yanchor: "top", pad: { t: 5 }, font: { size: 14, color: "#2c3e50", family: "Stack Sans Notch, sans-serif" } },
         xaxis: { tickfont: { size: 8, color: "#34495e" }, showgrid: false, tickangle: -45 },
         yaxis: { tickfont: { size: 8, color: "#34495e" }, gridcolor: "rgba(189, 195, 199, 0.2)", range: [0, 100] },
-        barmode: "stack", template: "plotly_white", height: 294, width: 188, showlegend: false,
+        barmode: "stack", template: "plotly_white", height: 264, width: 188, showlegend: false,
         margin: { l: 20, r: 28, t: 48, b: 40 },
         hoverlabel: { bgcolor: "white", font_size: 10 }
     };
 
-    // UPDATED: Use Plotly.animate for smooth transitions
     const transitionConfig = { duration: 800, easing: 'cubic-in-out' };
 
+    // Use Plotly.animate to smoothly transition the chart data and layout
     Plotly.animate(chartDiv, { data: traces, layout: layout }, transitionConfig)
         .then(() => {
-            // Re-apply the dynamic colors after the animation completes
             styleStackedBarChart('profession-chart');
         });
 }
@@ -79,6 +83,11 @@ function renderEducationChart(chartData, category) {
     if (!chartData || !chartData.categories || chartData.categories.length === 0) {
         chartDiv.innerHTML = `<div class="placeholder-content" style="display:flex; flex-direction: column; align-items:center; justify-content:center; height:100%;"><i class="fas fa-info-circle fa-2x text-muted"></i><h6 class="mt-2" style="font-size:0.8rem; text-align:center;">No Data for<br>${category}</h6></div>`;
         return;
+    }
+
+    // If the placeholder was visible, clear it before drawing the chart
+    if (chartDiv.querySelector('.placeholder-content')) {
+        chartDiv.innerHTML = '';
     }
 
     const traces = [];
@@ -120,12 +129,11 @@ function renderEducationChart(chartData, category) {
         title: { text: "<b>🎓 Education vs<br>Financial Standing (%)</b>", x: 0.5, xanchor: "center", y: 0.98, yanchor: "top", pad: { t: 4 }, font: { size: 14, color: "#2c3e50", family: "Stack Sans Notch, sans-serif" } },
         xaxis: { tickfont: { size: 8, color: "#34495e" }, showgrid: false, tickangle: -45 },
         yaxis: { tickfont: { size: 8, color: "#34495e" }, gridcolor: "rgba(189, 195, 199, 0.2)", range: [0, 100] },
-        barmode: "stack", template: "plotly_white", height: 294, width: 188, showlegend: false,
+        barmode: "stack", template: "plotly_white", height: 264, width: 188, showlegend: false,
         margin: { l: 20, r: 28, t: 48, b: 40 },
         hoverlabel: { bgcolor: "white", font_size: 10 }
     };
 
-    // UPDATED: Use Plotly.animate for smooth transitions
     const transitionConfig = { duration: 800, easing: 'cubic-in-out' };
 
     Plotly.animate(chartDiv, { data: traces, layout: layout }, transitionConfig)
@@ -133,6 +141,7 @@ function renderEducationChart(chartData, category) {
             styleStackedBarChart('education-chart');
         });
 }
+
 
 function updateProfessionChart(category) {
     const categoryParam = category || 'All';
