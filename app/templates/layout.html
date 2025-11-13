@@ -52,6 +52,10 @@
     <script src="{{ url_for('static', filename='js/components/hero-charts.js') }}"></script>
     <script src="{{ url_for('static', filename='js/components/loan_panel.js') }}"></script>
     <script src="{{ url_for('static', filename='js/components/digital_time_chart.js') }}"></script>
+
+    <!-- ADD THE NEW SCRIPT HERE -->
+    <script src="{{ url_for('static', filename='js/components/metric_modal.js') }}"></script>
+
     <script src="{{ url_for('static', filename='js/background-shapes.js') }}"></script>
     <script src="{{ url_for('static', filename='js/counter.js') }}"></script>
     <script src="{{ url_for('static', filename='js/hover-animations.js') }}"></script>
@@ -59,7 +63,11 @@
     <script src="{{ url_for('static', filename='js/new_charts_animations.js') }}"></script>
     <script src="{{ url_for('static', filename='js/main.js') }}"></script>
     <script src="{{ url_for('static', filename='js/chart-styler.js') }}"></script>
-    <script type="module" src="{{ url_for('static', filename='js/components/map/app.js') }}"></script>
-    
-</body>
+        <script type="module" src="{{ url_for('static', filename='js/components/map/app.js') }}"></script>
+        
+        <!-- ADD THIS SCRIPT BLOCK -->
+        <script>
+            const metricsData = {{ metrics_deep_dive|tojson|safe }};
+        </script>
+    </body>
 </html>

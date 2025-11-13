@@ -1,0 +1,171 @@
+/* static/css/components/metric_modal.css */
+
+:root {
+    --modal-negative-color: #e67e22; /* Orange for negative polarity */
+    --modal-positive-color: #8e44ad; /* Purple for positive polarity */
+    --modal-chart-highlight: #3498db; /* Blue for the most common answer bar */
+}
+
+.metric-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease-in-out;
+}
+
+.metric-modal-content {
+    background-color: #fff;
+    border-radius: 16px;
+    padding: 24px 32px;
+    width: 90%;
+    max-width: 900px;
+    max-height: 90vh;
+    overflow-y: auto;
+    position: relative;
+    transform: scale(0.95);
+    transition: transform 0.3s ease-in-out;
+}
+
+.metric-modal-close {
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    font-size: 2.5rem;
+    font-weight: 300;
+    color: #aaa;
+    background: none;
+    border: none;
+    cursor: pointer;
+    line-height: 1;
+}
+
+.metric-modal-body {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.metric-group {
+    border-bottom: 1px solid #eee;
+    padding-bottom: 16px;
+}
+.metric-group:last-child {
+    border-bottom: none;
+}
+
+.metric-header {
+    margin-bottom: 12px;
+}
+
+.metric-title {
+    font-size: 1.2rem;
+    font-weight: 700;
+    margin: 0;
+}
+
+.metric-progress-bar-container {
+    width: 100%;
+    background-color: #e9ecef;
+    border-radius: 99px;
+    height: 10px;
+    margin-top: 8px;
+    display: flex;
+    align-items: center;
+}
+
+.metric-progress-bar {
+    height: 100%;
+    background-color: var(--modal-positive-color);
+    border-radius: 99px;
+    transition: width 0.5s ease-out;
+}
+
+.metric-score-label {
+    margin-left: 10px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: #495057;
+}
+
+.question-circles {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+.question-circle {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    font-size: 1rem;
+    cursor: pointer;
+    position: relative;
+    background-color: #f1f3f5;
+    color: #495057;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.question-circle:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.question-circle.active {
+    background-color: var(--modal-positive-color);
+    color: white;
+}
+
+/* Outer ring using pseudo-element */
+.question-circle::before {
+    content: '';
+    position: absolute;
+    top: -4px;
+    left: -4px;
+    right: -4px;
+    bottom: -4px;
+    border-radius: 50%;
+    border: 3px solid var(--modal-positive-color);
+}
+
+/* Negative Polarity Styling */
+.question-circle.is-negative::before {
+    border-color: var(--modal-negative-color);
+}
+.question-circle.is-negative.active {
+    background-color: var(--modal-negative-color);
+}
+
+
+/* Detail Section */
+.metric-modal-detail {
+    margin-top: 20px;
+    padding-top: 20px;
+    border-top: 2px dashed #e9ecef;
+    min-height: 180px; /* Prevent layout jump */
+}
+
+.metric-question-text {
+    font-style: italic;
+    color: #495057;
+    margin-bottom: 16px;
+    font-size: 1rem;
+    text-align: center;
+}
+
+.metric-distribution-chart {
+    width: 100%;
+    height: 150px;
+}
