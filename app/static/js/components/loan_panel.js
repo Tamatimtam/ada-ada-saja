@@ -123,8 +123,8 @@ function renderLoanPurposeChart(data, category) {
 
     const layout = {
         title: { text: `<b>🎯 ${titleText}</b>`, x: 0.5, xanchor: 'center', font: { size: 8 } },
-        height: 140, width: 220, template: 'plotly_white', margin: { l: 1, r: 12, t: 30, b: 0 }, showlegend: false,
-        xaxis2: { domain: [0.50, 1], anchor: 'y2', showgrid: true, range: [0, Math.max(...counts) * 1.15], tickfont: { size: 7 } },
+        height: 140, width: 220, template: 'plotly_white', margin: { l: 1, r: 12, t: 30, b: 20 }, showlegend: false,
+        xaxis2: { title: { text: 'Count', font: { size: 8 } }, domain: [0.50, 1], anchor: 'y2', showgrid: true, range: [0, Math.max(...counts) * 1.15], tickfont: { size: 7 } },
         yaxis2: { domain: [0, 1], anchor: 'x2', autorange: 'reversed', showgrid: false, tickfont: { size: 7 } }
     };
 

@@ -49,6 +49,7 @@ def create_profession_chart(profession_data):
             "tickfont": {"size": 8, "color": "#34495e"},
             "showgrid": False,
             "tickangle": -45,
+            "automargin": False,
         },
         yaxis={
             "tickfont": {"size": 8, "color": "#34495e"},
@@ -57,6 +58,7 @@ def create_profession_chart(profession_data):
         },
         barmode="stack",
         template="plotly_white",
+        autosize=False,
         height=264,
         width=188,
         showlegend=False,
@@ -76,5 +78,5 @@ def create_profession_chart(profession_data):
     return fig.to_html(
         include_plotlyjs=False,
         div_id="profession-chart",
-        config={"displayModeBar": False, "responsive": True},
+        config={"displayModeBar": False},
     )
