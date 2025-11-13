@@ -132,7 +132,7 @@ function updateChart(chart, state, filterBy) {
             const baseColor = '#5DADE2';
             const numScores = data.scores.length;
             const generatedColors = data.scores.map((_, index) => {
-                const brightenAmount = (index / (numScores - 1 || 1)) * 0.6;
+                const brightenAmount = (index / (numScores - 1 || 1)) * 0.4;
                 return Highcharts.color(baseColor).brighten(brightenAmount).get();
             });
 

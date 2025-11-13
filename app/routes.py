@@ -3,7 +3,8 @@ from app import app
 from app.services import (
     get_main_metrics, get_anxiety_by_category, get_filtered_metrics,
     get_visual_analytics_data, get_filtered_loan_data, get_loan_purpose_data,
-    get_digital_time_data, get_regional_data_from_file, get_financial_data_from_file
+    get_digital_time_data, get_regional_data_from_file, get_financial_data_from_file, 
+    get_profession_data, get_education_data 
 )
 
 @app.route('/')
@@ -81,3 +82,15 @@ def get_financial_data():
         return jsonify(data), 404
     return jsonify(data)
 
+
+
+# Add these new routes at the end of the file
+@app.route('/api/profession-chart/<category>')
+def api_profession_chart(category):
+    data = get_profession_data(category)
+    return jsonify(data)
+
+@app.route('/api/education-chart/<category>')
+def api_education_chart(category):
+    data = get_education_data(category)
+    return jsonify(data)

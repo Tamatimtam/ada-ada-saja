@@ -420,6 +420,84 @@ class DataLoader:
             filtered_data = baseline_data
         return {"filtered_data": filtered_data, "baseline_kde": baseline_data["kde"]}
 
+    def get_filtered_profession_chart_data(self, income_category=None):
+        if self.df is None:
+            self.load_data()
+
+        if income_category and income_category != 'All':
+            df_filtered = self.df[self.df['avg_income_category'] == income_category].copy()
+        else:
+            df_filtered = self.df.copy()
+
+        if df_filtered.empty or 'employment_status' not in df_filtered.columns or 'financial_standing' not in df_filtered.columns:
+            return {'categories': [], 'data': {}, 'colors': {}, 'total_counts': {}}
+
+        profession_standing = pd.crosstab(df_filtered['employment_status'], df_filtered['financial_standing'], normalize='index') * 100
+        employment_counts = df_filtered['employment_status'].value_counts()
+        
+        profession_standing = profession_standing.reindex(employment_counts.index)
+        
+        categories = profession_standing.index.tolist()
+        colors = {"Surplus": "#2ecc71", "Break-even": "#f39c12", "Deficit": "#e74c3c"}
+        
+        chart_data = {
+            "categories": categories,
+            "financial_standings": list(profession_standing.columns),
+            "data": {},
+            "colors": colors,
+            "total_counts": employment_counts.to_dict()
+        }
+        for standing in profession_standing.columns:
+            chart_data["data"][standing] = profession_standing[standing].round(1).tolist() if standing in profession_standing.columns else [0] * len(categories)
+        
+        return chart_data
+
+    def get_filtered_education_chart_data(self, income_category=None):
+        if self.df is None:
+            self.load_data()
+
+        if income_category and income_category != 'All':
+            df_filtered = self.df[self.df['avg_income_category'] == income_category].copy()
+        else:
+            df_filtered = self.df.copy()
+
+        if df_filtered.empty or 'education_level' not in df_filtered.columns or 'financial_standing' not in df_filtered.columns:
+            return {'categories': [], 'data': {}, 'colors': {}, 'total_counts': {}}
+            
+        education_order = [
+            "Elementary School", "Junior High School", "Senior High School",
+            "Diploma I/II/III", "Bachelor (S1)/Diploma IV", "Postgraduate"
+        ]
+        education_standing = pd.crosstab(df_filtered['education_level'], df_filtered['financial_standing'], normalize='index') * 100
+        
+        existing_education = [edu for edu in education_order if edu in education_standing.index]
+        education_standing = education_standing.reindex(existing_education)
+        
+        education_counts = df_filtered['education_level'].value_counts()
+        categories = education_standing.index.tolist()
+        colors = {"Surplus": "#2ecc71", "Break-even": "#f39c12", "Deficit": "#e74c3c"}
+        
+        chart_data = {
+            "categories": categories,
+            "financial_standings": list(education_standing.columns),
+            "data": {},
+            "colors": colors,
+            "total_counts": education_counts.to_dict()
+        }
+        for standing in education_standing.columns:
+            chart_data["data"][standing] = education_standing[standing].round(1).tolist() if standing in education_standing.columns else [0] * len(categories)
+
+        return chart_data
+
+# Add these new functions at the end of app/services.py
+
+def get_profession_data(category):
+    loader = DataLoader(NEW_DATASET_PATH)
+    return loader.get_filtered_profession_chart_data(category)
+
+def get_education_data(category):
+    loader = DataLoader(NEW_DATASET_PATH)
+    return loader.get_filtered_education_chart_data(category)
 
 def get_visual_analytics_data():
     loader = DataLoader(NEW_DATASET_PATH)
