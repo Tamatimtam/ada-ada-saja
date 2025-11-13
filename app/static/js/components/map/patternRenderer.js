@@ -60,7 +60,15 @@ export function renderPatternMap({
             map: mapData,
             backgroundColor: '#ffffff',
             style: { fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif' },
-            events: { load: function () { attachNavigationEnhancements(this); } }
+            events: {
+                load: function () {
+                    // Fit map to container on initial load to remove dead space
+                    if (this.series[0] && this.series[0].bounds) {
+                        this.mapView.fitToBounds(this.series[0].bounds, { padding: 15 });
+                    }
+                    attachNavigationEnhancements(this);
+                }
+            }
         },
         credits: { enabled: false }, // Disable Highcharts.com credit
         exporting: {
@@ -68,7 +76,7 @@ export function renderPatternMap({
         },
         title: {
             text: title, // Use the dynamic title passed from app.js
-            align: 'right',
+            align: 'left', // Change alignment from 'right' to 'left'
             style: { fontSize: '1.5rem', fontWeight: '700', color: '#2d3748' }
         },
         subtitle: {
