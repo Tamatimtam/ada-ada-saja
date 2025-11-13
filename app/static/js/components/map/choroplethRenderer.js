@@ -40,23 +40,47 @@ export function renderChoroplethMap({
             }
             return { dataClasses: dc };
         })()
-        : {
-            type: metricDetails.type,
-            // Override khusus per metrik
-            ...(selectedMetric === 'pdrb_ribu_rp'
-                ? { min: 10000, max: 1000000 }
-                : selectedMetric === 'rekening_penerima_aktif'
-                    ? { min: 1000, max: 10000000 }
-                    : selectedMetric === 'jumlah_penduduk_ribu'
-                        ? { min: 100, max: 100000 }
-                        : { min: metricDetails.type === 'logarithmic' ? 1 : null }),
-            minColor: metricDetails.minColor,
-            maxColor: metricDetails.maxColor,
-            labels: {
-                formatter: function () { return this.value ? this.value.toLocaleString('id-ID') : 'N/A'; },
-                style: { fontSize: '0.875rem', color: '#4a5568' }
+        : (() => {
+            // Use an IIFE to cleanly build the options object
+            let colorSettings = {};
+
+            // --- START OF MODIFICATION ---
+            if (selectedMetric === 'outstanding_pinjaman_miliar') {
+                // Special multi-color gradient for this metric
+                colorSettings = {
+                    stops: [
+                        [0, '#87CEFA'], // Start with Light Sky Blue for the lowest values
+                        [1, metricDetails.maxColor]    // End directly with the original dark orange
+                    ]
+                };
+            } else {
+                // Default behavior for all other metrics
+                colorSettings = {
+                    minColor: metricDetails.minColor,
+                    maxColor: metricDetails.maxColor
+                };
             }
-        };
+            // --- END OF MODIFICATION ---
+
+            return {
+                type: metricDetails.type,
+                endOnTick: false,
+                ... (selectedMetric === 'outstanding_pinjaman_miliar' || selectedMetric === 'dana_diberikan_miliar'
+                    ? { max: 100000 }
+                    : selectedMetric === 'pdrb_ribu_rp'
+                        ? { min: 10000, max: 1000000 }
+                        : selectedMetric === 'rekening_penerima_aktif'
+                            ? { min: 1000, max: 10000000 }
+                            : selectedMetric === 'jumlah_penduduk_ribu'
+                                ? { min: 100, max: 100000 }
+                                : { min: metricDetails.type === 'logarithmic' ? 1 : null }),
+                ...colorSettings, // Apply the determined color settings
+                labels: {
+                    formatter: function () { return this.value ? this.value.toLocaleString('id-ID') : 'N/A'; },
+                    style: { fontSize: '0.875rem', color: '#4a5568' }
+                }
+            };
+        })();
 
     Highcharts.mapChart(containerId, {
         chart: {
