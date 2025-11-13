@@ -287,6 +287,8 @@ class DataLoader:
                     "Student": "Student",
                     "Private Employee": "Private Employee",
                     "Civil Servant/BUMN": "Civil Servant/BUMN",
+                    # Added 'Others' to ensure it's a recognized category
+                    "Others": "Others",
                 }
             )
 
@@ -322,16 +324,14 @@ class DataLoader:
     def get_profession_chart_data(self):
         if self.df is None:
             self.load_data()
-        profession_standing = (
-            pd.crosstab(
-                self.df["employment_status"],
-                self.df["financial_standing"],
-                normalize="index",
-            )
-            * 100
-        )
+        
+        # FIX: Manual normalization to avoid division by zero
+        counts_df = pd.crosstab(self.df["employment_status"], self.df["financial_standing"])
+        profession_standing = counts_df.div(counts_df.sum(axis=1), axis=0).fillna(0) * 100
+
         employment_counts = self.df["employment_status"].value_counts()
         profession_standing = profession_standing.reindex(employment_counts.index)
+        
         categories = profession_standing.index.tolist()
         colors = {"Surplus": "#2ecc71", "Break-even": "#f39c12", "Deficit": "#e74c3c"}
         chart_data = {
@@ -360,14 +360,11 @@ class DataLoader:
             "Bachelor (S1)/Diploma IV",
             "Postgraduate",
         ]
-        education_standing = (
-            pd.crosstab(
-                self.df["education_level"],
-                self.df["financial_standing"],
-                normalize="index",
-            )
-            * 100
-        )
+        
+        # FIX: Manual normalization to avoid division by zero
+        counts_df = pd.crosstab(self.df["education_level"], self.df["financial_standing"])
+        education_standing = counts_df.div(counts_df.sum(axis=1), axis=0).fillna(0) * 100
+
         existing_education = [
             edu for edu in education_order if edu in education_standing.index
         ]
@@ -419,7 +416,11 @@ class DataLoader:
         else:
             filtered_data = baseline_data
         return {"filtered_data": filtered_data, "baseline_kde": baseline_data["kde"]}
-
+    
+    # ############################################################### #
+    # ############# START OF MODIFIED/FIXED FUNCTIONS ############### #
+    # ############################################################### #
+    
     def get_filtered_profession_chart_data(self, income_category=None):
         if self.df is None:
             self.load_data()
@@ -432,10 +433,17 @@ class DataLoader:
         if df_filtered.empty or 'employment_status' not in df_filtered.columns or 'financial_standing' not in df_filtered.columns:
             return {'categories': [], 'data': {}, 'colors': {}, 'total_counts': {}}
 
-        profession_standing = pd.crosstab(df_filtered['employment_status'], df_filtered['financial_standing'], normalize='index') * 100
+        # FIX: Perform normalization manually to prevent division-by-zero errors.
+        # This calculates counts first.
+        counts_df = pd.crosstab(df_filtered['employment_status'], df_filtered['financial_standing'])
+        # Then, it divides by the row sum. If a row sum is 0, it results in NaN, which we fill with 0.
+        profession_standing = counts_df.div(counts_df.sum(axis=1), axis=0).fillna(0) * 100
+
         employment_counts = df_filtered['employment_status'].value_counts()
         
-        profession_standing = profession_standing.reindex(employment_counts.index)
+        # Ensure that even categories with 0 count are included if they exist in the original data's categories
+        all_categories = self.df['employment_status'].astype('category').cat.categories
+        profession_standing = profession_standing.reindex(all_categories, fill_value=0).reindex(employment_counts.index)
         
         categories = profession_standing.index.tolist()
         colors = {"Surplus": "#2ecc71", "Break-even": "#f39c12", "Deficit": "#e74c3c"}
@@ -447,8 +455,11 @@ class DataLoader:
             "colors": colors,
             "total_counts": employment_counts.to_dict()
         }
-        for standing in profession_standing.columns:
-            chart_data["data"][standing] = profession_standing[standing].round(1).tolist() if standing in profession_standing.columns else [0] * len(categories)
+        for standing in ["Surplus", "Break-even", "Deficit"]:
+            if standing in profession_standing.columns:
+                 chart_data["data"][standing] = profession_standing[standing].round(1).tolist()
+            else:
+                 chart_data["data"][standing] = [0] * len(categories)
         
         return chart_data
 
@@ -468,7 +479,10 @@ class DataLoader:
             "Elementary School", "Junior High School", "Senior High School",
             "Diploma I/II/III", "Bachelor (S1)/Diploma IV", "Postgraduate"
         ]
-        education_standing = pd.crosstab(df_filtered['education_level'], df_filtered['financial_standing'], normalize='index') * 100
+        
+        # FIX: Perform normalization manually to prevent division-by-zero errors.
+        counts_df = pd.crosstab(df_filtered['education_level'], df_filtered['financial_standing'])
+        education_standing = counts_df.div(counts_df.sum(axis=1), axis=0).fillna(0) * 100
         
         existing_education = [edu for edu in education_order if edu in education_standing.index]
         education_standing = education_standing.reindex(existing_education)
@@ -484,20 +498,18 @@ class DataLoader:
             "colors": colors,
             "total_counts": education_counts.to_dict()
         }
-        for standing in education_standing.columns:
-            chart_data["data"][standing] = education_standing[standing].round(1).tolist() if standing in education_standing.columns else [0] * len(categories)
+        for standing in ["Surplus", "Break-even", "Deficit"]:
+            if standing in education_standing.columns:
+                chart_data["data"][standing] = education_standing[standing].round(1).tolist()
+            else:
+                chart_data["data"][standing] = [0] * len(categories)
 
         return chart_data
+    
+    # ############################################################# #
+    # ############# END OF MODIFIED/FIXED FUNCTIONS ############### #
+    # ############################################################# #
 
-# Add these new functions at the end of app/services.py
-
-def get_profession_data(category):
-    loader = DataLoader(NEW_DATASET_PATH)
-    return loader.get_filtered_profession_chart_data(category)
-
-def get_education_data(category):
-    loader = DataLoader(NEW_DATASET_PATH)
-    return loader.get_filtered_education_chart_data(category)
 
 def get_visual_analytics_data():
     loader = DataLoader(NEW_DATASET_PATH)
@@ -525,6 +537,15 @@ def get_loan_purpose_data(category):
 def get_digital_time_data(category):
     loader = DataLoader(NEW_DATASET_PATH)
     return loader.get_filtered_engagement_data(category)
+
+# ADDED: New service functions for the new filtered endpoints
+def get_profession_data(category):
+    loader = DataLoader(NEW_DATASET_PATH)
+    return loader.get_filtered_profession_chart_data(category)
+
+def get_education_data(category):
+    loader = DataLoader(NEW_DATASET_PATH)
+    return loader.get_filtered_education_chart_data(category)
 
 
 # --- Functions for Map Panel ---

@@ -13,21 +13,20 @@ function renderDigitalTimeChart(responseData, category) {
     const chartDiv = document.getElementById('digital-time-chart');
     if (!chartDiv) return;
 
-    // Clear placeholder
-    chartDiv.innerHTML = '';
-
     const { filtered_data, baseline_kde } = responseData;
     const { stats, histogram, kde } = filtered_data;
 
     if (stats.count === 0) {
-        chartDiv.innerHTML = `<div class="placeholder-content"><i class="fas fa-info-circle fa-2x text-muted"></i><h6 class="mt-2">No Digital Engagement Data</h6></div>`;
+        chartDiv.innerHTML = `<div class="placeholder-content" style="display:flex; flex-direction: column; align-items:center; justify-content:center; height:100%;"><i class="fas fa-info-circle fa-2x text-muted"></i><h6 class="mt-2">No Digital Engagement Data</h6></div>`;
         return;
     }
 
-    // MODIFIED: Read main color from CSS variables
-    const mainColor = getCssVariable('--chart-digital-main');
+    // Clear placeholder if it was there
+    if (chartDiv.querySelector('.placeholder-content')) {
+        chartDiv.innerHTML = '';
+    }
 
-    // Helper to convert hex to rgba
+    const mainColor = getCssVariable('--chart-digital-main');
     const hexToRgba = (hex, alpha) => {
         const r = parseInt(hex.slice(1, 3), 16);
         const g = parseInt(hex.slice(3, 5), 16);
@@ -78,7 +77,19 @@ function renderDigitalTimeChart(responseData, category) {
         font: { family: 'Outfit, sans-serif', size: 10 }
     };
 
-    Plotly.newPlot(chartDiv, [histogramTrace, kdeTrace, baselineKdeTrace], layout, { displayModeBar: false, responsive: true });
+    const chartTraces = [histogramTrace, kdeTrace, baselineKdeTrace];
+
+    // UPDATED: Use Plotly.animate for smooth transitions
+    const transitionConfig = {
+        duration: 800,
+        easing: 'cubic-in-out'
+    };
+
+    if (chartDiv.data) {
+        Plotly.animate(chartDiv, { data: chartTraces, layout: layout }, transitionConfig);
+    } else {
+        Plotly.newPlot(chartDiv, chartTraces, layout, { displayModeBar: false, responsive: true });
+    }
 }
 
 function updateDigitalTimeChart(category) {

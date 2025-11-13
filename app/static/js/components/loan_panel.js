@@ -31,7 +31,6 @@ function renderLoanChart(data) {
     const percentages = distribution.map(d => d.percentage);
     const counts = distribution.map(d => d.count);
 
-    // MODIFIED: Colors are now read from CSS variables
     const colorMapping = {
         'No Loan': getCssVariable('--chart-loan-no-loan'),
         '<5M': getCssVariable('--chart-loan-tier-1'),
@@ -63,31 +62,26 @@ function renderLoanChart(data) {
         title: { text: `<b>💳 Outstanding Loan<br>Distribution${filterText}</b>`, x: 0.5, xanchor: 'center', font: { size: 8, color: '#2c3e50', family: 'Outfit, sans-serif' } },
         annotations: [{ text: centerText, x: 0.5, y: 0.5, font: { size: 7, family: 'Outfit, sans-serif' }, showarrow: false }],
         showlegend: false,
-        // legend: { orientation: 'h', legend_title_text: "", x: 0.5, xanchor: 'center', y: -0.08, yanchor: 'top', font: { size: 7, family: 'Outfit, sans-serif' } },
-        legend: {
-            orientation: 'h',
-            y: -0.2, // Position it below the chart
-            x: 0.5,
-            xanchor: 'center',
-            font: { size: 4 }, // Extremely small font
-            itemwidth: 5, // Very small items
-            itemheight: 5, // Very small items
-            tracegroupgap: 2, // Minimal gap
-            itemsizing: 'constant',
-            bgcolor: 'transparent',
-            valign: 'top',
-            traceorder: 'normal'
-        },
-        margin: { l: 15, r: 15, t: 35, b: 5 }, // Increased bottom margin
+        legend: { orientation: 'h', y: -0.2, x: 0.5, xanchor: 'center', font: { size: 4 }, itemwidth: 5, itemheight: 5, tracegroupgap: 2, itemsizing: 'constant', bgcolor: 'transparent', valign: 'top', traceorder: 'normal' },
+        margin: { l: 15, r: 15, t: 35, b: 5 },
         paper_bgcolor: 'white',
         height: 140, width: 140,
         template: 'plotly_white'
     };
 
-    Plotly.newPlot(chartDiv, chartData, layout, { displayModeBar: false, responsive: true });
+    // UPDATED: Use Plotly.animate for smooth transitions on updates
+    const transitionConfig = {
+        duration: 800,
+        easing: 'cubic-in-out'
+    };
+
+    if (chartDiv.data) {
+        Plotly.animate(chartDiv, { data: chartData, layout: layout }, transitionConfig);
+    } else {
+        Plotly.newPlot(chartDiv, chartData, layout, { displayModeBar: false, responsive: true });
+    }
 }
 
-// NOTE: Loan Purpose chart colors are already dynamic from the backend, so no changes are needed here.
 function renderLoanPurposeChart(data, category) {
     const chartDiv = document.getElementById('loan-purpose-chart');
     if (!chartDiv) return;
@@ -97,9 +91,8 @@ function renderLoanPurposeChart(data, category) {
         return;
     }
 
-    // Clean, consistent labels
-    const labels = data.map(d => d.purpose);                 // For pie (no emoji to avoid clutter)
-    const emojis = data.map(d => d.icon); // For bar labels
+    const labels = data.map(d => d.purpose);
+    const emojis = data.map(d => d.icon);
     const counts = data.map(d => d.count);
     const percentages = data.map(d => d.percentage);
     const colors = data.map(d => d.color);
@@ -109,18 +102,15 @@ function renderLoanPurposeChart(data, category) {
     const pieTrace = {
         values: percentages,
         type: 'pie',
-        // Reduce pie size - smaller domain
         domain: { x: [0, 0.35], y: [0.15, 0.95] },
         marker: { colors: colors, line: { color: '#ffffff', width: 1.5 } },
-        textposition: 'inside',
-        textinfo: 'percent',
-        textfont: { size: 9, color: '#ffffff', weight: 'bold' },
-        automargin: true,
-        insidetextorientation: 'auto',
+        textposition: 'inside', textinfo: 'percent', textfont: { size: 9, color: '#ffffff', weight: 'bold' },
+        automargin: true, insidetextorientation: 'auto',
         hovertemplate: '<b>%{label}</b><br>%{value:.1f}%<br>(%{customdata} borrowers)<extra></extra>',
-        customdata: counts,
-        showlegend: false
+        customdata: counts, showlegend: false
     };
+
+    pieTrace.labels = labels; // Ensure labels are set for animation
 
     const barTrace = {
         y: emojis, x: counts, type: 'bar', orientation: 'h', xaxis: 'x2', yaxis: 'y2',
@@ -136,7 +126,19 @@ function renderLoanPurposeChart(data, category) {
         yaxis2: { domain: [0, 1], anchor: 'x2', autorange: 'reversed', showgrid: false, tickfont: { size: 7 } }
     };
 
-    Plotly.newPlot(chartDiv, [pieTrace, barTrace], layout, { displayModeBar: false, responsive: true });
+    const chartTraces = [pieTrace, barTrace];
+
+    // UPDATED: Use Plotly.animate for smooth transitions
+    const transitionConfig = {
+        duration: 800,
+        easing: 'cubic-in-out'
+    };
+
+    if (chartDiv.data) {
+        Plotly.animate(chartDiv, { data: chartTraces, layout: layout }, transitionConfig);
+    } else {
+        Plotly.newPlot(chartDiv, chartTraces, layout, { displayModeBar: false, responsive: true });
+    }
 }
 
 function updateLoanPanel(category) {
