@@ -12,7 +12,8 @@ document.addEventListener('DOMContentLoaded', async function () {
         currentApiData: [],
         mapData: null,
         selectedDataset: 'regional',
-        selectedMetric: null
+        selectedMetric: null,
+        externalFilterCategory: 'All' // State for the external filter
     };
 
     function initDropdown(dropdownEl, onSelect) {
@@ -44,9 +45,9 @@ document.addEventListener('DOMContentLoaded', async function () {
         const config = datasetsConfig[datasetKey];
         const metricOptions = metricDropdown.querySelector('.dropdown-options');
         const metricSelected = metricDropdown.querySelector('.dropdown-selected');
-        
+
         metricOptions.innerHTML = '';
-        
+
         let firstMetric = null;
 
         for (const [value, details] of Object.entries(config.metrics)) {
@@ -68,7 +69,12 @@ document.addEventListener('DOMContentLoaded', async function () {
 
     async function loadDataset(datasetKey) {
         try {
-            state.currentApiData = await fetchApiData(datasetsConfig[datasetKey].endpoint);
+            let endpoint = datasetsConfig[datasetKey].endpoint;
+            // Apply the external filter ONLY if the financial dataset is selected
+            if (datasetKey === 'financial' && state.externalFilterCategory !== 'All') {
+                endpoint = `/api/financial-profile/${encodeURIComponent(state.externalFilterCategory)}`;
+            }
+            state.currentApiData = await fetchApiData(endpoint);
         } catch (err) {
             console.error('Gagal memuat data API:', err);
             container.innerHTML = `<p style="color:red; text-align:center;">Gagal memuat data.</p>`;
@@ -77,10 +83,22 @@ document.addEventListener('DOMContentLoaded', async function () {
 
     function renderMap() {
         if (!state.currentApiData || !state.mapData) return;
-        
+
         const config = datasetsConfig[state.selectedDataset];
         const metricDetails = config.metrics[state.selectedMetric];
 
+        // Update map title if there's an external filter active
+        const baseTitle = `${config.titlePrefix}: ${metricDetails.label}`;
+        const finalTitle = state.selectedDataset === 'financial' && state.externalFilterCategory !== 'All'
+            ? `${baseTitle} (Filter: ${state.externalFilterCategory})`
+            : baseTitle;
+
+        // Safely update title of existing chart
+        Highcharts.charts.forEach(chart => {
+            if (chart && chart.container && chart.container.id === 'container') {
+                chart.setTitle({ text: finalTitle });
+            }
+        });
         const common = {
             mapData: state.mapData,
             currentApiData: state.currentApiData,
@@ -114,6 +132,26 @@ document.addEventListener('DOMContentLoaded', async function () {
                 state.selectedMetric = selectedValue;
                 renderMap();
             });
+
+            // Listen for filter events from the main diverging bar chart
+            document.addEventListener('categoryFiltered', async (e) => {
+                state.externalFilterCategory = e.detail.category;
+                // Only reload and re-render if the financial map is currently active
+                if (state.selectedDataset === 'financial') {
+                    await loadDataset(state.selectedDataset);
+                    renderMap();
+                }
+            });
+
+            document.addEventListener('categoryFilterReset', async () => {
+                state.externalFilterCategory = 'All';
+                // Only reload and re-render if the financial map is currently active
+                if (state.selectedDataset === 'financial') {
+                    await loadDataset(state.selectedDataset);
+                    renderMap();
+                }
+            });
+
 
             // Initial setup
             updateMetricSelector(state.selectedDataset);

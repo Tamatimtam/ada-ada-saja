@@ -324,14 +324,18 @@ class DataLoader:
     def get_profession_chart_data(self):
         if self.df is None:
             self.load_data()
-        
+
         # FIX: Manual normalization to avoid division by zero
-        counts_df = pd.crosstab(self.df["employment_status"], self.df["financial_standing"])
-        profession_standing = counts_df.div(counts_df.sum(axis=1), axis=0).fillna(0) * 100
+        counts_df = pd.crosstab(
+            self.df["employment_status"], self.df["financial_standing"]
+        )
+        profession_standing = (
+            counts_df.div(counts_df.sum(axis=1), axis=0).fillna(0) * 100
+        )
 
         employment_counts = self.df["employment_status"].value_counts()
         profession_standing = profession_standing.reindex(employment_counts.index)
-        
+
         categories = profession_standing.index.tolist()
         colors = {"Surplus": "#2ecc71", "Break-even": "#f39c12", "Deficit": "#e74c3c"}
         chart_data = {
@@ -360,10 +364,14 @@ class DataLoader:
             "Bachelor (S1)/Diploma IV",
             "Postgraduate",
         ]
-        
+
         # FIX: Manual normalization to avoid division by zero
-        counts_df = pd.crosstab(self.df["education_level"], self.df["financial_standing"])
-        education_standing = counts_df.div(counts_df.sum(axis=1), axis=0).fillna(0) * 100
+        counts_df = pd.crosstab(
+            self.df["education_level"], self.df["financial_standing"]
+        )
+        education_standing = (
+            counts_df.div(counts_df.sum(axis=1), axis=0).fillna(0) * 100
+        )
 
         existing_education = [
             edu for edu in education_order if edu in education_standing.index
@@ -416,96 +424,128 @@ class DataLoader:
         else:
             filtered_data = baseline_data
         return {"filtered_data": filtered_data, "baseline_kde": baseline_data["kde"]}
-    
+
     # ############################################################### #
     # ############# START OF MODIFIED/FIXED FUNCTIONS ############### #
     # ############################################################### #
-    
+
     def get_filtered_profession_chart_data(self, income_category=None):
         if self.df is None:
             self.load_data()
 
-        if income_category and income_category != 'All':
-            df_filtered = self.df[self.df['avg_income_category'] == income_category].copy()
+        if income_category and income_category != "All":
+            df_filtered = self.df[
+                self.df["avg_income_category"] == income_category
+            ].copy()
         else:
             df_filtered = self.df.copy()
 
-        if df_filtered.empty or 'employment_status' not in df_filtered.columns or 'financial_standing' not in df_filtered.columns:
-            return {'categories': [], 'data': {}, 'colors': {}, 'total_counts': {}}
+        if (
+            df_filtered.empty
+            or "employment_status" not in df_filtered.columns
+            or "financial_standing" not in df_filtered.columns
+        ):
+            return {"categories": [], "data": {}, "colors": {}, "total_counts": {}}
 
         # FIX: Perform normalization manually to prevent division-by-zero errors.
         # This calculates counts first.
-        counts_df = pd.crosstab(df_filtered['employment_status'], df_filtered['financial_standing'])
+        counts_df = pd.crosstab(
+            df_filtered["employment_status"], df_filtered["financial_standing"]
+        )
         # Then, it divides by the row sum. If a row sum is 0, it results in NaN, which we fill with 0.
-        profession_standing = counts_df.div(counts_df.sum(axis=1), axis=0).fillna(0) * 100
+        profession_standing = (
+            counts_df.div(counts_df.sum(axis=1), axis=0).fillna(0) * 100
+        )
 
-        employment_counts = df_filtered['employment_status'].value_counts()
-        
+        employment_counts = df_filtered["employment_status"].value_counts()
+
         # Ensure that even categories with 0 count are included if they exist in the original data's categories
-        all_categories = self.df['employment_status'].astype('category').cat.categories
-        profession_standing = profession_standing.reindex(all_categories, fill_value=0).reindex(employment_counts.index)
-        
+        all_categories = self.df["employment_status"].astype("category").cat.categories
+        profession_standing = profession_standing.reindex(
+            all_categories, fill_value=0
+        ).reindex(employment_counts.index)
+
         categories = profession_standing.index.tolist()
         colors = {"Surplus": "#2ecc71", "Break-even": "#f39c12", "Deficit": "#e74c3c"}
-        
+
         chart_data = {
             "categories": categories,
             "financial_standings": list(profession_standing.columns),
             "data": {},
             "colors": colors,
-            "total_counts": employment_counts.to_dict()
+            "total_counts": employment_counts.to_dict(),
         }
         for standing in ["Surplus", "Break-even", "Deficit"]:
             if standing in profession_standing.columns:
-                 chart_data["data"][standing] = profession_standing[standing].round(1).tolist()
+                chart_data["data"][standing] = (
+                    profession_standing[standing].round(1).tolist()
+                )
             else:
-                 chart_data["data"][standing] = [0] * len(categories)
-        
+                chart_data["data"][standing] = [0] * len(categories)
+
         return chart_data
 
     def get_filtered_education_chart_data(self, income_category=None):
         if self.df is None:
             self.load_data()
 
-        if income_category and income_category != 'All':
-            df_filtered = self.df[self.df['avg_income_category'] == income_category].copy()
+        if income_category and income_category != "All":
+            df_filtered = self.df[
+                self.df["avg_income_category"] == income_category
+            ].copy()
         else:
             df_filtered = self.df.copy()
 
-        if df_filtered.empty or 'education_level' not in df_filtered.columns or 'financial_standing' not in df_filtered.columns:
-            return {'categories': [], 'data': {}, 'colors': {}, 'total_counts': {}}
-            
+        if (
+            df_filtered.empty
+            or "education_level" not in df_filtered.columns
+            or "financial_standing" not in df_filtered.columns
+        ):
+            return {"categories": [], "data": {}, "colors": {}, "total_counts": {}}
+
         education_order = [
-            "Elementary School", "Junior High School", "Senior High School",
-            "Diploma I/II/III", "Bachelor (S1)/Diploma IV", "Postgraduate"
+            "Elementary School",
+            "Junior High School",
+            "Senior High School",
+            "Diploma I/II/III",
+            "Bachelor (S1)/Diploma IV",
+            "Postgraduate",
         ]
-        
+
         # FIX: Perform normalization manually to prevent division-by-zero errors.
-        counts_df = pd.crosstab(df_filtered['education_level'], df_filtered['financial_standing'])
-        education_standing = counts_df.div(counts_df.sum(axis=1), axis=0).fillna(0) * 100
-        
-        existing_education = [edu for edu in education_order if edu in education_standing.index]
+        counts_df = pd.crosstab(
+            df_filtered["education_level"], df_filtered["financial_standing"]
+        )
+        education_standing = (
+            counts_df.div(counts_df.sum(axis=1), axis=0).fillna(0) * 100
+        )
+
+        existing_education = [
+            edu for edu in education_order if edu in education_standing.index
+        ]
         education_standing = education_standing.reindex(existing_education)
-        
-        education_counts = df_filtered['education_level'].value_counts()
+
+        education_counts = df_filtered["education_level"].value_counts()
         categories = education_standing.index.tolist()
         colors = {"Surplus": "#2ecc71", "Break-even": "#f39c12", "Deficit": "#e74c3c"}
-        
+
         chart_data = {
             "categories": categories,
             "financial_standings": list(education_standing.columns),
             "data": {},
             "colors": colors,
-            "total_counts": education_counts.to_dict()
+            "total_counts": education_counts.to_dict(),
         }
         for standing in ["Surplus", "Break-even", "Deficit"]:
             if standing in education_standing.columns:
-                chart_data["data"][standing] = education_standing[standing].round(1).tolist()
+                chart_data["data"][standing] = (
+                    education_standing[standing].round(1).tolist()
+                )
             else:
                 chart_data["data"][standing] = [0] * len(categories)
 
         return chart_data
-    
+
     # ############################################################# #
     # ############# END OF MODIFIED/FIXED FUNCTIONS ############### #
     # ############################################################# #
@@ -538,10 +578,12 @@ def get_digital_time_data(category):
     loader = DataLoader(NEW_DATASET_PATH)
     return loader.get_filtered_engagement_data(category)
 
+
 # ADDED: New service functions for the new filtered endpoints
 def get_profession_data(category):
     loader = DataLoader(NEW_DATASET_PATH)
     return loader.get_filtered_profession_chart_data(category)
+
 
 def get_education_data(category):
     loader = DataLoader(NEW_DATASET_PATH)
@@ -549,6 +591,7 @@ def get_education_data(category):
 
 
 # --- Functions for Map Panel ---
+
 
 def clean_regional_data(df):
     df = df.rename(
@@ -662,10 +705,18 @@ def clean_and_aggregate_financial_data(df):
 
     return agg_df
 
+
 def get_regional_data_from_file():
     """Endpoint untuk data indikator ekonomi regional."""
     try:
-        df = pd.read_csv(os.path.join(os.path.dirname(__file__), "..", "dataset", "Dataset Gelarrasa - Regional_Economic_Indicators.csv"))
+        df = pd.read_csv(
+            os.path.join(
+                os.path.dirname(__file__),
+                "..",
+                "dataset",
+                "Dataset Gelarrasa - Regional_Economic_Indicators.csv",
+            )
+        )
         df_cleaned = clean_regional_data(df)
         df_final = df_cleaned.replace({np.nan: None})
         return df_final.to_dict(orient="records")
@@ -675,14 +726,38 @@ def get_regional_data_from_file():
         return {"error": str(e)}, 500
 
 
-def get_financial_data_from_file():
+# GANTI FUNGSI DI BAWAH INI
+def get_financial_data_from_file(category="All"):
     """Endpoint untuk data profil finansial Gen Z yang sudah diagregasi."""
     try:
-        df = pd.read_csv(os.path.join(os.path.dirname(__file__), "..", "dataset", "Dataset Gelarrasa - GenZ_Financial_Profile_map.csv"))
-        df_agg = clean_and_aggregate_financial_data(df)
+        # 1. Gunakan DataLoader untuk sumber data yang konsisten
+        loader = DataLoader(NEW_DATASET_PATH)
+        df = loader.load_data()
+
+        # 2. Terapkan filter kategori pendapatan jika ada
+        if category and category != "All":
+            df = df[df["avg_income_category"] == category]
+
+        # Jika setelah difilter datanya kosong, kembalikan list kosong
+        if df.empty:
+            return []
+
+        # 3. Ganti nama kolom agar sesuai dengan yang diharapkan oleh fungsi agregasi
+        # Ini adalah langkah penting untuk 'menjembatani' antara dataset utama dan fungsi agregasi peta
+        df_renamed = df.rename(
+            columns={
+                "avg_monthly_income": "avg_monthly_income (INT)",
+                "avg_monthly_expense": "avg_monthly_expense (INT)",
+            }
+        )
+
+        # 4. Panggil fungsi agregasi yang sudah ada dengan data yang sudah konsisten
+        df_agg = clean_and_aggregate_financial_data(df_renamed)
         df_final = df_agg.replace({np.nan: None})
         return df_final.to_dict(orient="records")
     except FileNotFoundError:
-        return {"error": "File dataset_gelarrasa_genzfinancialprofile.csv tidak ditemukan"}, 404
+        return {
+            "error": "File dataset_gelarrasa_genzfinancialprofile.csv tidak ditemukan"
+        }, 404
     except Exception as e:
         return {"error": str(e)}, 500

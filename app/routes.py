@@ -1,69 +1,92 @@
 from flask import render_template, jsonify
 from app import app
 from app.services import (
-    get_main_metrics, get_anxiety_by_category, get_filtered_metrics,
-    get_visual_analytics_data, get_filtered_loan_data, get_loan_purpose_data,
-    get_digital_time_data, get_regional_data_from_file, get_financial_data_from_file, 
-    get_profession_data, get_education_data 
+    get_main_metrics,
+    get_anxiety_by_category,
+    get_filtered_metrics,
+    get_visual_analytics_data,
+    get_filtered_loan_data,
+    get_loan_purpose_data,
+    get_digital_time_data,
+    get_regional_data_from_file,
+    get_financial_data_from_file,
+    get_profession_data,
+    get_education_data,
 )
 
-@app.route('/')
+
+@app.route("/")
 def index():
     main_metrics = get_main_metrics()
-    scores = main_metrics['scores']
+    scores = main_metrics["scores"]
     viz_data = get_visual_analytics_data()
 
     page_data = {
         "hero_section": {
             "title": "Gen Z Financial Dashboard",
-            "anxiety_score": main_metrics['average_anxiety_score']
+            "anxiety_score": main_metrics["average_anxiety_score"],
         },
         "knowledge_card": {
             "title": "Financial Knowledge",
-            "score_literasi_finansial": scores.get('Literasi Finansial', 0),
-            "score_literasi_digital": scores.get('Literasi Keuangan Digital', 0)
+            "score_literasi_finansial": scores.get("Literasi Finansial", 0),
+            "score_literasi_digital": scores.get("Literasi Keuangan Digital", 0),
         },
         "behavior_card": {
             "title": "Financial Behavior",
-            "score_pengelolaan": scores.get('Pengelolaan Keuangan', 0),
-            "score_perilaku": scores.get('Sikap Finansial', 0),
-            "score_disiplin": scores.get('Disiplin Finansial', 0)
+            "score_pengelolaan": scores.get("Pengelolaan Keuangan", 0),
+            "score_perilaku": scores.get("Sikap Finansial", 0),
+            "score_disiplin": scores.get("Disiplin Finansial", 0),
         },
         "wellbeing_card": {
             "title": "Financial Wellbeing",
-            "score_kesejahteraan": scores.get('Kesejahteraan Finansial', 0),
-            "score_investasi": scores.get('Investasi Aset', 0)
-        }
+            "score_kesejahteraan": scores.get("Kesejahteraan Finansial", 0),
+            "score_investasi": scores.get("Investasi Aset", 0),
+        },
     }
-    return render_template('index.html', data=page_data, chart_html=viz_data['chart_html'], profession_chart=viz_data['profession_chart'], education_chart=viz_data['education_chart'])
+    return render_template(
+        "index.html",
+        data=page_data,
+        chart_html=viz_data["chart_html"],
+        profession_chart=viz_data["profession_chart"],
+        education_chart=viz_data["education_chart"],
+    )
 
-@app.route('/data/anxiety_by/<filter_by>')
+
+@app.route("/data/anxiety_by/<filter_by>")
 def anxiety_by_filter(filter_by):
     data = get_anxiety_by_category(filter_by)
-    return jsonify(categories=data['categories'], scores=data['scores'])
+    return jsonify(categories=data["categories"], scores=data["scores"])
 
-@app.route('/api/filter_metrics/<filter_by>/<path:filter_value>')
+
+@app.route("/api/filter_metrics/<filter_by>/<path:filter_value>")
 def filtered_metrics(filter_by, filter_value):
     try:
         metrics = get_filtered_metrics(filter_by, filter_value)
-        return jsonify(scores=metrics['scores'], average_anxiety_score=metrics['average_anxiety_score'])
+        return jsonify(
+            scores=metrics["scores"],
+            average_anxiety_score=metrics["average_anxiety_score"],
+        )
     except Exception as e:
         return jsonify(error=str(e)), 500
 
-@app.route('/api/loan-filtered/<category>')
+
+@app.route("/api/loan-filtered/<category>")
 def api_loan_filtered(category):
     data = get_filtered_loan_data(category)
     return jsonify(data)
 
-@app.route('/api/loan-purpose/<category>')
+
+@app.route("/api/loan-purpose/<category>")
 def api_loan_purpose(category):
     data = get_loan_purpose_data(category)
     return jsonify(data)
 
-@app.route('/api/digital-time/<category>')
+
+@app.route("/api/digital-time/<category>")
 def api_digital_time(category):
     data = get_digital_time_data(category)
     return jsonify(data)
+
 
 @app.route("/api/data")
 def get_regional_data():
@@ -74,23 +97,24 @@ def get_regional_data():
     return jsonify(data)
 
 
-@app.route("/api/financial-profile")
-def get_financial_data():
+@app.route("/api/financial-profile/<category>")
+@app.route("/api/financial-profile", defaults={"category": "All"})
+def get_financial_data(category):
     """Endpoint untuk data profil finansial Gen Z yang sudah diagregasi."""
-    data = get_financial_data_from_file()
+    data = get_financial_data_from_file(category)
     if "error" in data:
         return jsonify(data), 404
     return jsonify(data)
 
 
-
 # Add these new routes at the end of the file
-@app.route('/api/profession-chart/<category>')
+@app.route("/api/profession-chart/<category>")
 def api_profession_chart(category):
     data = get_profession_data(category)
     return jsonify(data)
 
-@app.route('/api/education-chart/<category>')
+
+@app.route("/api/education-chart/<category>")
 def api_education_chart(category):
     data = get_education_data(category)
     return jsonify(data)
