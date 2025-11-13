@@ -271,9 +271,30 @@ class DataLoader:
         ]
 
     def load_data(self):
+        if self.df is not None:
+            return self.df
+
         if not os.path.exists(self.csv_path):
             raise FileNotFoundError(f"CSV file not found: {self.csv_path}")
         self.df = pd.read_csv(self.csv_path)
+
+        # --- BLOK PEMBERSIHAN DATA BARU ---
+        # Daftar kolom yang seharusnya numerik tapi mungkin berupa string
+        cols_to_clean = [
+            "avg_monthly_income",
+            "avg_monthly_expense",
+            "outstanding_loan",
+        ]
+
+        for col in cols_to_clean:
+            if col in self.df.columns and self.df[col].dtype == "object":
+                # Hapus semua karakter non-digit (seperti 'Rp', '.', spasi)
+                self.df[col] = (
+                    self.df[col].astype(str).str.replace(r"[^\d]", "", regex=True)
+                )
+                # Konversi kolom menjadi tipe data numerik. Jika ada error, ubah jadi NaN.
+                self.df[col] = pd.to_numeric(self.df[col], errors="coerce")
+        # --- AKHIR BLOK PEMBERSIHAN ---
 
         # Normalize employment_status column to handle variations
         if "employment_status" in self.df.columns:
@@ -287,7 +308,6 @@ class DataLoader:
                     "Student": "Student",
                     "Private Employee": "Private Employee",
                     "Civil Servant/BUMN": "Civil Servant/BUMN",
-                    # Added 'Others' to ensure it's a recognized category
                     "Others": "Others",
                 }
             )

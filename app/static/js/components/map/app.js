@@ -87,18 +87,12 @@ document.addEventListener('DOMContentLoaded', async function () {
         const config = datasetsConfig[state.selectedDataset];
         const metricDetails = config.metrics[state.selectedMetric];
 
-        // Update map title if there's an external filter active
+        // Create the title string dynamically based on the current filter state
         const baseTitle = `${config.titlePrefix}: ${metricDetails.label}`;
         const finalTitle = state.selectedDataset === 'financial' && state.externalFilterCategory !== 'All'
-            ? `${baseTitle} (Filter: ${state.externalFilterCategory})`
+            ? `${baseTitle} (${state.externalFilterCategory})`
             : baseTitle;
 
-        // Safely update title of existing chart
-        Highcharts.charts.forEach(chart => {
-            if (chart && chart.container && chart.container.id === 'container') {
-                chart.setTitle({ text: finalTitle });
-            }
-        });
         const common = {
             mapData: state.mapData,
             currentApiData: state.currentApiData,
@@ -107,7 +101,8 @@ document.addEventListener('DOMContentLoaded', async function () {
             reverseNameMapping,
             selectedMetric: state.selectedMetric,
             datasetKey: state.selectedDataset,
-            containerId: 'container'
+            containerId: 'container',
+            title: finalTitle // Pass the dynamic title to the renderer
         };
 
         if (metricDetails.vizType === 'pattern') {

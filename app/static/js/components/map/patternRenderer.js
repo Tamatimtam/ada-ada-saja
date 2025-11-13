@@ -9,6 +9,7 @@ export function renderPatternMap({
     reverseNameMapping,
     selectedMetric,
     datasetKey,
+    title, // Accept the title as a parameter
     containerId = 'container'
 }) {
     if (!currentApiData || !mapData) return;
@@ -66,7 +67,7 @@ export function renderPatternMap({
             buttons: { contextButton: { align: 'right', verticalAlign: 'bottom', y: -10 } }
         },
         title: {
-            text: `${config.titlePrefix}: ${metricDetails.label}`,
+            text: title, // Use the dynamic title passed from app.js
             align: 'right',
             style: { fontSize: '1.5rem', fontWeight: '700', color: '#2d3748' }
         },

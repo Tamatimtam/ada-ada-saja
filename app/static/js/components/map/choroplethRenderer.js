@@ -8,6 +8,7 @@ export function renderChoroplethMap({
     reverseNameMapping,
     selectedMetric,
     datasetKey,
+    title, // Accept the title as a parameter
     containerId = 'container'
 }) {
     if (!currentApiData || !mapData) return;
@@ -67,7 +68,7 @@ export function renderChoroplethMap({
         credits: { enabled: false }, // Disable Highcharts.com credit
         exporting: { buttons: { contextButton: { align: 'right', verticalAlign: 'bottom', y: -10 } } },
         title: {
-            text: `${config.titlePrefix}: ${metricDetails.label}`,
+            text: title, // Use the dynamic title passed from app.js
             align: 'right',
             style: { fontSize: '1.5rem', fontWeight: '700', color: '#2d3748' }
         },
@@ -127,10 +128,9 @@ export function renderChoroplethMap({
                     let out = `<b>${provinceData[config.keyColumn]}</b><br/>`;
                     if (selectedMetric === 'financial_balance') {
                         const balance = provinceData.financial_balance;
-                        const income = provinceData.avg_income;
-                        const expense = provinceData.avg_expense;
                         const status = balance >= 0 ? '<span style="color:#1565C0;font-weight:bold;">Surplus</span>' : '<span style="color:#C62828;font-weight:bold;">Defisit</span>';
-                        out += `Status Keuangan: ${status}<br/>--------------------<br/>Pendapatan: <b>Rp ${income?.toLocaleString('id-ID') || 'N/A'}</b><br/>Pengeluaran: <b>Rp ${expense?.toLocaleString('id-ID') || 'N/A'}</b>`;
+                        // Hanya tampilkan status, hapus detail pendapatan dan pengeluaran
+                        out += `Status Keuangan: ${status}`;
                     } else {
                         const v = provinceData[selectedMetric];
                         const formatted = v != null ? parseFloat(v).toLocaleString('id-ID') : 'N/A';
