@@ -95,6 +95,7 @@
     align-items: center;
     justify-content: center;
     position: relative;
+    max-height: 280px;
 }
 
 .chart-container .js-plotly-plot,

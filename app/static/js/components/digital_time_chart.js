@@ -74,7 +74,8 @@ function renderDigitalTimeChart(responseData, category) {
         legend: { orientation: 'h', y: -0.2, x: 0.5, xanchor: 'center' },
         height: 273, margin: { l: 20, r: 3, t: 70, b: 10 },
         template: 'plotly_white',
-        font: { family: 'Outfit, sans-serif', size: 10 }
+        font: { family: 'Outfit, sans-serif', size: 10 },
+        autosize: 'False'
     };
 
     const chartTraces = [histogramTrace, kdeTrace, baselineKdeTrace];
