@@ -22,7 +22,8 @@
     grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
     gap: 0.4rem;
     margin-bottom: 0.6rem;
-    transition: opacity 0.3s ease-in-out; /* Add transition for loading state */
+    transition: opacity 0.3s ease-in-out;
+    /* Add transition for loading state */
 }
 
 .loan-kpi-card {
@@ -42,19 +43,19 @@
 }
 
 .loan-kpi-card.primary {
-    background: linear-gradient(135deg, #5DADE2 0%, #3498db 100%);
+    background: var(--chart-loan-tier-1);
 }
 
 .loan-kpi-card.success {
-    background: linear-gradient(135deg, #1ba991 0%, #16a085 100%);
+    background: var(--chart-loan-no-loan);
 }
 
 .loan-kpi-card.warning {
-    background: linear-gradient(135deg, #ff8b53 0%, #e67e22 100%);
+    background: var(--chart-loan-tier-2);
 }
 
 .loan-kpi-card.danger {
-    background: linear-gradient(135deg, #f24f09 0%, #c0392b 100%);
+    background: var(--chart-loan-tier-4);
 }
 
 .loan-kpi-label {
@@ -97,7 +98,8 @@
     justify-content: center;
     position: relative;
     max-height: 280px;
-    transition: opacity 0.3s ease-in-out; /* Add transition for loading state */
+    transition: opacity 0.3s ease-in-out;
+    /* Add transition for loading state */
 }
 
 .chart-container.is-loading,
