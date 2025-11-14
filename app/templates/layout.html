@@ -18,6 +18,9 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/components/hover-effects.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/components/loan_panel.css') }}">
     
+    <!-- ADDED: Driver.js Tour CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/driver.js@1.0.1/dist/driver.css"/>
+    
     <!-- Define a block for any extra head content -->
     {% block head %}{% endblock %}
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.4/gsap.min.js"></script>
@@ -34,7 +37,10 @@
     <!-- Define the main content block -->
     {% block content %}{% endblock %}
 
-
+    <!-- ADDED: Tour Start Button -->
+    <button id="start-tour-btn" class="tour-button" title="Mulai Tur Dashboard">
+        <i class="fas fa-route"></i>
+    </button>
 
     <script src="{{ url_for('static', filename='js/components/lightbulb-animation.js') }}"></script>
     <script src="{{ url_for('static', filename='js/components/scales-animation.js') }}"></script>
@@ -60,6 +66,10 @@
     <script src="{{ url_for('static', filename='js/main.js') }}"></script>
     <script src="{{ url_for('static', filename='js/chart-styler.js') }}"></script>
     <script type="module" src="{{ url_for('static', filename='js/components/map/app.js') }}"></script>
+    
+    <!-- ADDED: Driver.js Tour Library and custom tour script -->
+    <script src="https://cdn.jsdelivr.net/npm/driver.js@1.0.1/dist/driver.js.iife.js"></script>
+    <script src="{{ url_for('static', filename='js/tour.js') }}"></script>
     
 </body>
 </html>
