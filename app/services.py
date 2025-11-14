@@ -5,17 +5,18 @@ from app.utils.engagement_processor import EngagementProcessor
 from app.utils.chart_generator import ChartGenerator
 import os
 import re
-from urllib.parse import quote
+from urllib.parse import quote, unquote
 
 # --- Data Loading ---
 def _load_sheet(file_name):
     path = os.path.join(os.path.dirname(__file__), "..", "dataset", file_name)
     return pd.read_csv(path)
 
-# --- Metric Calculation Logic (from METRIC_CALCULATION.md) ---
+# --- Metric Calculation Logic (Restored 'title' for deep dive compatibility) ---
 METRICS_CONFIG = {
     "Literasi Finansial": {
         "card": "knowledge",
+        "title": "Financial Knowledge", # Restored
         "questions": [
             "I am able to identify risks and discrepancies and view numbers in a complex way",
             "I am able to understand what is behind the numbers",
@@ -27,6 +28,7 @@ METRICS_CONFIG = {
     },
     "Literasi Keuangan Digital": {
         "card": "knowledge",
+        "title": "Financial Knowledge", # Restored
         "questions": [
             "Awareness about the potential of financial risk in using digital financial provider or fintech, such as the legality of the fintech provider, interest rate and transaction fee",
             "Having experience in using the product and service of fintech for digital payment",
@@ -38,6 +40,7 @@ METRICS_CONFIG = {
     },
     "Pengelolaan Keuangan": {
         "card": "behavior",
+        "title": "Financial Behavior", # Restored
         "questions": [
             "I am able to and divide it accordingly across an allotted period to the right concerned areas",
             "I am able to project the amount of cash that will be available to me in the future",
@@ -49,6 +52,7 @@ METRICS_CONFIG = {
     },
     "Sikap Finansial": {
         "card": "behavior",
+        "title": "Financial Behavior", # Restored
         "questions": [
             "I usually have a critical view of the way my friends deal with money",
             "I like to participate in family decision making when we buy something expensive for home",
@@ -65,6 +69,7 @@ METRICS_CONFIG = {
     },
     "Disiplin Finansial": {
         "card": "behavior",
+        "title": "Financial Behavior", # Restored
         "questions": [
             "I am able to plan ahead to avoid impulse spending",
             "I always try to save some money to do things I really like",
@@ -76,6 +81,7 @@ METRICS_CONFIG = {
     },
     "Kesejahteraan Finansial": {
         "card": "wellbeing",
+        "title": "Financial Wellbeing", # Restored
         "questions": [
             "I am becoming financially secure",
             "I am securing my financial future",
@@ -90,6 +96,7 @@ METRICS_CONFIG = {
     },
     "Investasi Aset": {
         "card": "wellbeing",
+        "title": "Financial Wellbeing", # Restored
         "questions": [
             "I am able to recognize a good financial investment",
             "Experience in using the product and service of fintech for financing (loan) and investment",
@@ -111,6 +118,9 @@ NEGATIVE_POLARITY_QUESTIONS = [
 ]
 
 def _calculate_scores(df):
+    if df.empty:
+        return {metric: 0 for metric in METRICS_CONFIG.keys()}
+
     df_copy = df.copy()
     for question in NEGATIVE_POLARITY_QUESTIONS:
         if question in df_copy.columns:
@@ -135,10 +145,10 @@ def get_main_metrics():
     average_anxiety_score = df_sheet1["financial_anxiety_score"].mean()
     return {"scores": scores, "average_anxiety_score": average_anxiety_score}
 
-def get_metrics_deep_dive():
-    df_sheet2 = _load_sheet("Sheet2.csv")
-    scores = _calculate_scores(df_sheet2)
-    
+# --- MERGED DEEP DIVE LOGIC ---
+
+def _build_deep_dive_structure(scores_data):
+    """Helper function to build the nested dictionary for the modal (Restored from old code)."""
     def create_question_id(q_text):
         safe_text = re.sub(r'[^a-zA-Z0-9\s]', '', q_text)
         return quote(safe_text.lower().replace(" ", "-")[:50])
@@ -148,24 +158,78 @@ def get_metrics_deep_dive():
         question_list = []
         for i, q_text in enumerate(config["questions"]):
             question_list.append({
-                "id": create_question_id(q_text), "text": q_text,
-                "is_negative": q_text in NEGATIVE_POLARITY_QUESTIONS, "number": i + 1,
+                "id": create_question_id(q_text),
+                "text": q_text,
+                "is_negative": q_text in NEGATIVE_POLARITY_QUESTIONS,
+                "number": i + 1,
             })
+        
         metrics_data[metric] = {
-            "score": scores.get(metric, 0), "card": config["card"], "questions": question_list
+            "score": scores_data.get(metric, 0),
+            "card": config["card"],
+            "title": config["title"], # Depends on "title" in METRICS_CONFIG
+            "questions": question_list
         }
     return metrics_data
 
-def get_question_distribution_data(question_text):
-    df = _load_sheet("Sheet2.csv")
-    if question_text not in df.columns:
-        return {"error": "Question not found"}, 404
-    
-    counts = df[question_text].value_counts().to_dict()
-    distribution = {str(i): counts.get(i, 0) for i in range(1, 5)}
-    most_common = max(distribution, key=distribution.get) if distribution else None
-    return {"distribution": distribution, "most_common": most_common}
+def get_metrics_deep_dive():
+    """Gets the deep dive data for the entire dataset."""
+    df_sheet2 = _load_sheet("Sheet2.csv")
+    scores = _calculate_scores(df_sheet2)
+    return _build_deep_dive_structure(scores)
 
+def _get_filtered_dataframe(filter_by, filter_value):
+    """Filters Sheet2 based on a filter from Sheet1 (Restored from old code)."""
+    df1 = _load_sheet("Sheet1.csv")
+    df2 = _load_sheet("Sheet2.csv")
+
+    if filter_by == "employment_status":
+        df1["employment_status"] = df1["employment_status"].replace({"Enterpreneur": "Entrepreneur", "enterpreneur": "Entrepreneur"})
+        filter_value = str(filter_value).replace("Enterpreneur", "Entrepreneur")
+
+    sheet1_filter_value = filter_value
+    if filter_by == "birth_year":
+        try:
+            age = int(filter_value)
+            sheet1_filter_value = 2025 - age
+        except ValueError:
+            return pd.DataFrame(), pd.DataFrame()
+
+    filtered_df1 = df1[df1[filter_by] == sheet1_filter_value]
+    
+    column_mapping = {"employment_status": "Job", "education_level": "Last Education", "gender": "Gender", "birth_year": "Year of Birth"}
+    value_mapping = {"Elementary School": "Elementary School (SD)", "Junior High School": "Junior High School (SMP)", "Senior High School": "Senior High School (SMA)"}
+    
+    sheet2_column = column_mapping.get(filter_by, filter_by)
+    sheet2_filter_value = value_mapping.get(str(sheet1_filter_value), sheet1_filter_value)
+    
+    df_filtered_sheet2 = df2[df2[sheet2_column] == sheet2_filter_value]
+    
+    return filtered_df1, df_filtered_sheet2
+
+def get_filtered_metrics_deep_dive(filter_by, filter_value):
+    """Gets the deep dive data for a specific filtered group (Restored from old code)."""
+    _, df_filtered_sheet2 = _get_filtered_dataframe(filter_by, filter_value)
+    filtered_scores = _calculate_scores(df_filtered_sheet2)
+    return _build_deep_dive_structure(filtered_scores)
+
+# --- MODIFIED: Question distribution with restored filtering logic ---
+def get_question_distribution_data(question_text, filter_by=None, filter_value=None):
+    df2 = _load_sheet("Sheet2.csv")
+
+    # Apply filters if they are provided
+    if filter_by and filter_value:
+        # Use the restored helper function to get the correct slice of data
+        _, df2 = _get_filtered_dataframe(filter_by, unquote(filter_value))
+
+    if question_text not in df2.columns:
+        return {"error": "Question not found in the dataset"}, 404
+    
+    counts = df2[question_text].value_counts().to_dict()
+    distribution = {str(int(i)): counts.get(i, 0) for i in range(1, 5)}
+    most_common = max(distribution, key=distribution.get) if distribution and sum(distribution.values()) > 0 else None
+
+    return {"distribution": distribution, "most_common": most_common}
 
 def get_anxiety_by_category(filter_by="employment_status"):
     df = _load_sheet("Sheet1.csv")
@@ -184,40 +248,21 @@ def get_anxiety_by_category(filter_by="employment_status"):
     return {"categories": anxiety_by_category[category_column].tolist(), "scores": anxiety_by_category["financial_anxiety_score"].tolist()}
 
 def get_filtered_metrics(filter_by, filter_value):
-    df1 = _load_sheet("Sheet1.csv")
-    df2 = _load_sheet("Sheet2.csv")
-
-    if filter_by == "employment_status":
-        df1["employment_status"] = df1["employment_status"].replace({"Enterpreneur": "Entrepreneur"})
-        filter_value = str(filter_value).replace("Enterpreneur", "Entrepreneur")
-
-    sheet1_filter_value = filter_value
-    if filter_by == "birth_year":
-        try:
-            age = int(filter_value)
-            sheet1_filter_value = 2025 - age
-        except ValueError:
-            return {"scores": {}, "average_anxiety_score": 0}
-
-    column_mapping = {"employment_status": "Job", "education_level": "Last Education", "gender": "Gender", "birth_year": "Year of Birth"}
-    value_mapping = {"Elementary School": "Elementary School (SD)", "Junior High School": "Junior High School (SMP)", "Senior High School": "Senior High School (SMA)"}
-
-    sheet2_column = column_mapping.get(filter_by, filter_by)
-    sheet2_filter_value = value_mapping.get(str(sheet1_filter_value), sheet1_filter_value)
+    # This function now uses the restored helper function for consistency
+    filtered_df1, df_filtered_sheet2 = _get_filtered_dataframe(filter_by, filter_value)
     
-    filtered_df1 = df1[df1[filter_by] == sheet1_filter_value]
     average_anxiety_score = filtered_df1["financial_anxiety_score"].mean()
-
-    df_filtered = df2[df2[sheet2_column] == sheet2_filter_value]
-    scores = _calculate_scores(df_filtered)
+    scores = _calculate_scores(df_filtered_sheet2)
 
     return {"scores": scores, "average_anxiety_score": average_anxiety_score}
 
+# --- REFACTORED DATA LOADING AND PROCESSING (FROM NEW CODE) ---
 NEW_DATASET_PATH = os.path.join(
     os.path.dirname(__file__), "..", "dataset", "dataset_gelarrasa_genzfinancialprofile.csv",
 )
 
 class DataLoader:
+    # This class is from your new, improved codebase and remains unchanged.
     def __init__(self, csv_path):
         self.csv_path = csv_path
         self.df = None
@@ -310,7 +355,6 @@ class DataLoader:
             chart_data["data"][standing] = education_standing[standing].round(1).tolist() if standing in education_standing.columns else [0] * len(categories)
         return chart_data
 
-    # MODIFIED: Pass filter_type and filter_value to the processor
     def get_filtered_loan_overview(self, filter_type=None, filter_value=None):
         filtered_df = self._get_filtered_df(filter_type, filter_value)
         return LoanProcessor(filtered_df).get_filtered_loan_data(filter_type, filter_value)
@@ -358,7 +402,6 @@ def get_education_data(filter_type, filter_value):
     return loader.get_filtered_education_chart_data(filter_type, filter_value)
 
 def clean_regional_data(df):
-    # This function is unchanged
     df = df.rename(columns={
         "Provinsi": "provinsi", "Jumlah Rekening Penerima Pinjaman Aktif (entitas)": "rekening_penerima_aktif",
         "Jumlah Dana yang Diberikan (Rp miliar)": "dana_diberikan_miliar", "Jumlah Rekening Pemberi Pinjaman (akun)": "rekening_pemberi",
@@ -378,7 +421,6 @@ def clean_regional_data(df):
     return df
 
 def clean_and_aggregate_financial_data(df):
-    # This function is unchanged
     numeric_cols = ["avg_monthly_income (INT)", "avg_monthly_expense (INT)", "financial_anxiety_score", "digital_time_spent_per_day"]
     for col in numeric_cols: df[col] = pd.to_numeric(df[col], errors="coerce")
     agg_functions = {
@@ -410,7 +452,6 @@ def clean_and_aggregate_financial_data(df):
     return agg_df
 
 def get_regional_data_from_file():
-    # This function is unchanged
     try:
         df = pd.read_csv(os.path.join(os.path.dirname(__file__), "..", "dataset", "Dataset Gelarrasa - Regional_Economic_Indicators.csv"))
         df_cleaned = clean_regional_data(df)

@@ -5,7 +5,8 @@ from app.services import (
     get_visual_analytics_data, get_filtered_loan_data, get_loan_purpose_data,
     get_digital_time_data, get_regional_data_from_file, get_financial_data_from_file, 
     get_profession_data, get_education_data, get_metrics_deep_dive,
-    get_question_distribution_data, METRICS_CONFIG 
+    get_question_distribution_data, METRICS_CONFIG,
+    get_filtered_metrics_deep_dive # <-- Restored this import
 )
 import re
 from urllib.parse import unquote
@@ -48,8 +49,29 @@ def index():
         metrics_deep_dive=metrics_deep_dive
     )
 
+# --- NEW: API route for unfiltered metric details (Restored from old code) ---
+@app.route('/api/metrics-deep-dive/unfiltered')
+def metrics_deep_dive_unfiltered():
+    data = get_metrics_deep_dive()
+    return jsonify(data)
+
+# --- NEW: API route for filtered metric details (Restored from old code) ---
+@app.route('/api/metrics-deep-dive/filtered/<filter_by>/<path:filter_value>')
+def metrics_deep_dive_filtered(filter_by, filter_value):
+    try:
+        # Use unquote to handle special characters in the filter value
+        data = get_filtered_metrics_deep_dive(filter_by, unquote(filter_value))
+        return jsonify(data)
+    except Exception as e:
+        return jsonify(error=str(e)), 500
+
+# --- MODIFIED: Question distribution route now accepts optional filters ---
 @app.route('/api/question-distribution/<question_id>')
 def question_distribution(question_id):
+    # Get filter parameters from the query string to match new API style
+    filter_by = request.args.get('filter_by', None)
+    filter_value = request.args.get('filter_value', None)
+    
     question_text = None
     for metric in METRICS_CONFIG.values():
         for q in metric['questions']:
@@ -64,7 +86,8 @@ def question_distribution(question_id):
     if not question_text:
         abort(404, description="Question not found for the given ID")
 
-    data = get_question_distribution_data(question_text)
+    # Pass filters to the service function
+    data = get_question_distribution_data(question_text, filter_by, filter_value)
     return jsonify(data)
 
 @app.route('/data/anxiety_by/<filter_by>')
@@ -83,7 +106,7 @@ def filtered_metrics(filter_by, filter_value):
     except Exception as e:
         return jsonify(error=str(e)), 500
 
-# --- REFACTORED ROUTES ---
+# --- REFACTORED ROUTES (Unchanged from new codebase) ---
 # All routes below now use query parameters for filtering
 
 @app.route("/api/loan-filtered")
