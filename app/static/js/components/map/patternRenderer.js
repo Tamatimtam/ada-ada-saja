@@ -77,7 +77,7 @@ export function renderPatternMap({
         },
         // --- END MODIFICATION ---
         subtitle: {
-            text: 'Sumber data: Gelarrasa (Simulasi)',
+            text: '',
             align: 'center', // Also center the subtitle to match
             style: { fontSize: '0.95rem', color: '#718096' }
         },

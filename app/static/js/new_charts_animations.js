@@ -35,8 +35,8 @@ function renderChart(chartId, chartData, filterType, filterValue, chartConfig) {
             subtitleEl.innerHTML = `Filtered by <b>${filterTypeText}: ${filterValue}</b><br><i>Based on ${totalRespondents} respondents</i>`;
         } else {
             const defaultText = chartId === 'profession-chart'
-                ? 'Employment status vs financial outcomes'
-                : "Education level's impact on stability";
+                ? 'Dampak pekerjaan terhadap kondisi finansial'
+                : "Dampak tingkat pendidikan terhadap stabilitas finansial";
             subtitleEl.textContent = defaultText;
         }
     }

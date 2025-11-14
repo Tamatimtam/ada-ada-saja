@@ -13,7 +13,7 @@ function renderDigitalTimeChart(responseData, filterType, filterValue) {
     const { stats, histogram, kde } = filtered_data;
 
     if (stats.count === 0) {
-        chartDiv.innerHTML = `<div class="placeholder-content" style="display:flex; flex-direction: column; align-items:center; justify-content:center; height:100%;"><i class="fas fa-info-circle fa-2x text-muted"></i><h6 class="mt-2">No Digital Engagement Data</h6></div>`;
+        chartDiv.innerHTML = `<div class="placeholder-content" style="display:flex; flex-direction: column; align-items:center; justify-content:center; height:100%;"><i class="fas fa-info-circle fa-2x text-muted"></i><h6 class="mt-2">Tidak Ada Data Keterlibatan Digital</h6></div>`;
         return;
     }
     if (chartDiv.querySelector('.placeholder-content')) chartDiv.innerHTML = '';
@@ -26,29 +26,29 @@ function renderDigitalTimeChart(responseData, filterType, filterValue) {
 
     const histogramTrace = {
         x: histogram.x.slice(0, -1).map((edge, i) => (edge + histogram.x[i + 1]) / 2), y: histogram.y,
-        type: 'bar', name: 'Frequency', marker: { color: hexToRgba(mainColor, 0.2), line: { color: hexToRgba(mainColor, 0.4), width: 1 } },
-        hovertemplate: 'Time: %{x:.1f} hrs<br>Count: %{y}<extra></extra>',
+        type: 'bar', name: 'Frekuensi', marker: { color: hexToRgba(mainColor, 0.2), line: { color: hexToRgba(mainColor, 0.4), width: 1 } },
+        hovertemplate: 'Waktu: %{x:.1f} jam<br>Jumlah: %{y}<extra></extra>',
     };
     const kdeTrace = {
-        x: kde.x, y: kde.y, type: 'scatter', mode: 'lines', name: 'Smoothed Trend',
+        x: kde.x, y: kde.y, type: 'scatter', mode: 'lines', name: 'Tren Halus',
         line: { color: mainColor, width: 3 }, fill: 'tozeroy', fillcolor: hexToRgba(mainColor, 0.1),
         hoverinfo: 'none'
     };
     const baselineKdeTrace = {
-        x: baseline_kde.x, y: baseline_kde.y, type: 'scatter', mode: 'lines', name: 'Overall Trend',
+        x: baseline_kde.x, y: baseline_kde.y, type: 'scatter', mode: 'lines', name: 'Tren Keseluruhan',
         line: { color: getCssVariable('--chart-digital-baseline'), width: 2, dash: 'dash' },
         hoverinfo: 'none', visible: (filterValue && filterValue !== 'All') ? true : 'legendonly'
     };
 
     // MODIFIED: Create a more descriptive subtitle
     const filterTypeText = filterType ? filterType.charAt(0).toUpperCase() + filterType.slice(1) : '';
-    const titleCategory = filterValue && filterValue !== 'All' ? `for ${filterValue} (${filterTypeText})` : 'Overall';
-    const chartTitle = `<b>📱 Digital Time Spent Distribution</b><br><span style="font-size:12px; color:#7f8c8d;">${stats.count} Respondents ${titleCategory}</span>`;
+    const titleCategory = filterValue && filterValue !== 'All' ? `untuk ${filterValue} (${filterTypeText})` : 'Keseluruhan';
+    const chartTitle = `<b>📱 Distribusi Waktu Digital Harian</b><br><span style="font-size:12px; color:#7f8c8d;">${stats.count} Responden ${titleCategory}</span>`;
 
     const layout = {
         title: { text: chartTitle, x: 0.5, xanchor: 'center', font: { size: 14, family: 'Stack Sans Notch, sans-serif' } },
-        xaxis: { title: 'Digital Time Spent per Day (hours)' }, yaxis: { title: 'Number of Respondents' },
-        annotations: [{ x: stats.mean, y: Math.max(...(kde.y || [0])) * 0.95, text: `<b>Avg: ${stats.mean} hrs</b>`, showarrow: true, arrowhead: 2, ax: 0, ay: -40, }],
+        xaxis: { title: 'Waktu Digital per Hari (jam)' }, yaxis: { title: 'Jumlah Responden' },
+        annotations: [{ x: stats.mean, y: Math.max(...(kde.y || [0])) * 0.95, text: `<b>Rata-rata: ${stats.mean} jam</b>`, showarrow: true, arrowhead: 2, ax: 0, ay: -40, }],
         barmode: 'overlay', showlegend: true, legend: { orientation: 'h', y: -0.2, x: 0.5, xanchor: 'center' },
         height: 273, margin: { l: 20, r: 3, t: 70, b: 10 }, template: 'plotly_white',
         font: { family: 'Outfit, sans-serif', size: 10 }, autosize: 'False'

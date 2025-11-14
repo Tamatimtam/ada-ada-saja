@@ -15,7 +15,7 @@ def create_profession_chart(profession_data):
                 pct = values[i]
                 actual_count = int((pct / 100) * count)
                 hover_text.append(
-                    f"{cat}<br>{standing}: {pct:.1f}% ({actual_count} people)"
+                    f"{cat}<br>{standing}: {pct:.1f}% ({actual_count} responden)"
                 )
 
             fig.add_trace(
@@ -37,7 +37,7 @@ def create_profession_chart(profession_data):
 
     fig.update_layout(
         title={
-            "text": "💼<b>Employment vs<br>Financial Standing(%)</b>",  # force line break to avoid clipping
+            "text": "💼 Status Keuangan Gen Z<br><b>Berdasarkan Pekerjaan</b>",
             "x": 0.5,
             "xanchor": "center",
             "y": 0.98,

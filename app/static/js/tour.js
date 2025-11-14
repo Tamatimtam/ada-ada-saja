@@ -7,16 +7,11 @@ document.addEventListener('DOMContentLoaded', () => {
         {
             element: '#tour-step-1',
             popover: {
-                title: 'Selamat Datang di Dashboard Keuangan Gen Z!',
+                title: 'Selamat Datang di Dasbor Finansial Gen Z!',
                 description: `
-                    <p>Tur singkat ini akan memandu Anda memahami fitur utama dashboard.</p>
-                    <p>Dashboard ini menganalisis <strong>tiga dataset utama</strong> untuk memetakan kondisi finansial Gen Z di Indonesia:</p>
-                    <ul>
-                        <li>Indikator Ekonomi Regional</li>
-                        <li>Profil Finansial Gen Z (Peta)</li>
-                        <li>Profil Finansial Gen Z (Demografi)</li>
-                    </ul>
-                    <p>Tujuannya adalah untuk memahami <strong>perilaku, kecemasan, dan ketahanan finansial</strong> Gen Z secara mendalam.</p>
+                    <p>Tur singkat ini akan memandu Anda memahami semua fitur utama di dasbor ini.</p>
+                    <p>Dasbor ini menganalisis data untuk memetakan kondisi finansial Gen Z di Indonesia, dengan tujuan memahami <strong>perilaku, kecemasan, dan ketahanan finansial</strong> mereka secara mendalam.</p>
+                    <p>Mari kita mulai!</p>
                 `,
                 side: 'right',
                 align: 'start'
@@ -25,10 +20,11 @@ document.addEventListener('DOMContentLoaded', () => {
         {
             element: '#tour-step-2',
             popover: {
-                title: 'Panel Kecemasan Finansial',
+                title: 'Analisis Kecemasan Finansial',
                 description: `
                     <p>Di sini, kita bisa melihat kelompok Gen Z mana yang paling cemas secara finansial.</p>
-                    <p>Coba klik <strong>Filter Kategori</strong> (misal: 💼 Pekerjaan) untuk melihat bagaimana demografi yang berbeda menunjukkan pola sentimen yang unik. Ini adalah kunci untuk memahami akar masalah kecemasan finansial.</p>
+                    <p>Skor kecemasan rata-rata ditampilkan di kanan atas. Panel ini memungkinkan Anda untuk <strong>memfilter berdasarkan kategori</strong> seperti 💼 Pekerjaan, 🎓 Pendidikan, dan lainnya untuk melihat siapa yang paling terdampak.</p>
+                    <p>Klik salah satu bar untuk melihat dampaknya ke seluruh dasbor!</p>
                 `,
                 side: 'right',
                 align: 'start'
@@ -37,11 +33,11 @@ document.addEventListener('DOMContentLoaded', () => {
         {
             element: '#tour-step-3',
             popover: {
-                title: 'Analisis Dampak Interaktif',
+                title: 'Metrik Kesehatan Finansial',
                 description: `
-                    <p>Perhatikan ketiga panel ini: <strong>Financial Knowledge</strong>, <strong>Financial Behavior</strong>, dan <strong>Financial Wellbeing</strong>.</p>
-                    <p>Setiap kali Anda mengubah filter di atas atau mengklik bar di grafik, angka-angka di sini akan <strong>berubah secara dinamis!</strong></p>
-                    <p>Ini sangat berguna untuk melihat bagaimana tingkat pendidikan atau status pekerjaan memengaruhi literasi dan kebiasaan keuangan mereka secara langsung.</p>
+                    <p>Ketiga kartu ini (Pengetahuan, Perilaku, dan Kesejahteraan Finansial) menampilkan skor kesehatan finansial Gen Z.</p>
+                    <p>Setiap kali Anda menerapkan filter dari panel di atas, angka-angka di sini akan <strong>berubah secara dinamis!</strong> Ini membantu Anda melihat bagaimana faktor demografis memengaruhi literasi dan kebiasaan finansial mereka.</p>
+                    <p>Klik pada salah satu kartu untuk melihat detail pertanyaan survei.</p>
                 `,
                 side: 'right',
                 align: 'start'
@@ -50,22 +46,22 @@ document.addEventListener('DOMContentLoaded', () => {
         {
             element: '#diverging-bar-chart',
             popover: {
-                title: 'Keseimbangan Income vs. Expense',
+                title: 'Keseimbangan Pendapatan vs. Pengeluaran',
                 description: `
-                    <p>Grafik ini membandingkan distribusi pendapatan dan pengeluaran. Anda bisa langsung melihat kategori mana yang paling dominan.</p>
-                    <p><strong>Klik pada salah satu bar</strong> (misalnya, kategori '>15jt') untuk memfilter seluruh data di panel kanan berdasarkan kategori tersebut. Lihat bagaimana profil pinjaman dan penggunaan waktu digital mereka berubah!</p>
+                    <p>Grafik ini membandingkan distribusi pendapatan dan pengeluaran. Anda bisa langsung melihat kategori mana yang dominan.</p>
+                    <p><strong>Klik pada salah satu bar</strong> (misalnya, kategori '>15jt') untuk memfilter data di panel kanan (pinjaman & waktu digital) berdasarkan kategori tersebut. Sangat berguna untuk analisis mendalam! (Fungsi filter ini akan aktif setelah tur selesai.)</p>
                 `,
                 side: 'bottom',
                 align: 'center'
             }
         },
-         {
+        {
             element: '#map_panel_container',
             popover: {
-                title: 'Wawasan Regional',
+                title: 'Wawasan Finansial Regional',
                 description: `
                     <p>Terakhir, peta interaktif ini memberikan wawasan finansial berbasis lokasi.</p>
-                    <p>Gunakan <strong>dropdown menu</strong> untuk beralih antara data ekonomi regional dan profil finansial Gen Z per provinsi. Ini membantu kita melihat korelasi antara kondisi ekonomi daerah dengan kesehatan finansial anak muda di sana.</p>
+                    <p>Gunakan <strong>menu dropdown</strong> untuk beralih antara data ekonomi regional dan profil finansial Gen Z per provinsi. Ini membantu kita melihat korelasi antara kondisi ekonomi daerah dengan kesehatan finansial anak muda di sana.</p>
                 `,
                 side: 'top',
                 align: 'center'
@@ -77,11 +73,21 @@ document.addEventListener('DOMContentLoaded', () => {
     const driver = window.driver.js.driver({
         showProgress: true,
         popoverClass: 'driverjs-theme', // A custom class for styling
+        nextBtnText: 'Lanjut →',
+        prevBtnText: '← Kembali',
+        doneBtnText: 'Selesai',
         steps: tourSteps
     });
 
-    // Bind the start button to run the tour
+    // Bind the start button to run the tour manually at any time.
     startTourBtn.addEventListener('click', () => {
         driver.drive();
     });
+
+    // --- MODIFICATION: Auto-start tour on every page load ---
+    // The tour will now start automatically on every page load after a short delay.
+    // The localStorage check has been removed.
+    setTimeout(() => {
+        driver.drive();
+    }, 500); // 0.5 second delay before starting the tour.
 });

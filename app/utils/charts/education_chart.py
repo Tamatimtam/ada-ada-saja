@@ -35,7 +35,7 @@ def create_education_chart(education_data):
                 pct = values[i]
                 actual_count = int((pct / 100) * count)
                 hover_text.append(
-                    f"{cat}<br>{standing}: {pct:.1f}% ({actual_count} people)"
+                    f"{cat}<br>{standing}: {pct:.1f}% ({actual_count} responden)"
                 )
 
             fig.add_trace(
@@ -57,7 +57,7 @@ def create_education_chart(education_data):
 
     fig.update_layout(
         title={
-            "text": "<b>🎓 Education vs<br>Financial Standing (%)</b>",
+            "text": "🎓 Status Keuangan Gen Z<br><b>Berdasarkan Pendidikan</b>",
             "x": 0.5,
             "xanchor": "center",
             "y": 0.98,

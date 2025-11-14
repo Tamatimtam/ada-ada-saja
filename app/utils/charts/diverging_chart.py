@@ -13,7 +13,7 @@ def create_diverging_bar_chart(chart_data):
     # TRACE 0: Expense (Negative values)
     fig.add_trace(
         go.Bar(
-            name="Expense",
+            name="Pengeluaran",
             y=categories,
             x=[-pct for pct in expense_pct],
             orientation="h",
@@ -26,7 +26,7 @@ def create_diverging_bar_chart(chart_data):
             text=[f"{pct:.1f}%" for pct in expense_pct],
             textposition="inside",
             textfont=dict(size=10, color="white", family="Arial, sans-serif"),
-            hovertemplate="<b>%{y}</b><br>Expense: %{text}<br>Count: %{customdata}<br><extra></extra>",
+            hovertemplate="<b>%{y}</b><br>Pengeluaran: %{text}<br>Jumlah: %{customdata} responden<br><extra></extra>",
             customdata=expense_counts,
             meta=[f"expense_{cat}" for cat in categories],
         )
@@ -35,7 +35,7 @@ def create_diverging_bar_chart(chart_data):
     # TRACE 1: Income (Positive values)
     fig.add_trace(
         go.Bar(
-            name="Income",
+            name="Pendapatan",
             y=categories,
             x=income_pct,
             orientation="h",
@@ -48,7 +48,7 @@ def create_diverging_bar_chart(chart_data):
             text=[f"{pct:.1f}%" for pct in income_pct],
             textposition="inside",
             textfont=dict(size=10, color="white", family="Arial, sans-serif"),
-            hovertemplate="<b>%{y}</b><br>Income: %{text}<br>Count: %{customdata}<br><extra></extra>",
+            hovertemplate="<b>%{y}</b><br>Pendapatan: %{text}<br>Jumlah: %{customdata} responden<br><extra></extra>",
             customdata=income_counts,
             meta=[f"income_{cat}" for cat in categories],
         )
@@ -56,14 +56,14 @@ def create_diverging_bar_chart(chart_data):
 
     fig.update_layout(
         title={
-            "text": '<b>Income vs Expense Distribution</b><br><sub style="font-size:10px; color:#7f8c8d; font-weight:normal;">Click a bar to filter</sub>',
+            "text": '📊 <b>Distribusi Pendapatan vs Pengeluaran</b><br><sub style="font-size:10px; color:#7f8c8d; font-weight:normal;">Klik bar untuk memfilter seluruh dasbor</sub>',
             "x": 0.5,
             "xanchor": "center",
             "font": {"size": 14, "family": "Stack Sans Notch, sans-serif", "color": "#2c3e50"},
         },
         barmode="overlay",
         xaxis={
-            "title": "<b>Percentage of Population</b>",
+            "title": "<b>Persentase Responden</b>",
             "tickvals": [-40, -20, 0, 20, 40],
             "ticktext": ["40%", "20%", "0%", "20%", "40%"],
             "title_font": {"size": 10, "color": "#34495e"},
@@ -74,7 +74,7 @@ def create_diverging_bar_chart(chart_data):
             "zerolinecolor": "#95a5a6",
         },
         yaxis={
-            "title": "<b>Financial Category (IDR/month)</b>",
+            "title": "<b>Kategori Finansial (Rp/bulan)</b>",
             "title_font": {"size": 10, "color": "#34495e"},
             "tickfont": {"size": 8, "color": "#34495e"},
             "gridcolor": "rgba(0, 0, 0, 0)",

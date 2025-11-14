@@ -9,9 +9,12 @@
 <!-- The left panel is now a direct child of the content block, outside of the transformed window -->
 <aside class="left-panel">
     {% include 'components/hero-section.html' %}
-    {% include 'components/knowledge-card.html' %}
-    {% include 'components/behavior-card.html' %}
-    {% include 'components/wellbeing-card.html' %}
+    <!-- ADD A WRAPPER FOR THE TOUR STEP -->
+    <div id="tour-step-3">
+        {% include 'components/knowledge-card.html' %}
+        {% include 'components/behavior-card.html' %}
+        {% include 'components/wellbeing-card.html' %}
+    </div>
 </aside>
 
 <div class="dashboard-window">

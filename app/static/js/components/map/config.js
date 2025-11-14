@@ -27,10 +27,10 @@ export const datasetsConfig = {
         titlePrefix: 'Indikator Ekonomi Regional',
         keyColumn: 'provinsi',
         metrics: {
-            outstanding_pinjaman_miliar: { label: 'Outstanding Pinjaman (Rp miliar)', vizType: 'choropleth', type: 'logarithmic', minColor: '#FFF5E6', maxColor: '#FF6B35' },
-            dana_diberikan_miliar: { label: 'Jumlah Dana Diberikan (Rp miliar)', vizType: 'choropleth', type: 'logarithmic', minColor: '#E8F5E9', maxColor: '#2E7D32' },
-            rekening_penerima_aktif: { label: 'Rekening Penerima Pinjaman Aktif', vizType: 'choropleth', type: 'logarithmic', minColor: '#F0F9FF', maxColor: '#0C4A6E' },
-            twp_90: { label: 'TWP 90 (%)', vizType: 'choropleth', type: 'linear', minColor: '#FCE4EC', maxColor: '#C62828' },
+            outstanding_pinjaman_miliar: { label: 'Pinjaman Aktif (Rp Miliar)', vizType: 'choropleth', type: 'logarithmic', minColor: '#FFF5E6', maxColor: '#FF6B35' },
+            dana_diberikan_miliar: { label: 'Total Dana Disalurkan (Rp Miliar)', vizType: 'choropleth', type: 'logarithmic', minColor: '#E8F5E9', maxColor: '#2E7D32' },
+            rekening_penerima_aktif: { label: 'Rekening Penerima Aktif', vizType: 'choropleth', type: 'logarithmic', minColor: '#F0F9FF', maxColor: '#0C4A6E' },
+            twp_90: { label: 'Tingkat Wanprestasi 90 Hari (%)', vizType: 'choropleth', type: 'linear', minColor: '#FCE4EC', maxColor: '#C62828' },
             pdrb_ribu_rp: { label: 'PDRB (Ribu Rp)', vizType: 'choropleth', type: 'logarithmic', minColor: '#5DE2E7', maxColor: '#6A0DAD' },
             urbanisasi_persen: { label: 'Tingkat Urbanisasi (%)', vizType: 'choropleth', type: 'linear', minColor: '#FFF3E0', maxColor: '#EF6C00' },
             jumlah_penduduk_ribu: { label: 'Jumlah Penduduk (Ribu Jiwa)', vizType: 'choropleth', type: 'logarithmic', minColor: '#E0F2F1', maxColor: '#00695C' }
@@ -52,7 +52,7 @@ export const datasetsConfig = {
             },
             avg_anxiety_score: { label: 'Rata-rata Skor Kecemasan Finansial', vizType: 'choropleth', type: 'linear', minColor: '#FCE4EC', maxColor: '#C62828' },
             avg_digital_time: { label: 'Rata-rata Waktu Digital Harian (Jam)', vizType: 'choropleth', type: 'linear', minColor: '#E3F2FD', maxColor: '#1565C0' },
-            mode_fintech_app: { label: 'Fintech Populer (Logo)', vizType: 'pattern' }
+            mode_fintech_app: { label: 'Fintech Terpopuler (Logo)', vizType: 'pattern' }
         }
     }
 };
