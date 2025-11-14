@@ -6,7 +6,7 @@ function getChartConfig() {
             type: 'column',
             backgroundColor: 'transparent',
             // MODIFIED: Increase height so all labels fit
-            height: 125
+            height: 100
 
         },
         title: { text: null },

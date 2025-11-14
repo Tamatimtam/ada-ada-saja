@@ -85,7 +85,7 @@ METRICS_CONFIG = {
         "questions": [
             "I am becoming financially secure",
             "I am securing my financial future",
-            "I will achieve the financial goals that I have set for myself",
+            "I  will achieve the financial goals that I have set for myself",
             "I have saved (or will be able to save) enough money to last me to the end of my life",
             "Because of my money situation, I feel I will never have the things I want in life",
             "I am behind with my finances",
