@@ -40,14 +40,26 @@ function initMetricModal() { // REMOVED metricsData parameter
         let url;
         let cardTitle = "Metric"; // Default
 
+        // --- MODIFICATION START ---
+        // Map for user-friendly filter labels
+        const filterLabels = {
+            employment_status: "Pekerjaan",
+            education_level: "Pendidikan",
+            gender: "Gender",
+            birth_year: "Usia"
+        };
+
         if (currentFilter) {
             const { by, value } = currentFilter;
+            const filterLabel = filterLabels[by] || by.replace('_', ' '); // Get friendly label or format the key
             url = `/api/metrics-deep-dive/filtered/${encodeURIComponent(by)}/${encodeURIComponent(normalizeFilterValue(by, value))}`;
-            modalSubtitleEl.textContent = `Menampilkan hasil survei untuk kategori: ${value}`;
+            modalSubtitleEl.textContent = `Menampilkan hasil survei untuk ${filterLabel}: ${value}`;
         } else {
             url = '/api/metrics-deep-dive/unfiltered';
             modalSubtitleEl.textContent = 'Menampilkan hasil survei untuk seluruh responden.';
         }
+        // --- MODIFICATION END ---
+
 
         try {
             const response = await fetch(url);

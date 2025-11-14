@@ -1,10 +1,11 @@
 /* static/css/components/metric_modal.css */
 
 :root {
-    --modal-negative-color: #e67e22;
-    /* Orange for negative polarity */
-    --modal-positive-color: #8e44ad;
-    /* Purple for positive polarity */
+    /* MODIFIED: Updated colors as requested */
+    --modal-negative-color: #e74c3c;
+    /* Red for negative polarity */
+    --modal-positive-color: #1ba991;
+    /* Green for positive polarity */
     --modal-chart-highlight: #3498db;
     /* Blue for the most common answer bar */
 }
@@ -51,12 +52,12 @@
     line-height: 1;
 }
 
-/* NEW: Header styling */
 .metric-modal-header {
     text-align: center;
     border-bottom: 1px solid #eee;
     padding-bottom: 16px;
-    margin-bottom: 20px;
+    margin-bottom: 16px;
+    /* Reduced margin */
 }
 
 .metric-modal-title {
@@ -77,6 +78,62 @@
     font-size: 1.2rem;
     color: #6c757d;
 }
+
+/* --- NEW: Legend and Instructions Styling --- */
+.metric-modal-info {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    padding: 8px;
+    margin-bottom: 20px;
+    background-color: var(--ui-subtle-bg);
+    border-radius: 8px;
+}
+
+.metric-modal-legend {
+    display: flex;
+    gap: 20px;
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.legend-key {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    border: 3px solid;
+}
+
+.legend-key.positive {
+    border-color: var(--modal-positive-color);
+}
+
+.legend-key.negative {
+    border-color: var(--modal-negative-color);
+}
+
+.legend-label {
+    font-size: 0.6rem;
+    color: #495057;
+    font-weight: 500;
+}
+
+.modal-instructions {
+    font-size: 0.8rem;
+    color: #6c757d;
+    font-style: italic;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+/* --- END NEW STYLES --- */
 
 
 .metric-modal-body {
