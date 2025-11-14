@@ -1,5 +1,14 @@
 // static/js/components/metric_modal.js
 
+/**
+ * A helper function to read a CSS variable value from the root element.
+ * @param {string} variable - The name of the CSS variable (e.g., '--chart-income').
+ * @returns {string} The computed value of the variable.
+ */
+function getCssVariable(variable) {
+    return getComputedStyle(document.documentElement).getPropertyValue(variable).trim();
+}
+
 function initMetricModal() { // REMOVED metricsData parameter
     const modal = document.getElementById('metric-modal');
     const modalTitleEl = document.getElementById('metric-modal-title');
@@ -164,12 +173,88 @@ function initMetricModal() { // REMOVED metricsData parameter
     }
 
     function renderDistributionChart(distribution, mostCommon) {
-        const labels = Object.keys(distribution);
-        const values = Object.values(distribution);
-        const colors = labels.map(label => label === mostCommon ? 'var(--modal-chart-highlight)' : '#bdc3c7');
+        const labels = Object.keys(distribution).map(Number).sort(); // Ensure labels are numeric and sorted
+        const values = labels.map(label => distribution[String(label)] || 0);
 
-        const trace = { x: labels, y: values, type: 'bar', text: values.map(String), textposition: 'auto', marker: { color: colors } };
-        const layout = { title: { text: 'Distribusi Jawaban Responden (1-4)', font: { size: 14 } }, xaxis: { title: 'Pilihan Jawaban' }, yaxis: { title: 'Jumlah Responden', showgrid: false }, bargap: 0.2, height: 150, margin: { t: 30, b: 40, l: 40, r: 20 }, template: 'plotly_white' };
+        // Define colors from CSS variables for consistency
+        const highlightColor = getCssVariable('--modal-chart-highlight') || '#1ba991';
+        const baseColor = '#dfe4ea'; // A lighter, more subtle base color
+
+        const colors = labels.map(label => String(label) === mostCommon ? highlightColor : baseColor);
+        const barBorders = labels.map(label => String(label) === mostCommon ? highlightColor : '#adb5bd');
+
+        const trace = {
+            x: labels,
+            y: values,
+            type: 'bar',
+            text: values.map(v => `<b>${v}</b>`), // Make text bold
+            textposition: 'outside',
+            textfont: {
+                size: 11,
+                color: '#495057', // Darker text for better contrast
+                family: 'Outfit, sans-serif'
+            },
+            marker: {
+                color: colors,
+                line: {
+                    color: barBorders,
+                    width: 1.5
+                }
+            },
+            // Custom hover tooltip for a richer experience
+            hovertemplate: 'Jawaban "<b>%{x}</b>"<br>Jumlah Responden: <b>%{y}</b><extra></extra>'
+        };
+
+        const layout = {
+            title: {
+                text: '<b>Distribusi Jawaban Responden</b>',
+                font: {
+                    size: 16,
+                    family: 'Stack Sans Notch, sans-serif',
+                    color: '#3A4150'
+                },
+                y: 0.95 // Adjust title position
+            },
+            xaxis: {
+                title: 'Pilihan Jawaban (1=Sangat Tidak Setuju, 4=Sangat Setuju)',
+                tickmode: 'array',
+                tickvals: [1, 2, 3, 4], // Force whole number ticks
+                ticktext: ['1', '2', '3', '4'],
+                zeroline: false,
+                showgrid: false,
+                tickfont: {
+                    size: 12,
+                    family: 'Outfit, sans-serif'
+                },
+                titlefont: {
+                    size: 10,
+                    color: '#8C93A0'
+                }
+            },
+            yaxis: {
+                showticklabels: false, // Hide Y-axis numbers
+                showgrid: false,
+                zeroline: false,
+                showline: false,
+                title: null, // Remove Y-axis title
+                range: [0, Math.max(...values) * 1.25] // Add padding for outside text
+            },
+            bargap: 0.25,
+            height: 200, // Increased height for better spacing
+            margin: { t: 40, b: 40, l: 10, r: 10 },
+            template: 'plotly_white',
+            paper_bgcolor: 'transparent', // Transparent background
+            plot_bgcolor: 'transparent',
+            hoverlabel: {
+                bgcolor: "#3A4150",
+                font: {
+                    size: 12,
+                    color: 'white',
+                    family: 'Outfit, sans-serif'
+                }
+            }
+        };
+
         Plotly.newPlot(chartContainer, [trace], layout, { displayModeBar: false, responsive: true });
     }
 
