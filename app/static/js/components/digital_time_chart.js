@@ -72,7 +72,7 @@ function renderDigitalTimeChart(responseData, category) {
         }],
         barmode: 'overlay', showlegend: true,
         legend: { orientation: 'h', y: -0.2, x: 0.5, xanchor: 'center' },
-        height: 270, margin: { l: 20, r: 3, t: 60, b: 10 },
+        height: 273, margin: { l: 20, r: 3, t: 70, b: 10 },
         template: 'plotly_white',
         font: { family: 'Outfit, sans-serif', size: 10 }
     };
