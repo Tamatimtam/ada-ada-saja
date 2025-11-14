@@ -30,7 +30,7 @@
     color: var(--text-secondary);
     width: 100%;
     line-height: 1.6;
-    margin-bottom: 8px;
+    margin-bottom: 0px;
     /* slight spacing above chart */
     padding: 0;
     /* remove side padding to align edges */
@@ -90,7 +90,8 @@
 
 /* MODIFIED: Restoring and enhancing the dropdown's visual style */
 .dropdown-selected {
-    display: inline-block; /* Add this to allow transform */
+    display: inline-block;
+    /* Add this to allow transform */
     font-weight: 700;
     color: var(--card2-bg);
     /* Use a distinct color */
@@ -104,7 +105,8 @@
 .custom-dropdown .dropdown-selected:hover {
     /* background-color: rgba(93, 173, 226, 0.1); */
     /* Subtle hover effect */
-    transform: scale(1.05); /* Slight lift on hover */
+    transform: scale(1.05);
+    /* Slight lift on hover */
 }
 
 .dropdown-options {

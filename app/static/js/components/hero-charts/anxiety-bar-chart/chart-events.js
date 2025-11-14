@@ -9,6 +9,7 @@ function chartClickHandler() {
     // 2. Check if the same bar is clicked again to deselect it.
     if (state.selectedFilter && state.selectedFilter.index === clickedIndex && state.selectedFilter.category === state.currentFilterCategory) {
         state.selectedFilter = null;
+        window.activeDashboardFilter = null; // <-- CLEAR GLOBAL FILTER
         resetAllData(); // 3. Reset all metrics to their original state.
         // 4. Reset bar colors to the original gradient.
         chart.series[0].points.forEach((point, idx) => {
@@ -18,6 +19,14 @@ function chartClickHandler() {
     } else {
         // 5. A new bar is selected.
         state.selectedFilter = { category: state.currentFilterCategory, value: clickedCategory, index: clickedIndex };
+        // --- NEW: Set the global filter state ---
+        window.activeDashboardFilter = {
+            by: state.currentFilterCategory,
+            value: clickedCategory,
+            // Add a user-friendly label for the subtitle
+            label: `${state.currentFilterCategory.replace('_', ' ')}: ${clickedCategory}`
+        };
+
 
         // 6. Highlight the selected bar.
         chart.series[0].points.forEach((point, idx) => {
