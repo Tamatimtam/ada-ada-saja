@@ -17,27 +17,24 @@ function updateKPICard(elementId, value) {
     if (element) element.textContent = value;
 }
 
-// MODIFIED: Function now accepts the full data object for context
 function renderLoanChart(data) {
     const chartDiv = document.getElementById('loan-overview-chart');
     if (!chartDiv) return;
-
+    
     const distribution = data.distribution || [];
     const categories = distribution.map(d => d.category);
     const percentages = distribution.map(d => d.percentage);
     const counts = distribution.map(d => d.count);
-
     const colorMapping = {
         'No Loan': getCssVariable('--chart-loan-no-loan'), '<5M': getCssVariable('--chart-loan-tier-1'),
         '5M-10M': getCssVariable('--chart-loan-tier-2'), '10M-15M': getCssVariable('--chart-loan-tier-3'),
         '>15M': getCssVariable('--chart-loan-tier-4')
     };
     const colors = categories.map(cat => colorMapping[cat] || '#95a5a6');
-
-    // Dynamic title for the donut chart
+    const totalWithLoans = distribution.filter(d => d.category !== 'No Loan').reduce((sum, d) => sum + d.count, 0);
     const filterText = data.filter_value && data.filter_value !== 'All' 
-        ? ` (${data.with_loan} borrowers in ${data.filter_value})` 
-        : ` (${data.with_loan} total borrowers)`;
+        ? ` (${totalWithLoans} borrowers in ${data.filter_value})` 
+        : ` (${totalWithLoans} total borrowers)`;
     const centerText = data.filter_value && data.filter_value !== 'All' 
         ? `<b style="font-size:12px">${data.with_loan}</b><br><span style='font-size:8px;color:#7f8c8d'>with loans</span><br><span style='font-size:8px;color:#95a5a6'>in ${data.filter_value}</span>` 
         : `<b style="font-size:12px">${data.with_loan}</b><br><span style='font-size:8px;color:#7f8c8d'>with loans</span>`;
@@ -63,7 +60,6 @@ function renderLoanChart(data) {
     renderLegend('loan-overview-legend', categories, colorMapping);
 }
 
-// MODIFIED: Function now accepts the full data object for context
 function renderLoanPurposeChart(data, filterType, filterValue) {
     const chartDiv = document.getElementById('loan-purpose-chart');
     if (!chartDiv) return;
@@ -78,7 +74,6 @@ function renderLoanPurposeChart(data, filterType, filterValue) {
     const counts = data.map(d => d.count); const percentages = data.map(d => d.percentage);
     const colors = data.map(d => d.color); const totalCount = counts.reduce((a, b) => a + b, 0);
 
-    // Dynamic title for the purpose chart
     const filterText = filterValue && filterValue !== 'All' 
         ? `(${totalCount} borrowers in ${filterValue})` 
         : `(${totalCount} total borrowers)`;
@@ -107,7 +102,6 @@ function renderLoanPurposeChart(data, filterType, filterValue) {
     renderLegend('loan-purpose-legend', labels, purposeColorMapping);
 }
 
-// MODIFIED: This function now updates the main panel title
 function updateLoanPanel(filterType, filterValue) {
     const kpiContainer = document.querySelector('.loan-kpi-cards');
     const chartContainer = document.querySelector('#loan-overview-chart').parentElement;
@@ -123,7 +117,6 @@ function updateLoanPanel(filterType, filterValue) {
     fetch(url)
         .then(response => response.json())
         .then(data => {
-            // Update Main Title
             if (titleEl) {
                 if (data.filter_type && data.filter_value !== 'All') {
                     const typeText = data.filter_type.charAt(0).toUpperCase() + data.filter_type.slice(1);
@@ -136,16 +129,21 @@ function updateLoanPanel(filterType, filterValue) {
                 }
             }
             
-            // Update KPI cards
-            updateKPICard('loan-total-value', data.with_loan);
-            updateKPICard('loan-total-subtext', `${data.with_loan_pct}% of ${data.total_respondents} respondents`);
+            // --- MODIFIED SECTION START ---
+            // Update 'Total with Loans' KPI to show fraction
+            const totalWithLoansValue = `${data.with_loan} / ${data.total_respondents}`;
+            const totalWithLoansSubtext = `${data.with_loan_pct}% with loans`;
+            updateKPICard('loan-total-value', totalWithLoansValue);
+            updateKPICard('loan-total-subtext', totalWithLoansSubtext);
+            // --- MODIFIED SECTION END ---
+
+            // Update other KPI cards
             updateKPICard('loan-avg-value', formatCurrency(data.mean));
             updateKPICard('loan-third-label', 'Total Outstanding');
             updateKPICard('loan-third-value', formatCurrency(data.total_outstanding));
             updateKPICard('loan-third-subtext', filterValue && filterValue !== 'All' ? `In ${filterValue}` : 'Sum of all loans');
             updateKPICard('loan-max-value', formatCurrency(data.max));
             
-            // Render charts
             renderLoanChart(data);
         })
         .finally(() => {

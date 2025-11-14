@@ -100,7 +100,6 @@
     transition: opacity 0.3s ease-in-out; /* Add transition for loading state */
 }
 
-/* --- PHASE 2: NEW LOADING STATE STYLE --- */
 .chart-container.is-loading,
 .loan-kpi-cards.is-loading {
     opacity: 0.3;
@@ -131,4 +130,10 @@
 
 .loan-charts-grid .chart-container {
     padding: 5px;
+}
+
+/* --- ADD THIS NEW RULE AT THE END OF THE FILE --- */
+/* Adjust font size on the first KPI card to better fit the "X / Y" format */
+.loan-kpi-card.primary .loan-kpi-value {
+    font-size: 0.68rem;
 }
