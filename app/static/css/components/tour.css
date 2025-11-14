@@ -1,0 +1,87 @@
+/* Styling for the "Start Tour" Floating Action Button */
+.tour-button {
+    position: fixed;
+    bottom: 25px;
+    right: 25px;
+    width: 60px;
+    height: 60px;
+    background-color: var(--card2-bg);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+    font-size: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 1000;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.tour-button:hover {
+    transform: translateY(-4px) scale(1.05);
+    box-shadow: 0 12px 25px rgba(0, 0, 0, 0.25);
+}
+
+/* Custom theme for the Driver.js popover */
+.driverjs-theme {
+    background-color: #ffffff;
+    color: var(--text-primary);
+    border-radius: var(--border-radius);
+    font-family: 'Outfit', sans-serif;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+    border: 1px solid var(--border-color);
+}
+
+.driverjs-theme .driver-popover-title {
+    font-family: 'Stack Sans Notch', sans-serif;
+    font-size: 1.5rem;
+    color: var(--card2-bg);
+}
+
+.driverjs-theme .driver-popover-description {
+    font-size: 0.95rem;
+    line-height: 1.6;
+}
+
+.driverjs-theme .driver-popover-description p {
+    margin-bottom: 12px;
+}
+
+.driverjs-theme .driver-popover-description strong {
+    color: var(--card1-bg);
+    font-weight: 600;
+}
+
+.driverjs-theme .driver-popover-description ul {
+    padding-left: 20px;
+    margin-top: 8px;
+    font-size: 0.9rem;
+}
+
+.driverjs-theme .driver-popover-progress-text {
+    color: var(--text-secondary);
+}
+
+.driverjs-theme .driver-popover-navigation-btns button {
+    background-color: var(--card1-bg);
+    color: white;
+    text-shadow: none;
+    font-weight: 600;
+    border-radius: 8px;
+    padding: 8px 16px;
+    transition: background-color 0.2s ease;
+}
+
+.driverjs-theme .driver-popover-navigation-btns button:hover {
+    background-color: #168a73; /* Slightly darker shade */
+}
+
+.driverjs-theme button.driver-popover-close-btn {
+    color: var(--text-tertiary);
+}
+
+.driverjs-theme button.driver-popover-close-btn:hover {
+    color: var(--text-primary);
+}

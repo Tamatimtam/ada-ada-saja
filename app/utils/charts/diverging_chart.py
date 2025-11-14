@@ -75,7 +75,7 @@ def create_diverging_bar_chart(chart_data):
         template="plotly_white",
         autosize=False,
         height=274,
-        width=328,
+        width=368,
         showlegend=True,
         legend=dict(
             orientation="v",
@@ -90,7 +90,7 @@ def create_diverging_bar_chart(chart_data):
         ),
         plot_bgcolor="rgba(250, 250, 250, 1)",
         paper_bgcolor="white",
-        margin=dict(l=8, r=2, t=60, b=4),
+        margin=dict(l=8, r=2, t=80, b=4),
         hoverlabel=dict(bgcolor="white", font_size=10, font_family="Arial, sans-serif"),
     )
 
