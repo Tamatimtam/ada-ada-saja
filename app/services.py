@@ -252,9 +252,30 @@ class DataLoader:
         ]
 
     def load_data(self):
+        if self.df is not None:
+            return self.df
+
         if not os.path.exists(self.csv_path):
             raise FileNotFoundError(f"CSV file not found: {self.csv_path}")
         self.df = pd.read_csv(self.csv_path)
+
+        # --- BLOK PEMBERSIHAN DATA BARU ---
+        # Daftar kolom yang seharusnya numerik tapi mungkin berupa string
+        cols_to_clean = [
+            "avg_monthly_income",
+            "avg_monthly_expense",
+            "outstanding_loan",
+        ]
+
+        for col in cols_to_clean:
+            if col in self.df.columns and self.df[col].dtype == "object":
+                # Hapus semua karakter non-digit (seperti 'Rp', '.', spasi)
+                self.df[col] = (
+                    self.df[col].astype(str).str.replace(r"[^\d]", "", regex=True)
+                )
+                # Konversi kolom menjadi tipe data numerik. Jika ada error, ubah jadi NaN.
+                self.df[col] = pd.to_numeric(self.df[col], errors="coerce")
+        # --- AKHIR BLOK PEMBERSIHAN ---
 
         # Normalize employment_status column to handle variations
         if "employment_status" in self.df.columns:
@@ -268,7 +289,6 @@ class DataLoader:
                     "Student": "Student",
                     "Private Employee": "Private Employee",
                     "Civil Servant/BUMN": "Civil Servant/BUMN",
-                    # Added 'Others' to ensure it's a recognized category
                     "Others": "Others",
                 }
             )
@@ -305,14 +325,18 @@ class DataLoader:
     def get_profession_chart_data(self):
         if self.df is None:
             self.load_data()
-        
+
         # FIX: Manual normalization to avoid division by zero
-        counts_df = pd.crosstab(self.df["employment_status"], self.df["financial_standing"])
-        profession_standing = counts_df.div(counts_df.sum(axis=1), axis=0).fillna(0) * 100
+        counts_df = pd.crosstab(
+            self.df["employment_status"], self.df["financial_standing"]
+        )
+        profession_standing = (
+            counts_df.div(counts_df.sum(axis=1), axis=0).fillna(0) * 100
+        )
 
         employment_counts = self.df["employment_status"].value_counts()
         profession_standing = profession_standing.reindex(employment_counts.index)
-        
+
         categories = profession_standing.index.tolist()
         colors = {"Surplus": "#2ecc71", "Break-even": "#f39c12", "Deficit": "#e74c3c"}
         chart_data = {
@@ -341,10 +365,14 @@ class DataLoader:
             "Bachelor (S1)/Diploma IV",
             "Postgraduate",
         ]
-        
+
         # FIX: Manual normalization to avoid division by zero
-        counts_df = pd.crosstab(self.df["education_level"], self.df["financial_standing"])
-        education_standing = counts_df.div(counts_df.sum(axis=1), axis=0).fillna(0) * 100
+        counts_df = pd.crosstab(
+            self.df["education_level"], self.df["financial_standing"]
+        )
+        education_standing = (
+            counts_df.div(counts_df.sum(axis=1), axis=0).fillna(0) * 100
+        )
 
         existing_education = [
             edu for edu in education_order if edu in education_standing.index
@@ -402,13 +430,19 @@ class DataLoader:
         if self.df is None:
             self.load_data()
 
-        if income_category and income_category != 'All':
-            df_filtered = self.df[self.df['avg_income_category'] == income_category].copy()
+        if income_category and income_category != "All":
+            df_filtered = self.df[
+                self.df["avg_income_category"] == income_category
+            ].copy()
         else:
             df_filtered = self.df.copy()
 
-        if df_filtered.empty or 'employment_status' not in df_filtered.columns or 'financial_standing' not in df_filtered.columns:
-            return {'categories': [], 'data': {}, 'colors': {}, 'total_counts': {}}
+        if (
+            df_filtered.empty
+            or "employment_status" not in df_filtered.columns
+            or "financial_standing" not in df_filtered.columns
+        ):
+            return {"categories": [], "data": {}, "colors": {}, "total_counts": {}}
 
         counts_df = pd.crosstab(df_filtered['employment_status'], df_filtered['financial_standing'])
         profession_standing = counts_df.div(counts_df.sum(axis=1), axis=0).fillna(0) * 100
@@ -420,37 +454,49 @@ class DataLoader:
         
         categories = profession_standing.index.tolist()
         colors = {"Surplus": "#2ecc71", "Break-even": "#f39c12", "Deficit": "#e74c3c"}
-        
+
         chart_data = {
             "categories": categories,
             "financial_standings": list(profession_standing.columns),
             "data": {},
             "colors": colors,
-            "total_counts": employment_counts.to_dict()
+            "total_counts": employment_counts.to_dict(),
         }
         for standing in ["Surplus", "Break-even", "Deficit"]:
             if standing in profession_standing.columns:
-                 chart_data["data"][standing] = profession_standing[standing].round(1).tolist()
+                chart_data["data"][standing] = (
+                    profession_standing[standing].round(1).tolist()
+                )
             else:
-                 chart_data["data"][standing] = [0] * len(categories)
-        
+                chart_data["data"][standing] = [0] * len(categories)
+
         return chart_data
 
     def get_filtered_education_chart_data(self, income_category=None):
         if self.df is None:
             self.load_data()
 
-        if income_category and income_category != 'All':
-            df_filtered = self.df[self.df['avg_income_category'] == income_category].copy()
+        if income_category and income_category != "All":
+            df_filtered = self.df[
+                self.df["avg_income_category"] == income_category
+            ].copy()
         else:
             df_filtered = self.df.copy()
 
-        if df_filtered.empty or 'education_level' not in df_filtered.columns or 'financial_standing' not in df_filtered.columns:
-            return {'categories': [], 'data': {}, 'colors': {}, 'total_counts': {}}
-            
+        if (
+            df_filtered.empty
+            or "education_level" not in df_filtered.columns
+            or "financial_standing" not in df_filtered.columns
+        ):
+            return {"categories": [], "data": {}, "colors": {}, "total_counts": {}}
+
         education_order = [
-            "Elementary School", "Junior High School", "Senior High School",
-            "Diploma I/II/III", "Bachelor (S1)/Diploma IV", "Postgraduate"
+            "Elementary School",
+            "Junior High School",
+            "Senior High School",
+            "Diploma I/II/III",
+            "Bachelor (S1)/Diploma IV",
+            "Postgraduate",
         ]
         
         counts_df = pd.crosstab(df_filtered['education_level'], df_filtered['financial_standing'])
@@ -458,21 +504,23 @@ class DataLoader:
         
         existing_education = [edu for edu in education_order if edu in education_standing.index]
         education_standing = education_standing.reindex(existing_education)
-        
-        education_counts = df_filtered['education_level'].value_counts()
+
+        education_counts = df_filtered["education_level"].value_counts()
         categories = education_standing.index.tolist()
         colors = {"Surplus": "#2ecc71", "Break-even": "#f39c12", "Deficit": "#e74c3c"}
-        
+
         chart_data = {
             "categories": categories,
             "financial_standings": list(education_standing.columns),
             "data": {},
             "colors": colors,
-            "total_counts": education_counts.to_dict()
+            "total_counts": education_counts.to_dict(),
         }
         for standing in ["Surplus", "Break-even", "Deficit"]:
             if standing in education_standing.columns:
-                chart_data["data"][standing] = education_standing[standing].round(1).tolist()
+                chart_data["data"][standing] = (
+                    education_standing[standing].round(1).tolist()
+                )
             else:
                 chart_data["data"][standing] = [0] * len(categories)
 
@@ -501,73 +549,185 @@ def get_digital_time_data(category):
     loader = DataLoader(NEW_DATASET_PATH)
     return loader.get_filtered_engagement_data(category)
 
+
+# ADDED: New service functions for the new filtered endpoints
 def get_profession_data(category):
     loader = DataLoader(NEW_DATASET_PATH)
     return loader.get_filtered_profession_chart_data(category)
+
 
 def get_education_data(category):
     loader = DataLoader(NEW_DATASET_PATH)
     return loader.get_filtered_education_chart_data(category)
 
+
+# --- Functions for Map Panel ---
+
+
+def clean_regional_data(df):
+    df = df.rename(
+        columns={
+            "Provinsi": "provinsi",
+            "Jumlah Rekening Penerima Pinjaman Aktif (entitas)": "rekening_penerima_aktif",
+            "Jumlah Dana yang Diberikan (Rp miliar)": "dana_diberikan_miliar",
+            "Jumlah Rekening Pemberi Pinjaman (akun)": "rekening_pemberi",
+            "TWP 90%": "twp_90",
+            "Jumlah Penerima Pinjaman (akun)": "jumlah_penerima",
+            "Outstanding Pinjaman (Rp miliar)": "outstanding_pinjaman_miliar",
+            "Jumlah Penduduk (Ribu)": "jumlah_penduduk_ribu",
+            "PDRB (Ribu Rp)": "pdrb_ribu_rp",
+            "Urbanisasi (%)": "urbanisasi_persen",
+        }
+    )
+
+    numeric_cols = [
+        "rekening_penerima_aktif",
+        "dana_diberikan_miliar",
+        "rekening_pemberi",
+        "twp_90",
+        "jumlah_penerima",
+        "outstanding_pinjaman_miliar",
+        "jumlah_penduduk_ribu",
+        "pdrb_ribu_rp",
+        "urbanisasi_persen",
+    ]
+
+    for col in numeric_cols:
+        df[col] = df[col].replace("-", pd.NA)
+        if df[col].dtype == "object":
+            df[col] = df[col].str.replace(".", "", regex=False)
+            df[col] = df[col].str.replace("%", "", regex=False)
+            df[col] = df[col].str.replace(",", ".", regex=False)
+        df[col] = pd.to_numeric(df[col], errors="coerce")
+
+    return df
+
+
+def clean_and_aggregate_financial_data(df):
+    """Membersihkan dan mengagregasi data profil finansial per provinsi."""
+    numeric_cols = [
+        "avg_monthly_income (INT)",
+        "avg_monthly_expense (INT)",
+        "financial_anxiety_score",
+        "digital_time_spent_per_day",
+    ]
+    for col in numeric_cols:
+        df[col] = pd.to_numeric(df[col], errors="coerce")
+
+    # Agregasi: mean untuk numerik, mode untuk kategorikal
+    agg_functions = {
+        "avg_monthly_income (INT)": "mean",
+        "avg_monthly_expense (INT)": "mean",
+        "financial_anxiety_score": "mean",
+        "digital_time_spent_per_day": "mean",
+        "main_fintech_app": lambda x: x.mode().iloc[0] if not x.mode().empty else None,
+        "investment_type": lambda x: x.mode().iloc[0] if not x.mode().empty else None,
+    }
+
+    agg_df = df.groupby("province").agg(agg_functions).reset_index()
+
+    # Hitung persentase pengguna untuk fintech app yang paling populer
+    fintech_percentage = []
+    for province in agg_df["province"]:
+        province_data = df[df["province"] == province]
+        if len(province_data) > 0:
+            most_popular_app = (
+                province_data["main_fintech_app"].mode().iloc[0]
+                if not province_data["main_fintech_app"].mode().empty
+                else None
+            )
+            if most_popular_app:
+                percentage = (
+                    (province_data["main_fintech_app"] == most_popular_app).sum()
+                    / len(province_data)
+                    * 100
+                )
+                fintech_percentage.append(round(percentage, 1))
+            else:
+                fintech_percentage.append(0)
+        else:
+            fintech_percentage.append(0)
+
+    agg_df["fintech_percentage"] = fintech_percentage
+
+    # Ganti nama kolom agar lebih mudah digunakan di frontend
+    agg_df = agg_df.rename(
+        columns={
+            "province": "provinsi",
+            "avg_monthly_income (INT)": "avg_income",
+            "avg_monthly_expense (INT)": "avg_expense",
+            "financial_anxiety_score": "avg_anxiety_score",
+            "digital_time_spent_per_day": "avg_digital_time",
+            "main_fintech_app": "mode_fintech_app",
+            "investment_type": "mode_investment_type",
+        }
+    )
+
+    agg_df["financial_balance"] = agg_df["avg_income"] - agg_df["avg_expense"]
+
+    for col in [
+        "avg_income",
+        "avg_expense",
+        "avg_anxiety_score",
+        "avg_digital_time",
+        "financial_balance",
+    ]:
+        agg_df[col] = agg_df[col].round(2)
+
+    return agg_df
+
+
 def get_regional_data_from_file():
     try:
-        df = _load_sheet("Dataset Gelarrasa - Regional_Economic_Indicators.csv")
+        df = pd.read_csv(
+            os.path.join(
+                os.path.dirname(__file__),
+                "..",
+                "dataset",
+                "Dataset Gelarrasa - Regional_Economic_Indicators.csv",
+            )
+        )
         df_cleaned = clean_regional_data(df)
         df_final = df_cleaned.replace({np.nan: None})
         return df_final.to_dict(orient="records")
     except FileNotFoundError:
         return {"error": "File Regional_Economic_Indicators.csv tidak ditemukan"}, 404
+    except Exception as e:
+        return {"error": str(e)}, 500
 
-def get_financial_data_from_file():
+
+# GANTI FUNGSI DI BAWAH INI
+def get_financial_data_from_file(category="All"):
+    """Endpoint untuk data profil finansial Gen Z yang sudah diagregasi."""
     try:
-        df = _load_sheet("Dataset Gelarrasa - GenZ_Financial_Profile_map.csv")
-        df_agg = clean_and_aggregate_financial_data(df)
+        # 1. Gunakan DataLoader untuk sumber data yang konsisten
+        loader = DataLoader(NEW_DATASET_PATH)
+        df = loader.load_data()
+
+        # 2. Terapkan filter kategori pendapatan jika ada
+        if category and category != "All":
+            df = df[df["avg_income_category"] == category]
+
+        # Jika setelah difilter datanya kosong, kembalikan list kosong
+        if df.empty:
+            return []
+
+        # 3. Ganti nama kolom agar sesuai dengan yang diharapkan oleh fungsi agregasi
+        # Ini adalah langkah penting untuk 'menjembatani' antara dataset utama dan fungsi agregasi peta
+        df_renamed = df.rename(
+            columns={
+                "avg_monthly_income": "avg_monthly_income (INT)",
+                "avg_monthly_expense": "avg_monthly_expense (INT)",
+            }
+        )
+
+        # 4. Panggil fungsi agregasi yang sudah ada dengan data yang sudah konsisten
+        df_agg = clean_and_aggregate_financial_data(df_renamed)
         df_final = df_agg.replace({np.nan: None})
         return df_final.to_dict(orient="records")
     except FileNotFoundError:
-        return {"error": "File dataset_gelarrasa_genzfinancialprofile.csv tidak ditemukan"}, 404
-
-def clean_regional_data(df):
-    df = df.rename(columns={col: col.strip() for col in df.columns})
-    df = df.rename(columns={
-        "Provinsi": "provinsi", "Jumlah Rekening Penerima Pinjaman Aktif (entitas)": "rekening_penerima_aktif",
-        "Jumlah Dana yang Diberikan (Rp miliar)": "dana_diberikan_miliar", "TWP 90%": "twp_90",
-        "Jumlah Penduduk (Ribu)": "jumlah_penduduk_ribu", "PDRB (Ribu Rp)": "pdrb_ribu_rp", "Urbanisasi (%)": "urbanisasi_persen",
-        "Outstanding Pinjaman (Rp miliar)": "outstanding_pinjaman_miliar"
-    })
-    numeric_cols = [
-        "rekening_penerima_aktif", "dana_diberikan_miliar", "twp_90", "jumlah_penduduk_ribu",
-        "pdrb_ribu_rp", "urbanisasi_persen", "outstanding_pinjaman_miliar"
-    ]
-    for col in numeric_cols:
-        if df[col].dtype == 'object':
-            df[col] = df[col].str.replace(".", "", regex=False).str.replace(",", ".", regex=False).str.replace("%", "", regex=False)
-        df[col] = pd.to_numeric(df[col], errors='coerce')
-    return df
-
-def clean_and_aggregate_financial_data(df):
-    numeric_cols = ["avg_monthly_income (INT)", "avg_monthly_expense (INT)", "financial_anxiety_score", "digital_time_spent_per_day"]
-    for col in numeric_cols:
-        df[col] = pd.to_numeric(df[col], errors='coerce')
-    
-    agg_functions = {
-        "avg_monthly_income (INT)": "mean", "avg_monthly_expense (INT)": "mean",
-        "financial_anxiety_score": "mean", "digital_time_spent_per_day": "mean",
-        "main_fintech_app": lambda x: x.mode().iloc[0] if not x.mode().empty else None
-    }
-    agg_df = df.groupby("province").agg(agg_functions).reset_index()
-
-    fintech_percentage = df.groupby('province')['main_fintech_app'].apply(lambda x: (x.value_counts(normalize=True).max() * 100) if not x.empty else 0).round(1).reset_index(name='fintech_percentage')
-    agg_df = pd.merge(agg_df, fintech_percentage, on='province', how='left')
-
-    agg_df = agg_df.rename(columns={
-        "province": "provinsi", "avg_monthly_income (INT)": "avg_income",
-        "avg_monthly_expense (INT)": "avg_expense", "financial_anxiety_score": "avg_anxiety_score",
-        "digital_time_spent_per_day": "avg_digital_time", "main_fintech_app": "mode_fintech_app"
-    })
-    agg_df["financial_balance"] = agg_df["avg_income"] - agg_df["avg_expense"]
-    
-    for col in ["avg_income", "avg_expense", "avg_anxiety_score", "avg_digital_time", "financial_balance"]:
-        agg_df[col] = agg_df[col].round(2)
-        
-    return agg_df
+        return {
+            "error": "File dataset_gelarrasa_genzfinancialprofile.csv tidak ditemukan"
+        }, 404
+    except Exception as e:
+        return {"error": str(e)}, 500

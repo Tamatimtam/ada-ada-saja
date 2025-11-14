@@ -8,6 +8,7 @@ export function renderChoroplethMap({
     reverseNameMapping,
     selectedMetric,
     datasetKey,
+    title, // Accept the title as a parameter
     containerId = 'container'
 }) {
     if (!currentApiData || !mapData) return;
@@ -39,30 +40,62 @@ export function renderChoroplethMap({
             }
             return { dataClasses: dc };
         })()
-        : {
-            type: metricDetails.type,
-            // Override khusus per metrik
-            ...(selectedMetric === 'pdrb_ribu_rp'
-                ? { min: 10000, max: 1000000 }
-                : selectedMetric === 'rekening_penerima_aktif'
-                    ? { min: 1000, max: 10000000 }
-                    : selectedMetric === 'jumlah_penduduk_ribu'
-                        ? { min: 100, max: 100000 }
-                        : { min: metricDetails.type === 'logarithmic' ? 1 : null }),
-            minColor: metricDetails.minColor,
-            maxColor: metricDetails.maxColor,
-            labels: {
-                formatter: function () { return this.value ? this.value.toLocaleString('id-ID') : 'N/A'; },
-                style: { fontSize: '0.875rem', color: '#4a5568' }
+        : (() => {
+            // Use an IIFE to cleanly build the options object
+            let colorSettings = {};
+
+            // --- START OF MODIFICATION ---
+            if (selectedMetric === 'outstanding_pinjaman_miliar') {
+                // Special multi-color gradient for this metric
+                colorSettings = {
+                    stops: [
+                        [0, '#87CEFA'], // Start with Light Sky Blue for the lowest values
+                        [1, metricDetails.maxColor]    // End directly with the original dark orange
+                    ]
+                };
+            } else {
+                // Default behavior for all other metrics
+                colorSettings = {
+                    minColor: metricDetails.minColor,
+                    maxColor: metricDetails.maxColor
+                };
             }
-        };
+            // --- END OF MODIFICATION ---
+
+            return {
+                type: metricDetails.type,
+                endOnTick: false,
+                ... (selectedMetric === 'outstanding_pinjaman_miliar' || selectedMetric === 'dana_diberikan_miliar'
+                    ? { max: 100000 }
+                    : selectedMetric === 'pdrb_ribu_rp'
+                        ? { min: 10000, max: 1000000 }
+                        : selectedMetric === 'rekening_penerima_aktif'
+                            ? { min: 1000, max: 10000000 }
+                            : selectedMetric === 'jumlah_penduduk_ribu'
+                                ? { min: 100, max: 100000 }
+                                : { min: metricDetails.type === 'logarithmic' ? 1 : null }),
+                ...colorSettings, // Apply the determined color settings
+                labels: {
+                    formatter: function () { return this.value ? this.value.toLocaleString('id-ID') : 'N/A'; },
+                    style: { fontSize: '0.875rem', color: '#4a5568' }
+                }
+            };
+        })();
 
     Highcharts.mapChart(containerId, {
         chart: {
             map: mapData,
             backgroundColor: '#ffffff',
             style: { fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif' },
-            events: { load: function () { attachNavigationEnhancements(this); } }
+            events: {
+                load: function () {
+                    // Fit map to container on initial load to remove dead space
+                    if (this.series[0] && this.series[0].bounds) {
+                        this.mapView.fitToBounds(this.series[0].bounds, { padding: 15 });
+                    }
+                    attachNavigationEnhancements(this);
+                }
+            }
         },
         credits: { enabled: false }, // Disable Highcharts.com credit
         exporting: { buttons: { contextButton: { align: 'right', verticalAlign: 'bottom', y: -10 } } },
@@ -127,10 +160,9 @@ export function renderChoroplethMap({
                     let out = `<b>${provinceData[config.keyColumn]}</b><br/>`;
                     if (selectedMetric === 'financial_balance') {
                         const balance = provinceData.financial_balance;
-                        const income = provinceData.avg_income;
-                        const expense = provinceData.avg_expense;
                         const status = balance >= 0 ? '<span style="color:#1565C0;font-weight:bold;">Surplus</span>' : '<span style="color:#C62828;font-weight:bold;">Defisit</span>';
-                        out += `Status Keuangan: ${status}<br/>--------------------<br/>Pendapatan: <b>Rp ${income?.toLocaleString('id-ID') || 'N/A'}</b><br/>Pengeluaran: <b>Rp ${expense?.toLocaleString('id-ID') || 'N/A'}</b>`;
+                        // Hanya tampilkan status, hapus detail pendapatan dan pengeluaran
+                        out += `Status Keuangan: ${status}`;
                     } else {
                         const v = provinceData[selectedMetric];
                         const formatted = v != null ? parseFloat(v).toLocaleString('id-ID') : 'N/A';
