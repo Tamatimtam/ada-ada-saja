@@ -60,7 +60,7 @@ function getChartConfig() {
                     enabled: true,
                     format: '{y:.1f}',
                     style: {
-                        fontSize: '9px',
+                        fontSize: '7px',
                         color: '#333',
                         textOutline: 'none'
                     },
@@ -68,7 +68,8 @@ function getChartConfig() {
                     inside: false,
                     crop: false,
                     overflow: 'allow',
-                    y: -6
+                    y: 0,
+                    allowOverlap: true
                 },
                 borderRadius: 4,
                 borderWidth: 0
@@ -78,10 +79,13 @@ function getChartConfig() {
                     enabled: true,
                     format: '{y:.1f}',
                     style: {
-                        fontSize: '11px',
+                        fontSize: '7px',
                         color: '#333',
                         textOutline: 'none'
-                    }
+                    },
+                    crop: false,
+                    overflow: 'allow',
+                    allowOverlap: true
                 },
                 borderRadius: 4,
                 borderWidth: 0

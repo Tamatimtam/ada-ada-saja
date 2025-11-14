@@ -6,7 +6,7 @@
     /* Red for negative polarity */
     --modal-positive-color: #1ba991;
     /* Green for positive polarity */
-    --modal-chart-highlight: #3498db;
+    --modal-chart-highlight: #1ba991;
     /* Blue for the most common answer bar */
 }
 
