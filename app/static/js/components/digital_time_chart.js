@@ -4,7 +4,8 @@ function getCssVariable(variable) {
     return getComputedStyle(document.documentElement).getPropertyValue(variable).trim();
 }
 
-function renderDigitalTimeChart(responseData, category) {
+// MODIFIED: Function now accepts filterType and filterValue for the title
+function renderDigitalTimeChart(responseData, filterType, filterValue) {
     const chartDiv = document.getElementById('digital-time-chart');
     if (!chartDiv) return;
 
@@ -36,15 +37,18 @@ function renderDigitalTimeChart(responseData, category) {
     const baselineKdeTrace = {
         x: baseline_kde.x, y: baseline_kde.y, type: 'scatter', mode: 'lines', name: 'Overall Trend',
         line: { color: getCssVariable('--chart-digital-baseline'), width: 2, dash: 'dash' },
-        hoverinfo: 'none', visible: (category && category !== 'All') ? true : 'legendonly'
+        hoverinfo: 'none', visible: (filterValue && filterValue !== 'All') ? true : 'legendonly'
     };
 
-    const titleCategory = category && category !== 'All' ? `for ${category}` : 'Overall';
+    // MODIFIED: Create a more descriptive subtitle
+    const filterTypeText = filterType ? filterType.charAt(0).toUpperCase() + filterType.slice(1) : '';
+    const titleCategory = filterValue && filterValue !== 'All' ? `for ${filterValue} (${filterTypeText})` : 'Overall';
     const chartTitle = `<b>📱 Digital Time Spent Distribution</b><br><span style="font-size:12px; color:#7f8c8d;">${stats.count} Respondents ${titleCategory}</span>`;
+
     const layout = {
         title: { text: chartTitle, x: 0.5, xanchor: 'center', font: { size: 14, family: 'Stack Sans Notch, sans-serif' } },
         xaxis: { title: 'Digital Time Spent per Day (hours)' }, yaxis: { title: 'Number of Respondents' },
-        annotations: [{ x: stats.mean, y: Math.max(...kde.y) * 0.95, text: `<b>Avg: ${stats.mean} hrs</b>`, showarrow: true, arrowhead: 2, ax: 0, ay: -40, }],
+        annotations: [{ x: stats.mean, y: Math.max(...(kde.y || [0])) * 0.95, text: `<b>Avg: ${stats.mean} hrs</b>`, showarrow: true, arrowhead: 2, ax: 0, ay: -40, }],
         barmode: 'overlay', showlegend: true, legend: { orientation: 'h', y: -0.2, x: 0.5, xanchor: 'center' },
         height: 273, margin: { l: 20, r: 3, t: 70, b: 10 }, template: 'plotly_white',
         font: { family: 'Outfit, sans-serif', size: 10 }, autosize: 'False'
@@ -53,7 +57,7 @@ function renderDigitalTimeChart(responseData, category) {
     Plotly.react(chartDiv, [histogramTrace, kdeTrace, baselineKdeTrace], layout, { displayModeBar: false, responsive: true });
 }
 
-// REFACTORED: Now accepts filterType and filterValue
+// MODIFIED: Pass filterType and filterValue to the render function
 function updateDigitalTimeChart(filterType, filterValue) {
     const chartContainer = document.getElementById('digital-time-chart').parentElement;
     if (chartContainer) chartContainer.classList.add('is-loading');
@@ -65,7 +69,7 @@ function updateDigitalTimeChart(filterType, filterValue) {
 
     fetch(url)
         .then(response => response.json())
-        .then(data => renderDigitalTimeChart(data, filterValue))
+        .then(data => renderDigitalTimeChart(data, filterType, filterValue))
         .catch(error => console.error('Error fetching digital time data:', error))
         .finally(() => {
             if (chartContainer) chartContainer.classList.remove('is-loading');

@@ -17,23 +17,33 @@ function updateKPICard(elementId, value) {
     if (element) element.textContent = value;
 }
 
+// MODIFIED: Function now accepts the full data object for context
 function renderLoanChart(data) {
     const chartDiv = document.getElementById('loan-overview-chart');
     if (!chartDiv) return;
-    // Identical rendering logic, now correctly fed filtered data.
+
     const distribution = data.distribution || [];
     const categories = distribution.map(d => d.category);
     const percentages = distribution.map(d => d.percentage);
     const counts = distribution.map(d => d.count);
+
     const colorMapping = {
         'No Loan': getCssVariable('--chart-loan-no-loan'), '<5M': getCssVariable('--chart-loan-tier-1'),
         '5M-10M': getCssVariable('--chart-loan-tier-2'), '10M-15M': getCssVariable('--chart-loan-tier-3'),
         '>15M': getCssVariable('--chart-loan-tier-4')
     };
     const colors = categories.map(cat => colorMapping[cat] || '#95a5a6');
-    const totalWithLoans = distribution.filter(d => d.category !== 'No Loan').reduce((sum, d) => sum + d.count, 0);
-    const filterText = data.filter_applied && data.filter_applied !== 'All' ? ` (${totalWithLoans} borrowers in ${data.filter_applied})` : ` (${totalWithLoans} borrowers)`;
-    const centerText = data.filter_applied && data.filter_applied !== 'All' ? `<b style="font-size:12px">${data.with_loan}</b><br><span style='font-size:8px;color:#7f8c8d'>with loans</span><br><span style='font-size:8px;color:#95a5a6'>in ${data.filter_applied}</span>` : `<b style="font-size:12px">${data.with_loan}</b><br><span style='font-size:8px;color:#7f8c8d'>with loans</span>`;
+
+    // Dynamic title for the donut chart
+    const filterText = data.filter_value && data.filter_value !== 'All' 
+        ? ` (${data.with_loan} borrowers in ${data.filter_value})` 
+        : ` (${data.with_loan} total borrowers)`;
+    const centerText = data.filter_value && data.filter_value !== 'All' 
+        ? `<b style="font-size:12px">${data.with_loan}</b><br><span style='font-size:8px;color:#7f8c8d'>with loans</span><br><span style='font-size:8px;color:#95a5a6'>in ${data.filter_value}</span>` 
+        : `<b style="font-size:12px">${data.with_loan}</b><br><span style='font-size:8px;color:#7f8c8d'>with loans</span>`;
+    
+    const chartTitle = `<b>💳 Outstanding Loan Distribution</b><br><span style="font-size:9px; color:#7f8c8d;">${filterText}</span>`;
+
     const chartData = [{
         labels: categories, values: percentages, hole: 0.60, type: 'pie',
         marker: { colors: colors, line: { color: '#ffffff', width: 2 } },
@@ -41,17 +51,20 @@ function renderLoanChart(data) {
         hovertemplate: '<b>%{label}</b><br>%{value:.1f}% (%{customdata} people)<extra></extra>',
         customdata: counts, direction: 'clockwise', sort: false
     }];
+
     const layout = {
-        title: { text: `<b>💳 Outstanding Loan<br>Distribution${filterText}</b>`, x: 0.5, xanchor: 'center', font: { size: 8, color: '#2c3e50', family: 'Outfit, sans-serif' } },
+        title: { text: chartTitle, x: 0.5, xanchor: 'center', font: { size: 8, color: '#2c3e50', family: 'Outfit, sans-serif' } },
         annotations: [{ text: centerText, x: 0.5, y: 0.5, font: { size: 7, family: 'Outfit, sans-serif' }, showarrow: false }],
         showlegend: false, margin: { l: 15, r: 15, t: 35, b: 5 }, paper_bgcolor: 'white',
         height: 140, width: 140, template: 'plotly_white'
     };
+
     Plotly.react(chartDiv, chartData, layout, { displayModeBar: false, responsive: true });
     renderLegend('loan-overview-legend', categories, colorMapping);
 }
 
-function renderLoanPurposeChart(data, filterValue) {
+// MODIFIED: Function now accepts the full data object for context
+function renderLoanPurposeChart(data, filterType, filterValue) {
     const chartDiv = document.getElementById('loan-purpose-chart');
     if (!chartDiv) return;
 
@@ -61,11 +74,16 @@ function renderLoanPurposeChart(data, filterValue) {
     }
     if (chartDiv.querySelector('.placeholder-content')) chartDiv.innerHTML = '';
     
-    // Identical rendering logic
     const labels = data.map(d => d.purpose); const emojis = data.map(d => d.icon);
     const counts = data.map(d => d.count); const percentages = data.map(d => d.percentage);
     const colors = data.map(d => d.color); const totalCount = counts.reduce((a, b) => a + b, 0);
-    const titleText = filterValue && filterValue !== 'All' ? `Loan Usage (${totalCount} borrowers in ${filterValue})` : `Loan Usage Purpose (${totalCount} borrowers)`;
+
+    // Dynamic title for the purpose chart
+    const filterText = filterValue && filterValue !== 'All' 
+        ? `(${totalCount} borrowers in ${filterValue})` 
+        : `(${totalCount} total borrowers)`;
+    const titleText = `Loan Usage ${filterText}`;
+    
     const pieTrace = {
         values: percentages, labels: labels, type: 'pie', domain: { x: [0, 0.35], y: [0.15, 0.95] },
         marker: { colors: colors, line: { color: '#ffffff', width: 1.5 } }, textposition: 'inside', textinfo: 'percent',
@@ -89,10 +107,11 @@ function renderLoanPurposeChart(data, filterValue) {
     renderLegend('loan-purpose-legend', labels, purposeColorMapping);
 }
 
-// REFACTORED: Now accepts filterType and filterValue
+// MODIFIED: This function now updates the main panel title
 function updateLoanPanel(filterType, filterValue) {
     const kpiContainer = document.querySelector('.loan-kpi-cards');
     const chartContainer = document.querySelector('#loan-overview-chart').parentElement;
+    const titleEl = document.getElementById('loan-overview-title');
     if (kpiContainer) kpiContainer.classList.add('is-loading');
     if (chartContainer) chartContainer.classList.add('is-loading');
 
@@ -104,6 +123,20 @@ function updateLoanPanel(filterType, filterValue) {
     fetch(url)
         .then(response => response.json())
         .then(data => {
+            // Update Main Title
+            if (titleEl) {
+                if (data.filter_type && data.filter_value !== 'All') {
+                    const typeText = data.filter_type.charAt(0).toUpperCase() + data.filter_type.slice(1);
+                    titleEl.innerHTML = `<i class="fas fa-hand-holding-usd"></i> Outstanding Loan Overview
+                    <br><small style="font-size: 0.7rem; color: #5E6573; font-weight: 500;">
+                        ${data.total_respondents} Respondents for ${data.filter_value} (${typeText})
+                    </small>`;
+                } else {
+                    titleEl.innerHTML = `<i class="fas fa-hand-holding-usd"></i> Outstanding Loan Overview`;
+                }
+            }
+            
+            // Update KPI cards
             updateKPICard('loan-total-value', data.with_loan);
             updateKPICard('loan-total-subtext', `${data.with_loan_pct}% of ${data.total_respondents} respondents`);
             updateKPICard('loan-avg-value', formatCurrency(data.mean));
@@ -111,6 +144,8 @@ function updateLoanPanel(filterType, filterValue) {
             updateKPICard('loan-third-value', formatCurrency(data.total_outstanding));
             updateKPICard('loan-third-subtext', filterValue && filterValue !== 'All' ? `In ${filterValue}` : 'Sum of all loans');
             updateKPICard('loan-max-value', formatCurrency(data.max));
+            
+            // Render charts
             renderLoanChart(data);
         })
         .finally(() => {
@@ -119,7 +154,6 @@ function updateLoanPanel(filterType, filterValue) {
         });
 }
 
-// REFACTORED: Now accepts filterType and filterValue
 function updateLoanPurposeChart(filterType, filterValue) {
     const chartContainer = document.querySelector('#loan-purpose-chart').parentElement;
     if (chartContainer) chartContainer.classList.add('is-loading');
@@ -131,7 +165,7 @@ function updateLoanPurposeChart(filterType, filterValue) {
 
     fetch(url)
         .then(response => response.json())
-        .then(data => renderLoanPurposeChart(data, filterValue))
+        .then(data => renderLoanPurposeChart(data, filterType, filterValue))
         .finally(() => {
             if (chartContainer) chartContainer.classList.remove('is-loading');
         });

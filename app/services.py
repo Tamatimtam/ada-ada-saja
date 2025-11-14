@@ -267,36 +267,29 @@ class DataLoader:
             "expense_counts": viz_data["Expense_Count"].astype(int).tolist(),
         }
 
-    # MODIFIED: Add total_respondents to the returned dictionary
     def get_filtered_profession_chart_data(self, filter_type=None, filter_value=None):
         df_filtered = self._get_filtered_df(filter_type, filter_value)
-        
         if df_filtered.empty or "employment_status" not in df_filtered.columns or "financial_standing" not in df_filtered.columns:
             return {"categories": [], "data": {}, "colors": {}, "total_counts": {}, "total_respondents": 0}
-
         counts_df = pd.crosstab(df_filtered['employment_status'], df_filtered['financial_standing'])
         profession_standing = counts_df.div(counts_df.sum(axis=1), axis=0).fillna(0) * 100
         employment_counts = df_filtered['employment_status'].value_counts()
         profession_standing = profession_standing.reindex(employment_counts.index)
-        
         categories = profession_standing.index.tolist()
         colors = {"Surplus": "#2ecc71", "Break-even": "#f39c12", "Deficit": "#e74c3c"}
         chart_data = {
             "categories": categories, "financial_standings": list(profession_standing.columns),
             "data": {}, "colors": colors, "total_counts": employment_counts.to_dict(),
-            "total_respondents": int(df_filtered.shape[0]) # ADD THIS LINE
+            "total_respondents": int(df_filtered.shape[0])
         }
         for standing in ["Surplus", "Break-even", "Deficit"]:
             chart_data["data"][standing] = profession_standing[standing].round(1).tolist() if standing in profession_standing.columns else [0] * len(categories)
         return chart_data
 
-    # MODIFIED: Add total_respondents to the returned dictionary
     def get_filtered_education_chart_data(self, filter_type=None, filter_value=None):
         df_filtered = self._get_filtered_df(filter_type, filter_value)
-
         if df_filtered.empty or "education_level" not in df_filtered.columns or "financial_standing" not in df_filtered.columns:
             return {"categories": [], "data": {}, "colors": {}, "total_counts": {}, "total_respondents": 0}
-
         education_order = [
             "Elementary School", "Junior High School", "Senior High School",
             "Diploma I/II/III", "Bachelor (S1)/Diploma IV", "Postgraduate",
@@ -311,15 +304,16 @@ class DataLoader:
         chart_data = {
             "categories": categories, "financial_standings": list(education_standing.columns),
             "data": {}, "colors": colors, "total_counts": education_counts.to_dict(),
-            "total_respondents": int(df_filtered.shape[0]) # ADD THIS LINE
+            "total_respondents": int(df_filtered.shape[0])
         }
         for standing in ["Surplus", "Break-even", "Deficit"]:
             chart_data["data"][standing] = education_standing[standing].round(1).tolist() if standing in education_standing.columns else [0] * len(categories)
         return chart_data
 
+    # MODIFIED: Pass filter_type and filter_value to the processor
     def get_filtered_loan_overview(self, filter_type=None, filter_value=None):
         filtered_df = self._get_filtered_df(filter_type, filter_value)
-        return LoanProcessor(filtered_df).get_filtered_loan_data_by_income(filter_value)
+        return LoanProcessor(filtered_df).get_filtered_loan_data(filter_type, filter_value)
 
     def get_filtered_loan_purpose_data(self, filter_type=None, filter_value=None):
         filtered_df = self._get_filtered_df(filter_type, filter_value)

@@ -172,44 +172,27 @@ class LoanProcessor:
 
         return report
 
-    def get_filtered_loan_data_by_income(self, income_category):
+     # REFACTORED: Renamed and logic enhanced for generic filtering
+    def get_filtered_loan_data(self, filter_type=None, filter_value=None):
         """
-        Get comprehensive loan data filtered by income category
-
-        Args:
-            income_category (str): Income category to filter by (e.g., '<2jt', '2-4jt')
-
-        Returns:
-            dict: Filtered loan statistics with distribution
+        Get comprehensive loan data for the current DataFrame (which may be pre-filtered).
         """
-        # Filter dataframe
-        if income_category and income_category != "All":
-            filtered_df = self.df[self.df["avg_income_category"] == income_category]
-        else:
-            filtered_df = self.df
-
+        filtered_df = self.df
         if len(filtered_df) == 0:
-            return self._get_empty_filtered_stats(income_category)
+            return self._get_empty_filtered_stats(filter_value)
 
-        # CRITICAL FIX: Fill NaN with 0 before processing
-        # Ensures NULL values are treated as "No Loan" for consistent counting
         loan_data = filtered_df["outstanding_loan"].fillna(0)
         loan_data_with_loans = loan_data[loan_data > 0]
 
-        # Calculate statistics
         stats = {
-            "filter_applied": income_category if income_category else "All",
-            "total_respondents": len(filtered_df),
+            "filter_type": filter_type,
+            "filter_value": filter_value if filter_value else "All",
+            "total_respondents": len(filtered_df), # Key addition
             "with_loan": int((loan_data > 0).sum()),
             "without_loan": int((loan_data == 0).sum()),
-            "with_loan_pct": 0.0,
-            "without_loan_pct": 0.0,
-            "mean": 0.0,
-            "median": 0.0,
-            "mode": 0.0,
-            "max": 0.0,
-            "min": 0.0,
-            "total_outstanding": 0.0,
+            "with_loan_pct": 0.0, "without_loan_pct": 0.0,
+            "mean": 0.0, "median": 0.0, "mode": 0.0,
+            "max": 0.0, "min": 0.0, "total_outstanding": 0.0,
         }
 
         if len(loan_data_with_loans) > 0:
@@ -218,94 +201,43 @@ class LoanProcessor:
             stats["max"] = float(loan_data_with_loans.max())
             stats["min"] = float(loan_data_with_loans.min())
             stats["total_outstanding"] = float(loan_data_with_loans.sum())
-
-            # Calculate mode
             mode_result = loan_data_with_loans.mode()
             stats["mode"] = float(mode_result.iloc[0]) if len(mode_result) > 0 else 0.0
 
-        stats["with_loan_pct"] = (
-            round((stats["with_loan"] / stats["total_respondents"]) * 100, 1)
-            if stats["total_respondents"] > 0
-            else 0
-        )
-        stats["without_loan_pct"] = (
-            round((stats["without_loan"] / stats["total_respondents"]) * 100, 1)
-            if stats["total_respondents"] > 0
-            else 0
-        )
+        stats["with_loan_pct"] = (round((stats["with_loan"] / stats["total_respondents"]) * 100, 1) if stats["total_respondents"] > 0 else 0)
+        stats["without_loan_pct"] = (round((stats["without_loan"] / stats["total_respondents"]) * 100, 1) if stats["total_respondents"] > 0 else 0)
 
-        # Calculate distribution for filtered data
         distribution = []
         for category in self.loan_categories:
             count = self._count_loans_in_category(category, loan_data)
-            percentage = (
-                round((count / len(filtered_df)) * 100, 1)
-                if len(filtered_df) > 0
-                else 0.0
-            )
-
-            distribution.append(
-                {
-                    "category": category["name"],
-                    "count": count,
-                    "percentage": percentage,
-                    "color": category["color"],
-                }
-            )
+            percentage = (round((count / len(filtered_df)) * 100, 1) if len(filtered_df) > 0 else 0.0)
+            distribution.append({
+                "category": category["name"], "count": count,
+                "percentage": percentage, "color": category["color"],
+            })
 
         stats["distribution"] = distribution
-
         return stats
 
     def get_loan_purpose_distribution(self):
-        """
-        Calculates the distribution of loan usage purposes, including undefined ones.
-        This ensures the total number of borrowers matches the loan distribution chart.
-
-        Returns:
-            list: A list of dictionaries with loan purpose distribution data,
-                  sorted by count with 'Undefined' placed last.
-        """
-        # 1. Get all records with an outstanding loan > 0
         borrowers_df = self.df[self.df["outstanding_loan"] > 0].copy()
+        if borrowers_df.empty: return []
 
-        if borrowers_df.empty:
-            return []
-
-        # 2. Normalize 'loan_usage_purpose' to group all non-defined purposes
-        borrowers_df["loan_usage_purpose"] = borrowers_df["loan_usage_purpose"].fillna(
-            "Undefined"
-        )
-        borrowers_df["loan_usage_purpose"] = borrowers_df["loan_usage_purpose"].replace(
-            ["Tidak Ada", ""], "Undefined"
-        )
-
-        # 3. Calculate value counts
+        borrowers_df["loan_usage_purpose"] = borrowers_df["loan_usage_purpose"].fillna("Undefined").replace(["Tidak Ada", ""], "Undefined")
         purpose_counts = borrowers_df["loan_usage_purpose"].value_counts()
         total_borrowers = len(borrowers_df)
 
-        # 4. Build the distribution list with all required attributes
         distribution = []
         for purpose, count in purpose_counts.items():
             percentage = (count / total_borrowers) * 100 if total_borrowers > 0 else 0
-            mapping = self.LOAN_PURPOSE_MAP.get(
-                purpose, self.LOAN_PURPOSE_MAP["Lainnya"]
-            )
-
-            distribution.append(
-                {
-                    "purpose": purpose,
-                    "count": int(count),
-                    "percentage": round(percentage, 1),
-                    "color": mapping["color"],
-                    "icon": mapping["icon"],
-                }
-            )
-
-        # 5. Sort by count descending, but ensure 'Undefined' is always last
+            mapping = self.LOAN_PURPOSE_MAP.get(purpose, self.LOAN_PURPOSE_MAP["Lainnya"])
+            distribution.append({
+                "purpose": purpose, "count": int(count), "percentage": round(percentage, 1),
+                "color": mapping["color"], "icon": mapping["icon"],
+            })
         distribution.sort(key=lambda x: (x["purpose"] == "Undefined", -x["count"]))
-
         return distribution
+
 
     def _count_loans_in_category(self, category, loan_data=None):
         """
