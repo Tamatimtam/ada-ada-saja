@@ -22,6 +22,7 @@
     grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
     gap: 0.4rem;
     margin-bottom: 0.6rem;
+    transition: opacity 0.3s ease-in-out; /* Add transition for loading state */
 }
 
 .loan-kpi-card {
@@ -96,6 +97,14 @@
     justify-content: center;
     position: relative;
     max-height: 280px;
+    transition: opacity 0.3s ease-in-out; /* Add transition for loading state */
+}
+
+/* --- PHASE 2: NEW LOADING STATE STYLE --- */
+.chart-container.is-loading,
+.loan-kpi-cards.is-loading {
+    opacity: 0.3;
+    pointer-events: none;
 }
 
 .chart-container .js-plotly-plot,
@@ -106,17 +115,20 @@
 }
 
 .placeholder-content {
-    display: none;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    color: #95a5a6;
 }
 
-/* Side-by-side layout for Loan Overview and Loan Purpose charts */
 .loan-charts-grid {
     display: grid;
     grid-template-columns: 4fr 6fr;
     gap: 12px;
 }
 
-/* Slightly tighter containers for these two charts */
 .loan-charts-grid .chart-container {
     padding: 5px;
 }

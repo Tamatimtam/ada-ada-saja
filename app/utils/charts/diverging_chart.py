@@ -10,6 +10,7 @@ def create_diverging_bar_chart(chart_data):
 
     fig = go.Figure()
 
+    # TRACE 0: Expense (Negative values)
     fig.add_trace(
         go.Bar(
             name="Expense",
@@ -27,7 +28,8 @@ def create_diverging_bar_chart(chart_data):
             meta=[f"expense_{cat}" for cat in categories],
         )
     )
-
+    
+    # TRACE 1: Income (Positive values)
     fig.add_trace(
         go.Bar(
             name="Income",
@@ -48,7 +50,7 @@ def create_diverging_bar_chart(chart_data):
 
     fig.update_layout(
         title={
-            "text": '<b>⚖️ Income vs Expense Distribution</b><br><sub style="font-size:10px; color:#7f8c8d; font-weight:normal;">Click any bar to highlight category • Click again to deselect</sub>',
+            "text": '<b>⚖️ Income vs Expense Distribution</b><br><sub style="font-size:10px; color:#7f8c8d; font-weight:normal;">Click a bar to filter dashboard • Click same bar to reset</sub>',
             "x": 0.5,
             "xanchor": "center",
             "font": {"size": 14, "family": "Stack Sans Notch, sans-serif", "color": "#2c3e50"},
@@ -78,15 +80,9 @@ def create_diverging_bar_chart(chart_data):
         width=368,
         showlegend=True,
         legend=dict(
-            orientation="v",
-            yanchor="top",
-            y=1.0,
-            xanchor="right",
-            x=1.05,
-            font={"size": 8, "color": "#2c3e50"},
-            bgcolor="rgba(255, 255, 255, 0.9)",
-            bordercolor="#bdc3c7",
-            borderwidth=1,
+            orientation="v", yanchor="top", y=1.0, xanchor="right", x=1.05,
+            font={"size": 8, "color": "#2c3e50"}, bgcolor="rgba(255, 255, 255, 0.9)",
+            bordercolor="#bdc3c7", borderwidth=1,
         ),
         plot_bgcolor="rgba(250, 250, 250, 1)",
         paper_bgcolor="white",
@@ -98,20 +94,16 @@ def create_diverging_bar_chart(chart_data):
         include_plotlyjs=False,
         div_id="diverging-bar-chart",
         config={
-            "displayModeBar": True,
-            "displaylogo": False,
-            "responsive": True,
+            "displayModeBar": True, "displaylogo": False, "responsive": True,
             "modeBarButtonsToRemove": ["pan2d", "lasso2d", "select2d"],
             "toImageButtonOptions": {
-                "format": "png",
-                "filename": "income_vs_expense_chart",
-                "height": 576,
-                "width": 1152,
-                "scale": 2,
+                "format": "png", "filename": "income_vs_expense_chart",
+                "height": 576, "width": 1152, "scale": 2,
             },
         },
     )
 
+    # --- PHASE 2: UPDATED INTERACTIVE SCRIPT ---
     interactive_script = """
     <script>
     (function() {
@@ -122,83 +114,67 @@ def create_diverging_bar_chart(chart_data):
                 return;
             }
             
-            let selectedCategory = null;
-            const originalTickFont = { size: 10, color: '#34495e', family: 'Arial, sans-serif' };
+            let activeFilter = null; // Stores { type, value }
             
             chartDiv.on('plotly_click', function(data) {
                 const point = data.points[0];
-                const category = point.y;
-                
-                if (selectedCategory === category) {
+                const traceIndex = point.curveNumber; // 0 for Expense, 1 for Income
+                const filterValue = point.y;
+                const filterType = traceIndex === 0 ? 'expense' : 'income';
+
+                // Check if the same bar is clicked again to reset
+                if (activeFilter && activeFilter.type === filterType && activeFilter.value === filterValue) {
                     resetFilter();
                 } else {
-                    applyFilter(category);
+                    applyFilter(filterType, filterValue);
                 }
             });
             
-            function applyFilter(category) {
-                selectedCategory = category;
-                chartDiv.setAttribute('data-selected-category', category);
-                setTimeout(() => {
-                    const event = new CustomEvent('categoryFiltered', { detail: { category: category }, bubbles: true });
-                    document.dispatchEvent(event);
-                }, 10);
+            function applyFilter(filterType, filterValue) {
+                activeFilter = { type: filterType, value: filterValue };
                 
-                const categoryIndex = chartDiv.data[0].y.indexOf(category);
-                const barUpdate = { 'marker.opacity': [], 'marker.line.width': [] };
-                
-                chartDiv.data.forEach((trace) => {
-                    const opacities = [];
-                    const lineWidths = [];
-                    trace.y.forEach((cat) => {
-                        if (cat === category) { opacities.push(1.0); lineWidths.push(3); } else { opacities.push(0.25); lineWidths.push(1); }
-                    });
-                    barUpdate['marker.opacity'].push(opacities);
-                    barUpdate['marker.line.width'].push(lineWidths);
+                // Dispatch a global event that other components can listen to
+                const event = new CustomEvent('applyDashboardFilter', { 
+                    detail: { filterType, filterValue }, 
+                    bubbles: true 
                 });
+                document.dispatchEvent(event);
                 
-                Plotly.restyle(chartDiv, barUpdate);
+                // --- Visual Feedback Logic ---
+                const selectedTrace = filterType === 'expense' ? 0 : 1;
                 
-                const tickColors = chartDiv.data[0].y.map(cat => cat === category ? '#e67e22' : 'rgba(52, 73, 94, 0.4)');
-                const tickSizes = chartDiv.data[0].y.map(cat => cat === category ? 12 : 10);
-                const labelUpdate = { 'yaxis.tickfont.color': tickColors, 'yaxis.tickfont.size': tickSizes };
-                Plotly.relayout(chartDiv, labelUpdate);
+                // Update opacity for all bars
+                Plotly.restyle(chartDiv, 'marker.opacity', chartDiv.data.map((trace, i) => {
+                    const opacities = Array(trace.y.length).fill(0.25);
+                    const categoryIndex = trace.y.indexOf(filterValue);
+                    if (i === selectedTrace && categoryIndex !== -1) {
+                        opacities[categoryIndex] = 1.0;
+                    }
+                    return opacities;
+                }));
                 
-                setTimeout(() => {
-                    const yaxisLabels = chartDiv.querySelectorAll('.ytick text');
-                    yaxisLabels.forEach((label, idx) => {
-                        if (idx === categoryIndex) { label.style.fontWeight = 'bold'; label.style.fill = '#e67e22'; label.style.fontSize = '12px'; label.style.transition = 'all 0.3s ease'; }
-                        else { label.style.fontWeight = 'normal'; label.style.fill = 'rgba(52, 73, 94, 0.4)'; label.style.fontSize = '10px'; }
-                    });
-                }, 50);
+                // Update y-axis label styles
+                const tickColors = chartDiv.data[0].y.map(cat => cat === filterValue ? '#e67e22' : 'rgba(52, 73, 94, 0.4)');
+                const tickSizes = chartDiv.data[0].y.map(cat => cat === filterValue ? 12 : 10);
+                const tickWeights = chartDiv.data[0].y.map(cat => cat === filterValue ? 'bold' : 'normal');
+                Plotly.relayout(chartDiv, { 'yaxis.tickfont.color': tickColors, 'yaxis.tickfont.size': tickSizes, 'yaxis.tickfont.weight': tickWeights });
             }
             
             function resetFilter() {
-                selectedCategory = null;
-                chartDiv.removeAttribute('data-selected-category');
-                setTimeout(() => {
-                    const event = new CustomEvent('categoryFilterReset', { bubbles: true });
-                    document.dispatchEvent(event);
-                }, 10);
+                if (!activeFilter) return;
+                activeFilter = null;
                 
-                const numCategories = chartDiv.data[0].y.length;
-                const fullOpacity = Array(numCategories).fill(0.9);
-                const standardWidth = Array(numCategories).fill(1.5);
-                const barUpdate = { 'marker.opacity': [fullOpacity, fullOpacity], 'marker.line.width': [standardWidth, standardWidth] };
-                Plotly.restyle(chartDiv, barUpdate);
+                // Dispatch a global reset event
+                const event = new CustomEvent('resetDashboardFilter', { bubbles: true });
+                document.dispatchEvent(event);
                 
-                const originalTickFont = { size: 10, color: '#34495e', family: 'Arial, sans-serif' };
-                const labelUpdate = { 'yaxis.tickfont': originalTickFont };
-                Plotly.relayout(chartDiv, labelUpdate);
-                
-                setTimeout(() => {
-                    const yaxisLabels = chartDiv.querySelectorAll('.ytick text');
-                    yaxisLabels.forEach(label => { label.style.fontWeight = 'normal'; label.style.fill = '#34495e'; label.style.fontSize = '10px'; });
-                }, 50);
+                // --- Visual Reset Logic ---
+                Plotly.restyle(chartDiv, 'marker.opacity', [Array(chartDiv.data[0].y.length).fill(0.9), Array(chartDiv.data[1].y.length).fill(0.9)]);
+                Plotly.relayout(chartDiv, { 'yaxis.tickfont': { size: 8, color: '#34495e', weight: 'normal' } });
             }
             
-            window.chartResetFilter = resetFilter;
-            document.addEventListener('categoryFilterReset', function() { if (selectedCategory !== null) resetFilter(); });
+            // Allow other components to trigger a reset externally if needed
+            document.addEventListener('resetDashboardFilter', () => { if (activeFilter) resetFilter(); });
         }
         
         if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', initializeChartInteractivity); } else { initializeChartInteractivity(); }

@@ -13,54 +13,41 @@ document.addEventListener('DOMContentLoaded', async function () {
         mapData: null,
         selectedDataset: 'regional',
         selectedMetric: null,
-        externalFilterCategory: 'All' // State for the external filter
+        // PHASE 2: Replaced externalFilterCategory with a structured object
+        externalFilter: {
+            type: null, // 'income' or 'expense'
+            value: null // e.g., '6-10jt'
+        }
     };
 
     function initDropdown(dropdownEl, onSelect) {
         const selected = dropdownEl.querySelector('.dropdown-selected');
         const options = dropdownEl.querySelector('.dropdown-options');
-
-        selected.addEventListener('click', () => {
-            dropdownEl.classList.toggle('open');
-        });
-
+        selected.addEventListener('click', () => dropdownEl.classList.toggle('open'));
         options.addEventListener('click', (e) => {
             if (e.target.tagName === 'LI') {
                 const value = e.target.dataset.value;
-                const text = e.target.textContent;
-                selected.textContent = text + ' ▼';
+                selected.textContent = e.target.textContent + ' ▼';
                 dropdownEl.classList.remove('open');
                 onSelect(value);
             }
         });
-
-        document.addEventListener('click', (e) => {
-            if (!dropdownEl.contains(e.target)) {
-                dropdownEl.classList.remove('open');
-            }
-        });
+        document.addEventListener('click', (e) => { if (!dropdownEl.contains(e.target)) dropdownEl.classList.remove('open'); });
     }
 
     function updateMetricSelector(datasetKey) {
         const config = datasetsConfig[datasetKey];
         const metricOptions = metricDropdown.querySelector('.dropdown-options');
         const metricSelected = metricDropdown.querySelector('.dropdown-selected');
-
         metricOptions.innerHTML = '';
-
         let firstMetric = null;
-
         for (const [value, details] of Object.entries(config.metrics)) {
-            if (!firstMetric) {
-                firstMetric = { value, label: details.label };
-            }
+            if (!firstMetric) firstMetric = { value, label: details.label };
             const li = document.createElement('li');
             li.dataset.value = value;
             li.textContent = details.label;
             metricOptions.appendChild(li);
         }
-
-        // Select the first metric by default
         if (firstMetric) {
             state.selectedMetric = firstMetric.value;
             metricSelected.textContent = firstMetric.label + ' ▼';
@@ -69,15 +56,16 @@ document.addEventListener('DOMContentLoaded', async function () {
 
     async function loadDataset(datasetKey) {
         try {
-            let endpoint = datasetsConfig[datasetKey].endpoint;
-            // Apply the external filter ONLY if the financial dataset is selected
-            if (datasetKey === 'financial' && state.externalFilterCategory !== 'All') {
-                endpoint = `/api/financial-profile/${encodeURIComponent(state.externalFilterCategory)}`;
+            let endpoint = new URL(datasetsConfig[datasetKey].endpoint, window.location.origin);
+            // Apply external filter ONLY if the financial dataset is selected
+            if (datasetKey === 'financial' && state.externalFilter.type && state.externalFilter.value) {
+                endpoint.searchParams.append('filter_type', state.externalFilter.type);
+                endpoint.searchParams.append('filter_value', state.externalFilter.value);
             }
             state.currentApiData = await fetchApiData(endpoint);
         } catch (err) {
-            console.error('Gagal memuat data API:', err);
-            container.innerHTML = `<p style="color:red; text-align:center;">Gagal memuat data.</p>`;
+            console.error('Failed to load API data:', err);
+            container.innerHTML = `<p style="color:red; text-align:center;">Failed to load data.</p>`;
         }
     }
 
@@ -87,22 +75,14 @@ document.addEventListener('DOMContentLoaded', async function () {
         const config = datasetsConfig[state.selectedDataset];
         const metricDetails = config.metrics[state.selectedMetric];
 
-        // Create the title string dynamically based on the current filter state
         const baseTitle = `${config.titlePrefix}: ${metricDetails.label}`;
-        const finalTitle = state.selectedDataset === 'financial' && state.externalFilterCategory !== 'All'
-            ? `${baseTitle} (Filter: ${state.externalFilterCategory})`
-            : baseTitle;
+        const filterLabel = state.externalFilter.value ? `(${state.externalFilter.type}: ${state.externalFilter.value})` : '';
+        const finalTitle = state.selectedDataset === 'financial' && filterLabel ? `${baseTitle} ${filterLabel}` : baseTitle;
 
         const common = {
-            mapData: state.mapData,
-            currentApiData: state.currentApiData,
-            config,
-            metricDetails,
-            reverseNameMapping,
-            selectedMetric: state.selectedMetric,
-            datasetKey: state.selectedDataset,
-            containerId: 'container',
-            title: finalTitle // Pass the dynamic title to the renderer
+            mapData: state.mapData, currentApiData: state.currentApiData, config,
+            metricDetails, reverseNameMapping, selectedMetric: state.selectedMetric,
+            datasetKey: state.selectedDataset, containerId: 'container', title: finalTitle
         };
 
         if (metricDetails.vizType === 'pattern') {
@@ -119,8 +99,7 @@ document.addEventListener('DOMContentLoaded', async function () {
             initDropdown(datasetDropdown, async (selectedValue) => {
                 state.selectedDataset = selectedValue;
                 updateMetricSelector(selectedValue);
-                // When user manually selects a dataset, clear any external filter
-                state.externalFilterCategory = 'All';
+                state.externalFilter = { type: null, value: null }; // Clear external filter on manual change
                 await loadDataset(selectedValue);
                 renderMap();
             });
@@ -130,48 +109,38 @@ document.addEventListener('DOMContentLoaded', async function () {
                 renderMap();
             });
 
-            // --- START OF MODIFICATION ---
-            // Listen for filter events from the main diverging bar chart
-            document.addEventListener('categoryFiltered', async (e) => {
-                state.externalFilterCategory = e.detail.category;
+            // --- PHASE 2: NEW GLOBAL EVENT LISTENERS ---
+            document.addEventListener('applyDashboardFilter', async (e) => {
+                state.externalFilter = e.detail;
 
-                // If the map isn't already showing the financial dataset, switch to it automatically
                 if (state.selectedDataset !== 'financial') {
                     state.selectedDataset = 'financial';
-
-                    // Update the UI of the dataset dropdown to reflect the change
-                    const datasetSelectedText = datasetDropdown.querySelector('.dropdown-selected');
-                    datasetSelectedText.textContent = 'Profil Finansial Gen Z ▼';
-
-                    // Update the metric dropdown to show financial metrics
+                    datasetDropdown.querySelector('.dropdown-selected').textContent = 'Profil Finansial Gen Z ▼';
                     updateMetricSelector('financial');
                 }
 
-                // Now, load the (now guaranteed to be financial) data and render the map
                 await loadDataset(state.selectedDataset);
                 renderMap();
             });
 
-            document.addEventListener('categoryFilterReset', async () => {
-                const wasFiltered = state.externalFilterCategory !== 'All';
-                state.externalFilterCategory = 'All';
+            document.addEventListener('resetDashboardFilter', async () => {
+                const wasFiltered = !!state.externalFilter.type;
+                state.externalFilter = { type: null, value: null };
 
-                // Only reload and re-render if a filter was active AND the financial map is currently displayed
                 if (wasFiltered && state.selectedDataset === 'financial') {
                     await loadDataset(state.selectedDataset);
                     renderMap();
                 }
             });
-            // --- END OF MODIFICATION ---
+            // --- END NEW LISTENERS ---
 
-            // Initial setup
             updateMetricSelector(state.selectedDataset);
             await loadDataset(state.selectedDataset);
             renderMap();
 
         } catch (error) {
-            console.error('Inisialisasi aplikasi gagal:', error);
-            container.innerHTML = `<p style="color:red; text-align:center;">Gagal memuat peta atau data awal.</p>`;
+            console.error('Initialization failed:', error);
+            container.innerHTML = `<p style="color:red; text-align:center;">Failed to load map or initial data.</p>`;
         }
     }
 
