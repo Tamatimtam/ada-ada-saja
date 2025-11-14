@@ -3,8 +3,15 @@
     <div class="metric-modal-content">
         <button id="metric-modal-close" class="metric-modal-close">&times;</button>
         
+        <!-- NEW: Dynamic Title and Subtitle -->
+        <div class="metric-modal-header">
+            <h2 id="metric-modal-title" class="metric-modal-title">Metric Details</h2>
+            <p id="metric-modal-subtitle" class="metric-modal-subtitle">Survey results from all respondents.</p>
+        </div>
+
         <div id="metric-modal-body" class="metric-modal-body">
             <!-- JS will populate this section -->
+            <div class="metric-modal-loader">Loading...</div>
         </div>
 
         <div id="metric-modal-detail" class="metric-modal-detail">

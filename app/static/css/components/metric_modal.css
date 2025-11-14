@@ -1,9 +1,12 @@
 /* static/css/components/metric_modal.css */
 
 :root {
-    --modal-negative-color: #e67e22; /* Orange for negative polarity */
-    --modal-positive-color: #8e44ad; /* Purple for positive polarity */
-    --modal-chart-highlight: #3498db; /* Blue for the most common answer bar */
+    --modal-negative-color: #e67e22;
+    /* Orange for negative polarity */
+    --modal-positive-color: #8e44ad;
+    /* Purple for positive polarity */
+    --modal-chart-highlight: #3498db;
+    /* Blue for the most common answer bar */
 }
 
 .metric-modal-overlay {
@@ -48,6 +51,34 @@
     line-height: 1;
 }
 
+/* NEW: Header styling */
+.metric-modal-header {
+    text-align: center;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 16px;
+    margin-bottom: 20px;
+}
+
+.metric-modal-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin: 0 0 4px 0;
+}
+
+.metric-modal-subtitle {
+    font-size: 0.9rem;
+    color: #6c757d;
+    margin: 0;
+}
+
+.metric-modal-loader {
+    text-align: center;
+    padding: 40px;
+    font-size: 1.2rem;
+    color: #6c757d;
+}
+
+
 .metric-modal-body {
     display: flex;
     flex-direction: column;
@@ -58,6 +89,7 @@
     border-bottom: 1px solid #eee;
     padding-bottom: 16px;
 }
+
 .metric-group:last-child {
     border-bottom: none;
 }
@@ -144,6 +176,7 @@
 .question-circle.is-negative::before {
     border-color: var(--modal-negative-color);
 }
+
 .question-circle.is-negative.active {
     background-color: var(--modal-negative-color);
 }
@@ -154,7 +187,8 @@
     margin-top: 20px;
     padding-top: 20px;
     border-top: 2px dashed #e9ecef;
-    min-height: 180px; /* Prevent layout jump */
+    min-height: 180px;
+    /* Prevent layout jump */
 }
 
 .metric-question-text {
