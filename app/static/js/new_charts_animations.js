@@ -20,18 +20,33 @@ function styleStackedBarChart(chartId) {
     Plotly.restyle(chartDiv, { 'marker.color': traceColors });
 }
 
-// --- CHART RENDERING & UPDATING FUNCTIONS ---
-function renderChart(chartId, chartData, category, chartConfig) {
+// MODIFIED: This function now also handles subtitle updates
+function renderChart(chartId, chartData, filterType, filterValue, chartConfig) {
     const chartDiv = document.getElementById(chartId);
     if (!chartDiv) return;
 
+    // Update subtitle logic
+    const panelId = chartId === 'profession-chart' ? 'profession-panel' : 'education-panel';
+    const subtitleEl = document.querySelector(`#${panelId} .viz-footer small`);
+    if (subtitleEl) {
+        if (filterType && filterValue) {
+            const totalRespondents = chartData.total_respondents || 0;
+            const filterTypeText = filterType.charAt(0).toUpperCase() + filterType.slice(1);
+            subtitleEl.innerHTML = `Filtered by <b>${filterTypeText}: ${filterValue}</b><br><i>Based on ${totalRespondents} respondents</i>`;
+        } else {
+            const defaultText = chartId === 'profession-chart'
+                ? 'Employment status vs financial outcomes'
+                : "Education level's impact on stability";
+            subtitleEl.textContent = defaultText;
+        }
+    }
+
     // Show placeholder if data is empty
     if (!chartData || !chartData.categories || chartData.categories.length === 0) {
-        chartDiv.innerHTML = `<div class="placeholder-content" style="display:flex; flex-direction: column; align-items:center; justify-content:center; height:100%;"><i class="fas fa-info-circle fa-2x text-muted"></i><h6 class="mt-2" style="font-size:0.8rem; text-align:center;">No Data for<br>${category || 'Overall'}</h6></div>`;
+        chartDiv.innerHTML = `<div class="placeholder-content" style="display:flex; flex-direction: column; align-items:center; justify-content:center; height:100%;"><i class="fas fa-info-circle fa-2x text-muted"></i><h6 class="mt-2" style="font-size:0.8rem; text-align:center;">No Data for<br>${filterValue || 'Overall'}</h6></div>`;
         return;
     }
     
-    // Clear placeholder if it existed
     if (chartDiv.querySelector('.placeholder-content')) chartDiv.innerHTML = '';
     
     const traces = [];
@@ -56,14 +71,12 @@ function renderChart(chartId, chartData, category, chartConfig) {
         }
     });
     
-    // Animate the update
     Plotly.react(chartDiv, traces, chartConfig.layout, { responsive: true, displayModeBar: false })
         .then(() => styleStackedBarChart(chartId));
 }
 
-// Configuration objects for each chart
 const professionChartConfig = {
-    abbreviate: (cats) => cats, // No abbreviation for profession
+    abbreviate: (cats) => cats,
     layout: {
         title: { text: "💼<b>Employment vs<br>Financial Standing(%)</b>", x: 0.5, xanchor: "center", y: 0.98, yanchor: "top", pad: { t: 5 }, font: { size: 12, color: "#2c3e50", family: "Stack Sans Notch, sans-serif" } },
         xaxis: { tickfont: { size: 8, color: "#34495e" }, showgrid: false, tickangle: -45 },
@@ -94,11 +107,10 @@ const educationChartConfig = {
     }
 };
 
-// --- API-driven update functions ---
+// MODIFIED: Passes filterType and filterValue to renderChart
 function updateChartData(chartId, endpoint, filterType, filterValue, chartConfig) {
-    const chartDiv = document.getElementById(chartId);
-    if (!chartDiv) return;
-    chartDiv.parentElement.classList.add('is-loading');
+    const panel = document.getElementById(chartId).closest('.viz-panel');
+    if (panel) panel.classList.add('is-loading');
 
     let url = endpoint;
     if (filterType && filterValue) {
@@ -108,14 +120,14 @@ function updateChartData(chartId, endpoint, filterType, filterValue, chartConfig
     fetch(url)
         .then(response => response.json())
         .then(data => {
-            renderChart(chartId, data, filterValue, chartConfig);
+            renderChart(chartId, data, filterType, filterValue, chartConfig);
         })
         .catch(error => {
             console.error(`Error updating ${chartId}:`, error);
-            chartDiv.innerHTML = `<div class="placeholder-content" style="color:red;">Error loading data.</div>`;
+            document.getElementById(chartId).innerHTML = `<div class="placeholder-content" style="color:red;">Error loading data.</div>`;
         })
         .finally(() => {
-            chartDiv.parentElement.classList.remove('is-loading');
+            if (panel) panel.classList.remove('is-loading');
         });
 }
 
@@ -127,18 +139,13 @@ function updateEducationChart(filterType, filterValue) {
     updateChartData('education-chart', '/api/education-chart', filterType, filterValue, educationChartConfig);
 }
 
-// --- PHASE 2: MAIN EVENT HUB INITIALIZATION ---
 function initializeNewCharts() {
-    // Initialize panels with default (unfiltered) data
     if (typeof initializeLoanCharts === 'function') initializeLoanCharts();
     if (typeof initializeDigitalTimeChart === 'function') initializeDigitalTimeChart();
 
-    // Listen for the global filter event
     document.addEventListener('applyDashboardFilter', (e) => {
         const { filterType, filterValue } = e.detail;
         console.log(`Applying filter: ${filterType} = ${filterValue}`);
-
-        // Trigger updates for all listening panels
         updateLoanPanel(filterType, filterValue);
         updateLoanPurposeChart(filterType, filterValue);
         updateDigitalTimeChart(filterType, filterValue);
@@ -146,11 +153,8 @@ function initializeNewCharts() {
         updateEducationChart(filterType, filterValue);
     });
 
-    // Listen for the global reset event
     document.addEventListener('resetDashboardFilter', () => {
         console.log('Resetting all filters');
-
-        // Trigger updates with null parameters to fetch "All" data
         updateLoanPanel(null, null);
         updateLoanPurposeChart(null, null);
         updateDigitalTimeChart(null, null);

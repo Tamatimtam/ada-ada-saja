@@ -135,14 +135,11 @@ def get_main_metrics():
     average_anxiety_score = df_sheet1["financial_anxiety_score"].mean()
     return {"scores": scores, "average_anxiety_score": average_anxiety_score}
 
-# --- NEW: Function to get detailed metric structure ---
 def get_metrics_deep_dive():
     df_sheet2 = _load_sheet("Sheet2.csv")
     scores = _calculate_scores(df_sheet2)
     
-    # Generate a URL-safe ID for each question
     def create_question_id(q_text):
-        # Remove special characters and shorten
         safe_text = re.sub(r'[^a-zA-Z0-9\s]', '', q_text)
         return quote(safe_text.lower().replace(" ", "-")[:50])
 
@@ -151,32 +148,22 @@ def get_metrics_deep_dive():
         question_list = []
         for i, q_text in enumerate(config["questions"]):
             question_list.append({
-                "id": create_question_id(q_text),
-                "text": q_text,
-                "is_negative": q_text in NEGATIVE_POLARITY_QUESTIONS,
-                "number": i + 1,
+                "id": create_question_id(q_text), "text": q_text,
+                "is_negative": q_text in NEGATIVE_POLARITY_QUESTIONS, "number": i + 1,
             })
-        
         metrics_data[metric] = {
-            "score": scores.get(metric, 0),
-            "card": config["card"],
-            "questions": question_list
+            "score": scores.get(metric, 0), "card": config["card"], "questions": question_list
         }
     return metrics_data
 
-# --- NEW: Function to get distribution for a single question ---
 def get_question_distribution_data(question_text):
     df = _load_sheet("Sheet2.csv")
     if question_text not in df.columns:
         return {"error": "Question not found"}, 404
     
-    # Calculate value counts and ensure all possible answers (1-4) are present
     counts = df[question_text].value_counts().to_dict()
     distribution = {str(i): counts.get(i, 0) for i in range(1, 5)}
-    
-    # Find the most common answer
     most_common = max(distribution, key=distribution.get) if distribution else None
-
     return {"distribution": distribution, "most_common": most_common}
 
 
@@ -226,15 +213,8 @@ def get_filtered_metrics(filter_by, filter_value):
 
     return {"scores": scores, "average_anxiety_score": average_anxiety_score}
 
-# (Keep all other functions from your services.py file, like DataLoader, get_visual_analytics_data, etc., as they are)
-
-# --- Existing functions from Dashboard B ---
-
 NEW_DATASET_PATH = os.path.join(
-    os.path.dirname(__file__),
-    "..",
-    "dataset",
-    "dataset_gelarrasa_genzfinancialprofile.csv",
+    os.path.dirname(__file__), "..", "dataset", "dataset_gelarrasa_genzfinancialprofile.csv",
 )
 
 class DataLoader:
@@ -246,47 +226,30 @@ class DataLoader:
         ]
 
     def load_data(self):
-        if self.df is not None:
-            return self.df
-
-        if not os.path.exists(self.csv_path):
-            raise FileNotFoundError(f"CSV file not found: {self.csv_path}")
+        if self.df is not None: return self.df
+        if not os.path.exists(self.csv_path): raise FileNotFoundError(f"CSV file not found: {self.csv_path}")
         self.df = pd.read_csv(self.csv_path)
-        
         cols_to_clean = ["avg_monthly_income", "avg_monthly_expense", "outstanding_loan"]
         for col in cols_to_clean:
             if col in self.df.columns and self.df[col].dtype == "object":
                 self.df[col] = self.df[col].astype(str).str.replace(r"[^\d]", "", regex=True)
                 self.df[col] = pd.to_numeric(self.df[col], errors="coerce")
-
         if "employment_status" in self.df.columns:
             self.df["employment_status"] = self.df["employment_status"].replace({
-                "Entrepreneur": "Entrepreneur", "entrepreneur": "Entrepreneur",
-                "Enterpreneur": "Entrepreneur", "enterpreneur": "Entrepreneur",
-                "Not Working": "Not Working", "Student": "Student",
-                "Private Employee": "Private Employee",
-                "Civil Servant/BUMN": "Civil Servant/BUMN", "Others": "Others",
+                "Entrepreneur": "Entrepreneur", "entrepreneur": "Entrepreneur", "Enterpreneur": "Entrepreneur", 
+                "enterpreneur": "Entrepreneur", "Not Working": "Not Working", "Student": "Student", 
+                "Private Employee": "Private Employee", "Civil Servant/BUMN": "Civil Servant/BUMN", "Others": "Others",
             })
         return self.df
 
-    # PHASE 1: NEW - Centralized filtering utility
     def _get_filtered_df(self, filter_type=None, filter_value=None):
-        """Returns a DataFrame filtered by income or expense category."""
-        if self.df is None:
-            self.load_data()
-        
-        if not filter_type or not filter_value or filter_value == 'All':
-            return self.df.copy()
-            
-        if filter_type == 'income':
-            return self.df[self.df['avg_income_category'] == filter_value].copy()
-        elif filter_type == 'expense':
-            return self.df[self.df['avg_expense_category'] == filter_value].copy()
-        
+        if self.df is None: self.load_data()
+        if not filter_type or not filter_value or filter_value == 'All': return self.df.copy()
+        if filter_type == 'income': return self.df[self.df['avg_income_category'] == filter_value].copy()
+        if filter_type == 'expense': return self.df[self.df['avg_expense_category'] == filter_value].copy()
         return self.df.copy()
 
     def get_chart_data(self):
-        # This function remains unchanged as it provides data for the diverging chart itself
         if self.df is None: self.load_data()
         income_counts = self.df["avg_income_category"].value_counts()
         expense_counts = self.df["avg_expense_category"].value_counts()
@@ -299,25 +262,21 @@ class DataLoader:
         existing_categories = [cat for cat in self.category_order if cat in viz_data.index]
         viz_data = viz_data.reindex(existing_categories)
         return {
-            "categories": list(viz_data.index),
-            "income_percentages": viz_data["Income_Percentage"].tolist(),
-            "expense_percentages": viz_data["Expense_Percentage"].tolist(),
-            "income_counts": viz_data["Income_Count"].astype(int).tolist(),
+            "categories": list(viz_data.index), "income_percentages": viz_data["Income_Percentage"].tolist(),
+            "expense_percentages": viz_data["Expense_Percentage"].tolist(), "income_counts": viz_data["Income_Count"].astype(int).tolist(),
             "expense_counts": viz_data["Expense_Count"].astype(int).tolist(),
         }
 
-    # REFACTORED: Now accepts filter_type and filter_value
+    # MODIFIED: Add total_respondents to the returned dictionary
     def get_filtered_profession_chart_data(self, filter_type=None, filter_value=None):
         df_filtered = self._get_filtered_df(filter_type, filter_value)
-
+        
         if df_filtered.empty or "employment_status" not in df_filtered.columns or "financial_standing" not in df_filtered.columns:
-            return {"categories": [], "data": {}, "colors": {}, "total_counts": {}}
+            return {"categories": [], "data": {}, "colors": {}, "total_counts": {}, "total_respondents": 0}
 
         counts_df = pd.crosstab(df_filtered['employment_status'], df_filtered['financial_standing'])
         profession_standing = counts_df.div(counts_df.sum(axis=1), axis=0).fillna(0) * 100
         employment_counts = df_filtered['employment_status'].value_counts()
-        
-        # Ensure consistent category order based on the filtered data's value counts
         profession_standing = profession_standing.reindex(employment_counts.index)
         
         categories = profession_standing.index.tolist()
@@ -325,98 +284,85 @@ class DataLoader:
         chart_data = {
             "categories": categories, "financial_standings": list(profession_standing.columns),
             "data": {}, "colors": colors, "total_counts": employment_counts.to_dict(),
+            "total_respondents": int(df_filtered.shape[0]) # ADD THIS LINE
         }
         for standing in ["Surplus", "Break-even", "Deficit"]:
             chart_data["data"][standing] = profession_standing[standing].round(1).tolist() if standing in profession_standing.columns else [0] * len(categories)
         return chart_data
 
-    # REFACTORED: Now accepts filter_type and filter_value
+    # MODIFIED: Add total_respondents to the returned dictionary
     def get_filtered_education_chart_data(self, filter_type=None, filter_value=None):
         df_filtered = self._get_filtered_df(filter_type, filter_value)
 
         if df_filtered.empty or "education_level" not in df_filtered.columns or "financial_standing" not in df_filtered.columns:
-            return {"categories": [], "data": {}, "colors": {}, "total_counts": {}}
+            return {"categories": [], "data": {}, "colors": {}, "total_counts": {}, "total_respondents": 0}
 
         education_order = [
             "Elementary School", "Junior High School", "Senior High School",
             "Diploma I/II/III", "Bachelor (S1)/Diploma IV", "Postgraduate",
         ]
-        
         counts_df = pd.crosstab(df_filtered['education_level'], df_filtered['financial_standing'])
         education_standing = counts_df.div(counts_df.sum(axis=1), axis=0).fillna(0) * 100
-        
         existing_education = [edu for edu in education_order if edu in education_standing.index]
         education_standing = education_standing.reindex(existing_education)
-
         education_counts = df_filtered["education_level"].value_counts()
         categories = education_standing.index.tolist()
         colors = {"Surplus": "#2ecc71", "Break-even": "#f39c12", "Deficit": "#e74c3c"}
         chart_data = {
             "categories": categories, "financial_standings": list(education_standing.columns),
             "data": {}, "colors": colors, "total_counts": education_counts.to_dict(),
+            "total_respondents": int(df_filtered.shape[0]) # ADD THIS LINE
         }
         for standing in ["Surplus", "Break-even", "Deficit"]:
             chart_data["data"][standing] = education_standing[standing].round(1).tolist() if standing in education_standing.columns else [0] * len(categories)
         return chart_data
 
-    # REFACTORED: Now accepts filter_type and filter_value
     def get_filtered_loan_overview(self, filter_type=None, filter_value=None):
         filtered_df = self._get_filtered_df(filter_type, filter_value)
         return LoanProcessor(filtered_df).get_filtered_loan_data_by_income(filter_value)
 
-    # REFACTORED: Now accepts filter_type and filter_value
     def get_filtered_loan_purpose_data(self, filter_type=None, filter_value=None):
         filtered_df = self._get_filtered_df(filter_type, filter_value)
         return LoanProcessor(filtered_df).get_loan_purpose_distribution()
 
-    # REFACTORED: Now accepts filter_type and filter_value
     def get_filtered_engagement_data(self, filter_type=None, filter_value=None):
-        baseline_df = self._get_filtered_df() # Get unfiltered data for baseline
+        baseline_df = self._get_filtered_df()
         filtered_df = self._get_filtered_df(filter_type, filter_value)
-        
         baseline_data = EngagementProcessor(baseline_df).get_engagement_distribution()
         filtered_data = EngagementProcessor(filtered_df).get_engagement_distribution()
-        
         return {"filtered_data": filtered_data, "baseline_kde": baseline_data["kde"]}
     
 def get_visual_analytics_data():
     loader = DataLoader(NEW_DATASET_PATH)
-    # The main charts are always loaded unfiltered initially
     chart_data = loader.get_chart_data()
-    profession_data = loader.get_filtered_profession_chart_data() # Uses new filtered func with no params
-    education_data = loader.get_filtered_education_chart_data() # Uses new filtered func with no params
+    profession_data = loader.get_filtered_profession_chart_data()
+    education_data = loader.get_filtered_education_chart_data()
     return {
         "chart_html": ChartGenerator.create_diverging_bar_chart(chart_data),
         "profession_chart": ChartGenerator.create_profession_chart(profession_data),
         "education_chart": ChartGenerator.create_education_chart(education_data),
     }
 
-# REFACTORED: Public service function signature updated
 def get_filtered_loan_data(filter_type, filter_value):
     loader = DataLoader(NEW_DATASET_PATH)
     return loader.get_filtered_loan_overview(filter_type, filter_value)
 
-# REFACTORED: Public service function signature updated
 def get_loan_purpose_data(filter_type, filter_value):
     loader = DataLoader(NEW_DATASET_PATH)
     return loader.get_filtered_loan_purpose_data(filter_type, filter_value)
 
-# REFACTORED: Public service function signature updated
 def get_digital_time_data(filter_type, filter_value):
     loader = DataLoader(NEW_DATASET_PATH)
     return loader.get_filtered_engagement_data(filter_type, filter_value)
 
-# REFACTORED: Public service function signature updated
 def get_profession_data(filter_type, filter_value):
     loader = DataLoader(NEW_DATASET_PATH)
     return loader.get_filtered_profession_chart_data(filter_type, filter_value)
 
-# REFACTORED: Public service function signature updated
 def get_education_data(filter_type, filter_value):
     loader = DataLoader(NEW_DATASET_PATH)
     return loader.get_filtered_education_chart_data(filter_type, filter_value)
 
-# --- Functions for Map Panel ---
 def clean_regional_data(df):
     # This function is unchanged
     df = df.rename(columns={
@@ -481,15 +427,11 @@ def get_regional_data_from_file():
     except Exception as e:
         return {"error": str(e)}, 500
 
-# REFACTORED: Now accepts filter_type and filter_value
 def get_financial_data_from_file(filter_type=None, filter_value=None):
-    """Endpoint for aggregated Gen Z financial profile data, now filterable."""
     try:
         loader = DataLoader(NEW_DATASET_PATH)
-        df = loader._get_filtered_df(filter_type, filter_value) # Use the new centralized filter
-
+        df = loader._get_filtered_df(filter_type, filter_value)
         if df.empty: return []
-
         df_renamed = df.rename(columns={
             "avg_monthly_income": "avg_monthly_income (INT)",
             "avg_monthly_expense": "avg_monthly_expense (INT)",

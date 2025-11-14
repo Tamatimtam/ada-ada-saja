@@ -1,6 +1,5 @@
 /* static/css/components/visual_analytics.css */
 
-/* Top row container for side-by-side layout */
 .top-row-container {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -28,6 +27,12 @@
     flex-direction: column;
     overflow: hidden;
     transition: opacity 0.3s ease, transform 0.2s ease;
+}
+
+/* --- NEW: Loading state for the whole panel --- */
+.viz-panel.is-loading {
+    opacity: 0.3;
+    pointer-events: none;
 }
 
 .viz-panel:last-child {
@@ -68,31 +73,29 @@
     border-top: 1px solid #e9ecef;
     background: rgba(248, 249, 250, 0.7);
     flex-shrink: 0;
-
-    /* MODIFICATION: Use Flexbox for better alignment */
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
     gap: 6px;
-    /* Space between legend and text */
 }
 
 .viz-footer strong {
     color: #e67e22;
 }
 
+.viz-footer i {
+    font-size: 0.6rem;
+    color: #7f8c8d;
+}
 
-/* NEW: Custom Legend Styles */
 .custom-legend {
     display: flex;
     justify-content: center;
     align-items: center;
     gap: 12px;
-    /* Space between legend items */
     width: 100%;
     padding-top: 4px;
-    /* Add a little space above */
     margin-bottom: 10px;
 }
 
@@ -100,7 +103,6 @@
     display: flex;
     align-items: center;
     gap: 4px;
-    /* Space between color box and label */
 }
 
 .legend-color-box {
@@ -112,7 +114,6 @@
 
 .legend-label {
     font-size: 0.6rem;
-    /* Match footer text size */
     font-weight: 500;
     color: #555;
     font-family: 'Outfit', sans-serif;
