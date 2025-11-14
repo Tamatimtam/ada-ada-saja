@@ -9,12 +9,11 @@ export function renderPatternMap({
     reverseNameMapping,
     selectedMetric,
     datasetKey,
-    title, // Accept the title as a parameter
+    title, // Title is received from app.js
     containerId = 'container'
 }) {
     if (!currentApiData || !mapData) return;
 
-    // Build mapping appName -> numeric category index for dataClasses legend
     const appIndexMap = {};
     let nextIndex = 0;
 
@@ -33,11 +32,9 @@ export function renderPatternMap({
                 logoUrl: `/static/logos/${appName}.png`
             };
         }
-        // Aceh (financial) gets sentinel -1 to appear in legend; other missing remain null
         return { name: geoName, appName: null, value: isAcehFinancial ? -1 : null };
     });
 
-    // Generate dataClasses for legend (one per fintech app)
     const dataClasses = Object.entries(appIndexMap).map(([appName, idx]) => ({
         from: idx,
         to: idx,
@@ -46,7 +43,6 @@ export function renderPatternMap({
     }));
 
     if (datasetKey === 'financial') {
-        // Legend item for Aceh only
         dataClasses.push({
             from: -1,
             to: -1,
@@ -62,7 +58,6 @@ export function renderPatternMap({
             style: { fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif' },
             events: {
                 load: function () {
-                    // Fit map to container on initial load to remove dead space
                     if (this.series[0] && this.series[0].bounds) {
                         this.mapView.fitToBounds(this.series[0].bounds, { padding: 15 });
                     }
@@ -70,22 +65,23 @@ export function renderPatternMap({
                 }
             }
         },
-        credits: { enabled: false }, // Disable Highcharts.com credit
+        credits: { enabled: false },
         exporting: {
             buttons: { contextButton: { align: 'right', verticalAlign: 'bottom', y: -10 } }
         },
+        // --- MODIFICATION: TITLE ALIGNMENT ---
         title: {
-            text: `${config.titlePrefix}: ${metricDetails.label}`,
-            align: 'right',
+            text: title,
+            align: 'center', // Changed from 'right' to 'center'
             style: { fontSize: '1.5rem', fontWeight: '700', color: '#2d3748', fontFamily: "'Stack Sans Notch', sans-serif" }
         },
+        // --- END MODIFICATION ---
         subtitle: {
             text: 'Sumber data: Gelarrasa (Simulasi)',
-            align: 'right',
+            align: 'center', // Also center the subtitle to match
             style: { fontSize: '0.95rem', color: '#718096' }
         },
         legend: {
-            // Hapus title untuk tampilan lebih bersih
             layout: 'horizontal',
             align: 'center',
             verticalAlign: 'bottom',
@@ -129,7 +125,6 @@ export function renderPatternMap({
             }
         },
         colorAxis: {
-            // Use dataClasses for categorical legend
             dataClasses,
             nullColor: '#E0E0E0'
         },
