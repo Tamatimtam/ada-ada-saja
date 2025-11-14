@@ -16,7 +16,7 @@ def _load_sheet(file_name):
 METRICS_CONFIG = {
     "Literasi Finansial": {
         "card": "knowledge",
-        "title": "Financial Knowledge", # Restored
+        "title": "Pengetahuan Finansial", # Restored
         "questions": [
             "I am able to identify risks and discrepancies and view numbers in a complex way",
             "I am able to understand what is behind the numbers",
@@ -28,7 +28,7 @@ METRICS_CONFIG = {
     },
     "Literasi Keuangan Digital": {
         "card": "knowledge",
-        "title": "Financial Knowledge", # Restored
+        "title": "Pengetahuan Finansial", # Restored
         "questions": [
             "Awareness about the potential of financial risk in using digital financial provider or fintech, such as the legality of the fintech provider, interest rate and transaction fee",
             "Having experience in using the product and service of fintech for digital payment",
@@ -40,7 +40,7 @@ METRICS_CONFIG = {
     },
     "Pengelolaan Keuangan": {
         "card": "behavior",
-        "title": "Financial Behavior", # Restored
+        "title": "Perilaku Finansial", # Restored
         "questions": [
             "I am able to and divide it accordingly across an allotted period to the right concerned areas",
             "I am able to project the amount of cash that will be available to me in the future",
@@ -52,7 +52,7 @@ METRICS_CONFIG = {
     },
     "Sikap Finansial": {
         "card": "behavior",
-        "title": "Financial Behavior", # Restored
+        "title": "Perilaku Finansial", # Restored
         "questions": [
             "I usually have a critical view of the way my friends deal with money",
             "I like to participate in family decision making when we buy something expensive for home",
@@ -69,7 +69,7 @@ METRICS_CONFIG = {
     },
     "Disiplin Finansial": {
         "card": "behavior",
-        "title": "Financial Behavior", # Restored
+        "title": "Perilaku Finansial", # Restored
         "questions": [
             "I am able to plan ahead to avoid impulse spending",
             "I always try to save some money to do things I really like",
@@ -81,7 +81,7 @@ METRICS_CONFIG = {
     },
     "Kesejahteraan Finansial": {
         "card": "wellbeing",
-        "title": "Financial Wellbeing", # Restored
+        "title": "Kesejahteraan Finansial", # Restored
         "questions": [
             "I am becoming financially secure",
             "I am securing my financial future",
@@ -96,7 +96,7 @@ METRICS_CONFIG = {
     },
     "Investasi Aset": {
         "card": "wellbeing",
-        "title": "Financial Wellbeing", # Restored
+        "title": "Kesejahteraan Finansial", # Restored
         "questions": [
             "I am able to recognize a good financial investment",
             "Experience in using the product and service of fintech for financing (loan) and investment",

@@ -24,18 +24,18 @@ def index():
             "anxiety_score": main_metrics["average_anxiety_score"],
         },
         "knowledge_card": {
-            "title": "Financial Knowledge",
+            "title": "Pengetahuan Finansial",
             "score_literasi_finansial": scores.get("Literasi Finansial", 0),
             "score_literasi_digital": scores.get("Literasi Keuangan Digital", 0),
         },
         "behavior_card": {
-            "title": "Financial Behavior",
+            "title": "Perilaku Finansial",
             "score_pengelolaan": scores.get("Pengelolaan Keuangan", 0),
             "score_perilaku": scores.get("Sikap Finansial", 0),
             "score_disiplin": scores.get("Disiplin Finansial", 0),
         },
         "wellbeing_card": {
-            "title": "Financial Wellbeing",
+            "title": "Kesejahteraan Finansial",
             "score_kesejahteraan": scores.get("Kesejahteraan Finansial", 0),
             "score_investasi": scores.get("Investasi Aset", 0),
         },
