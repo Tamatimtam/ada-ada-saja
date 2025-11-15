@@ -8,7 +8,7 @@ function animateCounter(elementId, targetValue, duration = 2, useScrollTrigger =
         onUpdate: () => {
             const el = document.getElementById(elementId);
             if (el) {
-                el.textContent = Math.round(counter.val);
+                el.textContent = Math.round(counter.val) + '/100';
             }
         }
     };
@@ -33,7 +33,7 @@ function animateSmallCardValues() {
             duration: 2,
             ease: "power1.inOut",
             onUpdate: () => {
-                el.textContent = Math.round(counter.val);
+                el.textContent = Math.round(counter.val) + '/100';
             },
             scrollTrigger: {
                 trigger: el,
