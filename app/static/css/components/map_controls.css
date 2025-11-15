@@ -19,20 +19,39 @@
     background-color: var(--white);
     padding: 0.5rem 1rem;
     border-radius: var(--border-radius);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 3px 0 -1px var(--card2-bg), 0 4px 12px rgba(0, 0, 0, 0.1);
+    /* Default Biru */
     font-weight: 600;
     color: var(--text-primary);
     transition: all 0.2s ease;
     display: flex;
     align-items: center;
     gap: 0.5rem;
-    font-size: 0.75rem; /* Smaller font size */
+    font-size: 0.75rem;
+    /* Smaller font size */
+    border-bottom: none;
+    /* Explicitly remove inherited border */
 }
 
 .map-controls .dropdown-selected:hover {
     transform: translateY(-2px);
-    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 3px 0 -1px var(--card2-bg), 0 6px 16px rgba(0, 0, 0, 0.1);
 }
+
+/* --- MODIFICATION START --- */
+/* Target dropdown pertama secara spesifik untuk diberi warna oranye */
+#map-dataset-dropdown .dropdown-selected {
+    box-shadow: 0 3px 0 -1px var(--card4-bg), 0 4px 12px rgba(0, 0, 0, 0.1);
+    /* Oranye */
+}
+
+#map-dataset-dropdown .dropdown-selected:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 3px 0 -1px var(--card4-bg), 0 6px 16px rgba(0, 0, 0, 0.1);
+}
+
+/* --- MODIFICATION END --- */
+
 
 .map-controls .dropdown-options {
     position: absolute;
@@ -64,7 +83,8 @@
     padding: 0.75rem 1.25rem;
     transition: background-color 0.2s ease;
     border-radius: 6px;
-    font-size: 0.75rem; /* Smaller font size */
+    font-size: 0.75rem;
+    /* Smaller font size */
 }
 
 .map-controls .dropdown-options li:hover {
@@ -80,7 +100,8 @@
     font-weight: 600;
     cursor: pointer;
     transition: all 0.2s ease;
-    font-size: 0.525rem; /* 40% smaller than 0.875rem */
+    font-size: 0.525rem;
+    /* 40% smaller than 0.875rem */
     display: flex;
     align-items: center;
     gap: 0.5rem;
