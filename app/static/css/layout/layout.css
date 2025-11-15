@@ -13,10 +13,19 @@
     position: fixed;
     top: 16px;
     max-height: calc(100vh - 32px);
-    overflow: auto;
-    /* allow internal scroll if sidebar content is long */
+    /* Allow only vertical scrolling, hide any horizontal overflow that caused the scrollbar */
+    overflow-y: auto;
+    overflow-x: hidden;
+    -webkit-overflow-scrolling: touch;
     padding-right: 8px;
     z-index: 1;
+}
+
+/* Prevent child elements from causing horizontal overflow */
+.left-panel>* {
+    box-sizing: border-box;
+    max-width: 100%;
+    overflow-x: hidden;
 }
 
 /* Allow the main area to take remaining space and have comfortable padding */
