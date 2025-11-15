@@ -8,7 +8,8 @@ function animateCounter(elementId, targetValue, duration = 2, useScrollTrigger =
         onUpdate: () => {
             const el = document.getElementById(elementId);
             if (el) {
-                el.textContent = Math.round(counter.val) + '/100';
+                // MODIFIED: Use innerHTML to apply the score-suffix style
+                el.innerHTML = `${Math.round(counter.val)}<span class="score-suffix">/100</span>`;
             }
         }
     };
@@ -33,7 +34,8 @@ function animateSmallCardValues() {
             duration: 2,
             ease: "power1.inOut",
             onUpdate: () => {
-                el.textContent = Math.round(counter.val) + '/100';
+                // MODIFIED: Use innerHTML to apply the score-suffix style
+                el.innerHTML = `${Math.round(counter.val)}<span class="score-suffix">/100</span>`;
             },
             scrollTrigger: {
                 trigger: el,
