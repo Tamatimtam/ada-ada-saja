@@ -175,6 +175,7 @@ export function renderChoroplethMap({
             layout: 'horizontal',
             align: 'center',
             verticalAlign: 'bottom',
+            itemStyle: { fontSize: '0.65rem' } /* Add this line */
         },
         // --- MODIFICATION END ---
         series: [{

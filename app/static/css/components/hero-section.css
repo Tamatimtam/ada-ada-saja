@@ -52,8 +52,7 @@
     align-items: center;
     text-align: center;
     width: 90%;
-    min-height: 95px;
-    overflow: hidden;
+    min-height: 135px;
 }
 
 /* NEW: Make the chart container align with description (left) and take full width */

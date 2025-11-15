@@ -100,7 +100,7 @@ def create_diverging_bar_chart(chart_data):
         include_plotlyjs=False,
         div_id="diverging-bar-chart",
         config={
-            "displayModeBar": True, "displaylogo": False, "responsive": True,
+            "displayModeBar": 'hover', "displaylogo": False, "responsive": True,
             "modeBarButtonsToRemove": ["pan2d", "lasso2d", "select2d"],
             "toImageButtonOptions": {
                 "format": "png", "filename": "income_vs_expense_chart",

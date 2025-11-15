@@ -86,7 +86,7 @@ export function renderPatternMap({
             align: 'center',
             verticalAlign: 'bottom',
             floating: false,
-            itemStyle: { fontSize: '0.75rem' },
+            itemStyle: { fontSize: '0.65rem' }, /* 15% smaller */
             symbolRadius: 6,
             padding: 8,
             backgroundColor: 'rgba(255,255,255,0.85)',

@@ -11,14 +11,16 @@
     gap: var(--padding);
     box-sizing: border-box;
     position: fixed;
-    top: 16px;
-    max-height: calc(100vh - 32px);
+    top: 8px;
+    /* Reduced from 16px */
+    max-height: calc(100vh - 16px);
+    /* Adjusted for new top margin */
     /* Hide any scrollbars that might appear */
     overflow-y: hidden;
     overflow-x: hidden;
     -webkit-overflow-scrolling: touch;
     padding-right: 0;
-    /* Remove padding for the scrollbar */
+    /* Remove padding as there is no scrollbar */
     z-index: 1;
 }
 
