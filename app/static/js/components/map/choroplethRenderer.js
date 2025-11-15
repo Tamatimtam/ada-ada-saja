@@ -12,68 +12,108 @@ export function renderChoroplethMap({
     containerId = 'container'
 }) {
     if (!currentApiData || !mapData) return;
+
+    const isCategorical = metricDetails.categorical === true;
     const allProvinces = mapData.features.map(f => f.properties.PROVINSI);
-    const chartData = allProvinces.map(geoName => {
-        const csvProvinceName = reverseNameMapping[geoName] || geoName;
-        const item = currentApiData.find(d => d[config.keyColumn] === csvProvinceName);
-        let value = null;
-        if (item) value = item[selectedMetric] != null ? parseFloat(item[selectedMetric]) : null;
+    let chartData;
+    let colorAxisOptions;
 
-        const isAcehFinancial = datasetKey === 'financial' && (geoName === 'Aceh' || csvProvinceName === 'Aceh');
-        const isFinancialBalance = datasetKey === 'financial' && selectedMetric === 'financial_balance';
+    if (isCategorical) {
+        // --- Logic for categorical data (e.g., Investment Type) ---
+        const categoryMap = {};
+        let nextIndex = 0;
+        Object.keys(metricDetails.categories).forEach(key => {
+            categoryMap[key] = nextIndex++;
+        });
 
-        const finalValue = (isAcehFinancial && isFinancialBalance) ? -1 : (isAcehFinancial ? null : value);
+        chartData = allProvinces.map(geoName => {
+            const csvProvinceName = reverseNameMapping[geoName] || geoName;
+            const item = currentApiData.find(d => d[config.keyColumn] === csvProvinceName);
+            let value = null;
+            if (item && item[selectedMetric] && categoryMap.hasOwnProperty(item[selectedMetric])) {
+                value = categoryMap[item[selectedMetric]];
+            }
+            const isAcehFinancial = datasetKey === 'financial' && (geoName === 'Aceh' || csvProvinceName === 'Aceh');
+            return { name: geoName, value: isAcehFinancial ? -1 : value, color: (isAcehFinancial ? '#E0E0E0' : (value === null ? metricDetails.nullColor : undefined)) };
+        });
 
-        return {
-            name: geoName,
-            value: finalValue,
-            color: (finalValue === null || finalValue === -1) ? '#E0E0E0' : undefined
-        };
-    });
-    const colorAxisOptions = metricDetails.dataClasses
-        ? (() => {
+        const dataClasses = Object.keys(metricDetails.categories).map(key => ({
+            from: categoryMap[key],
+            to: categoryMap[key],
+            name: metricDetails.categories[key].name,
+            color: metricDetails.categories[key].color
+        }));
+
+        if (chartData.some(d => d.value === -1)) {
+            dataClasses.push({ from: -1, to: -1, color: '#E0E0E0', name: 'Data Tidak Tersedia' });
+        }
+
+        colorAxisOptions = { dataClasses };
+
+    } else {
+        // --- Existing logic for numerical data ---
+        chartData = allProvinces.map(geoName => {
+            const csvProvinceName = reverseNameMapping[geoName] || geoName;
+            const item = currentApiData.find(d => d[config.keyColumn] === csvProvinceName);
+            let value = null;
+            if (item) value = item[selectedMetric] != null ? parseFloat(item[selectedMetric]) : null;
+
+            const isAcehFinancial = datasetKey === 'financial' && (geoName === 'Aceh' || csvProvinceName === 'Aceh');
             const isFinancialBalance = datasetKey === 'financial' && selectedMetric === 'financial_balance';
-            const dc = [...metricDetails.dataClasses];
-            if (isFinancialBalance) {
-                dc.push({ from: -1, to: -1, color: '#E0E0E0', name: 'Data Tidak Tersedia' });
-            }
-            return { dataClasses: dc };
-        })()
-        : (() => {
-            let colorSettings = {};
-            if (selectedMetric === 'outstanding_pinjaman_miliar') {
-                colorSettings = {
-                    stops: [
-                        [0, '#87CEFA'],
-                        [1, metricDetails.maxColor]
-                    ]
-                };
-            } else {
-                colorSettings = {
-                    minColor: metricDetails.minColor,
-                    maxColor: metricDetails.maxColor
-                };
-            }
+
+            const finalValue = (isAcehFinancial && isFinancialBalance) ? -1 : (isAcehFinancial ? null : value);
 
             return {
-                type: metricDetails.type,
-                endOnTick: false,
-                ... (selectedMetric === 'outstanding_pinjaman_miliar' || selectedMetric === 'dana_diberikan_miliar'
-                    ? { max: 100000 }
-                    : selectedMetric === 'pdrb_ribu_rp'
-                        ? { min: 10000, max: 1000000 }
-                        : selectedMetric === 'rekening_penerima_aktif'
-                            ? { min: 1000, max: 10000000 }
-                            : selectedMetric === 'jumlah_penduduk_ribu'
-                                ? { min: 100, max: 100000 }
-                                : { min: metricDetails.type === 'logarithmic' ? 1 : null }),
-                ...colorSettings,
-                labels: {
-                    formatter: function () { return this.value ? this.value.toLocaleString('id-ID') : 'N/A'; },
-                    style: { fontSize: '0.875rem', color: '#4a5568' }
-                }
+                name: geoName,
+                value: finalValue,
+                color: (finalValue === null || finalValue === -1) ? '#E0E0E0' : undefined
             };
-        })();
+        });
+        colorAxisOptions = metricDetails.dataClasses
+            ? (() => {
+                const isFinancialBalance = datasetKey === 'financial' && selectedMetric === 'financial_balance';
+                const dc = [...metricDetails.dataClasses];
+                if (isFinancialBalance) {
+                    dc.push({ from: -1, to: -1, color: '#E0E0E0', name: 'Data Tidak Tersedia' });
+                }
+                return { dataClasses: dc };
+            })()
+            : (() => {
+                let colorSettings = {};
+                if (selectedMetric === 'outstanding_pinjaman_miliar') {
+                    colorSettings = {
+                        stops: [
+                            [0, '#87CEFA'],
+                            [1, metricDetails.maxColor]
+                        ]
+                    };
+                } else {
+                    colorSettings = {
+                        minColor: metricDetails.minColor,
+                        maxColor: metricDetails.maxColor
+                    };
+                }
+
+                return {
+                    type: metricDetails.type,
+                    endOnTick: false,
+                    ... (selectedMetric === 'outstanding_pinjaman_miliar' || selectedMetric === 'dana_diberikan_miliar'
+                        ? { max: 100000 }
+                        : selectedMetric === 'pdrb_ribu_rp'
+                            ? { min: 10000, max: 1000000 }
+                            : selectedMetric === 'rekening_penerima_aktif'
+                                ? { min: 1000, max: 10000000 }
+                                : selectedMetric === 'jumlah_penduduk_ribu'
+                                    ? { min: 100, max: 100000 }
+                                    : { min: metricDetails.type === 'logarithmic' ? 1 : null }),
+                    ...colorSettings,
+                    labels: {
+                        formatter: function () { return this.value ? this.value.toLocaleString('id-ID') : 'N/A'; },
+                        style: { fontSize: '0.875rem', color: '#4a5568' }
+                    }
+                };
+            })();
+    }
 
     Highcharts.mapChart(containerId, {
         chart: {
@@ -91,13 +131,11 @@ export function renderChoroplethMap({
         },
         credits: { enabled: false },
         exporting: { buttons: { contextButton: { align: 'right', verticalAlign: 'bottom', y: -10 } } },
-        // --- MODIFICATION: TITLE ALIGNMENT ---
         title: {
             text: title,
-            align: 'center', // Changed from 'right' to 'center'
+            align: 'center',
             style: { fontSize: '1.5rem', fontWeight: '700', color: '#2d3748', fontFamily: "'Stack Sans Notch', sans-serif" }
         },
-        // --- END MODIFICATION ---
         mapNavigation: {
             enabled: true,
             buttonOptions: {
@@ -131,6 +169,14 @@ export function renderChoroplethMap({
             }
         },
         colorAxis: colorAxisOptions,
+        // --- MODIFICATION START: Corrected legend logic ---
+        legend: {
+            enabled: true, // Always enable the legend for any choropleth map
+            layout: 'horizontal',
+            align: 'center',
+            verticalAlign: 'bottom',
+        },
+        // --- MODIFICATION END ---
         series: [{
             data: chartData,
             joinBy: ['PROVINSI', 'name'],
@@ -150,19 +196,26 @@ export function renderChoroplethMap({
                     const geoProvinceName = this.name;
                     const csvProvinceName = reverseNameMapping[geoProvinceName] || geoProvinceName;
                     const provinceData = currentApiData.find(d => d[config.keyColumn] === csvProvinceName);
-                    if (!provinceData || provinceData[selectedMetric] == null) return `<b>${geoProvinceName}</b><br/><em style="color:#999;">Data tidak tersedia</em>`;
+                    if (!provinceData) return `<b>${geoProvinceName}</b><br/><em style="color:#999;">Data tidak tersedia</em>`;
+
+                    let value = provinceData[selectedMetric];
+                    if (value == null) return `<b>${geoProvinceName}</b><br/><em style="color:#999;">Data tidak tersedia</em>`;
+
                     let out = `<b>${provinceData[config.keyColumn]}</b><br/>`;
-                    if (selectedMetric === 'financial_balance') {
-                        const balance = provinceData.financial_balance;
-                        const status = balance >= 0 ? '<span style="color:#1565C0;font-weight:bold;">Surplus</span>' : '<span style="color:#C62828;font-weight:bold;">Defisit</span>';
-                        out += `Status Keuangan: ${status}`;
+
+                    if (isCategorical) {
+                        out += `${metricDetails.label}: <b>${value}</b>`;
                     } else {
-                        const v = provinceData[selectedMetric];
-                        const formatted = v != null ? parseFloat(v).toLocaleString('id-ID') : 'N/A';
-                        let display = `<b>${formatted}</b>`;
-                        if (['avg_income', 'avg_expense'].includes(selectedMetric)) display = `<b>Rp ${formatted}</b>`;
-                        else if (selectedMetric === 'avg_digital_time') display = `<b>${formatted} jam</b>`;
-                        out += `${metricDetails.label}: ${display}`;
+                        if (selectedMetric === 'financial_balance') {
+                            const status = value >= 0 ? '<span style="color:#1565C0;font-weight:bold;">Surplus</span>' : '<span style="color:#C62828;font-weight:bold;">Defisit</span>';
+                            out += `Status Keuangan: ${status}`;
+                        } else {
+                            const formatted = parseFloat(value).toLocaleString('id-ID');
+                            let display = `<b>${formatted}</b>`;
+                            if (['avg_income', 'avg_expense'].includes(selectedMetric)) display = `<b>Rp ${formatted}</b>`;
+                            else if (selectedMetric === 'avg_digital_time') display = `<b>${formatted} jam</b>`;
+                            out += `${metricDetails.label}: ${display}`;
+                        }
                     }
                     return out;
                 }

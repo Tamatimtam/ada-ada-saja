@@ -31,7 +31,7 @@ export const datasetsConfig = {
             dana_diberikan_miliar: { label: 'Total Dana Disalurkan (Rp Miliar)', vizType: 'choropleth', type: 'logarithmic', minColor: '#E8F5E9', maxColor: '#2E7D32' },
             rekening_penerima_aktif: { label: 'Rekening Penerima Aktif', vizType: 'choropleth', type: 'logarithmic', minColor: '#F0F9FF', maxColor: '#0C4A6E' },
             twp_90: { label: 'Tingkat Wanprestasi 90 Hari (%)', vizType: 'choropleth', type: 'linear', minColor: '#FCE4EC', maxColor: '#C62828' },
-            pdrb_ribu_rp: { label: 'PDRB (Ribu Rp)', vizType: 'choropleth', type: 'logarithmic', minColor: '#5DE2E7', maxColor: '#6A0DAD' },
+            pdrb_ribu_rp: { label: 'PDRB per Kapita (Ribu Rp)', vizType: 'choropleth', type: 'logarithmic', minColor: '#5DE2E7', maxColor: '#6A0DAD' },
             urbanisasi_persen: { label: 'Tingkat Urbanisasi (%)', vizType: 'choropleth', type: 'linear', minColor: '#FFF3E0', maxColor: '#EF6C00' },
             jumlah_penduduk_ribu: { label: 'Jumlah Penduduk (Ribu Jiwa)', vizType: 'choropleth', type: 'logarithmic', minColor: '#E0F2F1', maxColor: '#00695C' }
         }
@@ -52,7 +52,21 @@ export const datasetsConfig = {
             },
             avg_anxiety_score: { label: 'Rata-rata Skor Kecemasan Finansial', vizType: 'choropleth', type: 'linear', minColor: '#FCE4EC', maxColor: '#C62828' },
             avg_digital_time: { label: 'Rata-rata Waktu Digital Harian (Jam)', vizType: 'choropleth', type: 'linear', minColor: '#E3F2FD', maxColor: '#1565C0' },
-            mode_fintech_app: { label: 'Fintech Terpopuler (Logo)', vizType: 'pattern' }
+            mode_fintech_app: { label: 'Fintech Terpopuler (Logo)', vizType: 'pattern' },
+            // --- NEW METRIC ADDED ---
+            mode_investment_type: {
+                label: 'Jenis Investasi Populer',
+                vizType: 'choropleth', // We'll use the choropleth renderer
+                categorical: true,    // A flag to indicate special handling for string categories
+                categories: {         // Define the categories and their associated colors/names
+                    'Saham': { name: 'Saham', color: '#2980b9' },
+                    'Kripto': { name: 'Kripto', color: '#f39c12' },
+                    'Reksadana': { name: 'Reksadana', color: '#27ae60' },
+                    'Emas': { name: 'Emas', color: '#f1c40f' },
+                    'None': { name: 'Tidak Ada', color: '#95a5a6' }
+                },
+                nullColor: '#E0E0E0'
+            }
         }
     }
 };
